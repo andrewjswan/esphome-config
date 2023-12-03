@@ -1,0 +1,39 @@
+addressable_lambda:
+  name: Christmas Red Green
+  update_interval: 100ms
+  lambda: |-
+    static int step = 0;
+    const int width = 30;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Christmas Red Green");
+
+      step = 0;
+    }
+
+    Color color = Color::BLACK;
+    for (int i = 0; i < it.size(); i+=1)
+    {
+      int z = i + step;
+      if ((i / width) % 2 == 0)
+      {
+        color = (z >= it.size()) ? Color(0, 179, 44) : Color(255, 0, 18);
+      }
+      else
+      {
+        color = (z >= it.size()) ? Color(255, 0, 18) : Color(0, 179, 44);
+      }
+
+      if (z >= it.size())
+      {
+        z = z - it.size();
+      }
+      it[z] = color;
+    }
+    
+    step++;
+    if (step >= 2 * width)
+    {
+      step = 0;
+    }

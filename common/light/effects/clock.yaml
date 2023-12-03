@@ -1,0 +1,142 @@
+addressable_lambda:
+  name: Clock
+  update_interval: 33ms
+  lambda: |-
+    static Color clock_line_colors[${num_leds}];
+    static int countdown;
+
+    if (initial_run) 
+    {
+      ESP_LOGD("effect", "Clock");
+      
+      countdown = 0;
+      for (int i = 0; i < it.size(); i++)
+      {
+        clock_line_colors[i] = it[i].get();
+      }
+    }
+
+    auto time = id(esp_time).now();
+    if (!time.is_valid()) 
+    {
+      return;
+    }
+
+    int amount = 1;
+    int step = amount * 2;
+
+    // fade out old colors
+    for (int i = 0; i < it.size(); i++) 
+    {
+      Color old_color = clock_line_colors[i];
+      
+      // fade out color
+      int red = old_color.red;
+      int green = old_color.green;
+      int blue = old_color.blue;
+
+      if (red < amount) { red = 0; } else { red -= amount; }
+      if (green < amount) { green = 0; } else { green -= amount; }
+      if (blue < amount) { blue = 0; } else { blue -= amount; }
+
+      clock_line_colors[i] = Color(red, green, blue);
+    }
+
+    // show countdown
+    if ( ((time.hour == 11 or time.hour == 23) and time.minute == 59 and time.second >= 50) or 
+         ((time.hour == 12 or time.hour == 0) and time.minute == 0 and time.second == 0) )
+    {
+      Color countdown_color;
+      bool countdown_flag = false;
+      
+      if (time.second == 50 and countdown == 0)
+      {
+        countdown_color =  Color(0, 0, 150);
+        countdown_flag = true;
+        countdown++;
+      } 
+      if (time.second == 52 and countdown == 1)
+      {
+        countdown_color =  Color(0, 0, 200);
+        countdown_flag = true;
+        countdown++;
+      } 
+      if (time.second == 54 and countdown == 2)
+      {
+        countdown_color =  Color(190, 0, 255);
+        countdown_flag = true;
+        countdown++;
+      } 
+      if (time.second == 56 and countdown == 3)
+      {
+        countdown_color =  Color(190, 0, 255);
+        countdown_flag = true;
+        countdown++;
+      } 
+      if (time.second == 58 and countdown == 4)
+      {
+        countdown_color =  Color(150, 150, 150);
+        countdown_flag = true;
+        countdown++;
+      }
+      
+      if (time.second == 0 and countdown == 5)
+      {
+        countdown_color =  Color(200, 200, 200);
+        countdown_flag = true;
+        countdown = 0;
+      }
+
+      if (countdown_flag)
+      {
+        // apply colors for countdown
+        for (int i = 0; i < it.size(); i++) 
+        {
+          clock_line_colors[i] = countdown_color;
+        }
+      }
+    }
+
+    // show time
+    if (time.minute == 0 or time.minute == 15 or time.minute == 30 or time.minute == 45)
+    {
+      int z = round(time.second * 1.0 * (it.size() / 2 - 1) / 60.0 + 1);
+      int x = it.size() / 2 - z;
+      int y = z + it.size() / 2 - 1;
+      
+      // fade in new colors
+      for (int i = x; i <= y; i++)
+      {
+        int red = clock_line_colors[i].red;
+        int green = clock_line_colors[i].green;
+        int blue = clock_line_colors[i].blue;
+
+        if (time.minute == 0) // hour
+        {
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        } 
+        else if (time.minute == 30) // half hour
+        {
+          if (red > 190) { red = 190; } else { red += step; }
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        } 
+        else if (time.minute == 15 or time.minute == 45) // quoter hour
+        {
+          if (green > 190) { green = 190; } else { green += step; }
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        } 
+        else
+        {
+          if (red > 250) { red = 255; } else { red += step; }
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        }
+
+        clock_line_colors[i] = Color(red, green, blue);
+      }
+    }
+
+    // apply colors to light
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = clock_line_colors[i];
+    }

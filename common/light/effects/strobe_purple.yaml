@@ -1,0 +1,11 @@
+strobe:
+  name: Strobe Purple
+  colors:
+    - state: True
+      brightness: ${strobe}
+      red: 75%
+      green: 0%
+      blue: 100%
+      duration: 1000ms
+    - state: False
+      duration: 1000ms

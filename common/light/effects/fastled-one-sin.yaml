@@ -1,0 +1,143 @@
+addressable_lambda:
+  name: FastLED OneSin
+  update_interval: 20ms
+  lambda: |-
+    #define qsubd(x, b)  ((x>b)?b:0) // Digital unsigned subtraction macro. if result <0, then => 0. Otherwise, take on fixed value.
+
+    static uint8_t thisindex = 0; // Указатель на элемент палитры
+    static uint8_t allfreq;       // Меняет частоту.
+    static uint8_t bgclr;         // Общий цвет фона.
+    static uint8_t bgbri;         // Общая фоновая яркость.
+    static uint8_t startindex;    // С какого цвета начинать.
+    static uint8_t thisinc;       // Изменение начального цвета после каждого прохода.
+    static int     thisphase;     // Изменение фазы.
+    static uint8_t thiscutoff;    // Если яркость ниже этой, то яркость = 0.
+    static uint8_t thisrot;       // Измение скорости вращения волны. В настоящее время 0.
+    static int8_t  thisspeed;     // Изменение стандартной скорости
+    static uint8_t wavebright;    // Вы можете изменить яркость волн / полос, катящихся по экрану.
+
+    static int variant = -1;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED OneSin");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    if (variant != id(fastled_variant).state)
+    {
+      if (id(fastled_variant).state > 210)
+      {
+        allfreq = 4;
+        bgclr = 0;
+        bgbri = 0;
+        startindex = 64;
+        thisinc = 2;
+        thisphase = 0;
+        thiscutoff = 224;
+        thisrot = 0;
+        thisspeed = 4;
+        wavebright = 255;
+      } 
+      else if (id(fastled_variant).state > 175)
+      {
+        allfreq = 10;
+        bgclr = 64;
+        bgbri = 4;
+        startindex = 64;
+        thisinc = 2;
+        thisphase = 0;
+        thiscutoff = 224;
+        thisrot = 0;
+        thisspeed = 4;
+        wavebright = 255;
+      }
+      else if (id(fastled_variant).state > 140)
+      {
+        allfreq = 16;
+        bgclr = 0;
+        bgbri = 0;
+        startindex = 64;
+        thisinc = 2;
+        thisphase = 0;
+        thiscutoff = 224;
+        thisrot = 0;
+        thisspeed = 4;
+        wavebright = 255;
+      }
+      else if (id(fastled_variant).state > 105)
+      {
+        allfreq = 8;
+        bgclr = 0;
+        bgbri = 4;
+        startindex = 64;
+        thisinc = 2;
+        thisphase = 0;
+        thiscutoff = 224;
+        thisrot = 0;
+        thisspeed = 4;
+        wavebright = 255;
+      }
+      else if (id(fastled_variant).state > 70)
+      {
+        allfreq = 6;
+        bgclr = 0;
+        bgbri = 0;
+        startindex = 64;
+        thisinc = 2;
+        thisphase = 0;
+        thiscutoff = 224;
+        thisrot = 0;
+        thisspeed = 4;
+        wavebright = 255;
+      }
+      else if (id(fastled_variant).state > 35)
+      {
+        allfreq = 20;
+        bgclr = 0;
+        bgbri = 0;
+        startindex = 64;
+        thisinc = 2;
+        thisphase = 0;
+        thiscutoff = 224;
+        thisrot = 0;
+        thisspeed = 4;
+        wavebright = 255;
+      }
+      else
+      {
+        allfreq = 4;
+        bgclr = 64;
+        bgbri = 4;
+        startindex = 64;
+        thisinc = 2;
+        thisphase = 0;
+        thiscutoff = 128;
+        thisrot = 1;
+        thisspeed = 8;
+        wavebright = 255;
+      }
+
+      variant = (int)id(fastled_variant).state;
+    }
+
+    int8_t thisdir = 1;
+
+    startindex += thisinc;
+    thisindex = startindex;
+    thisphase += thisdir;   // You can change direction and speed individually.
+
+    for (int i = 0; i < it.size(); i++) 
+    {                                                                             // For each of the LED's in the strand, set a brightness based on a wave as follows:
+      int thisbright = qsubd(cubicwave8((i * allfreq) + thisphase), thiscutoff);  // qsub sets a minimum value called thiscutoff. If < thiscutoff, then bright = 0. Otherwise, bright = 128 (as defined in qsub)..
+      leds[i] = CHSV(bgclr, 255, bgbri);                                          // First set a background colour, but fully saturated.
+      leds[i] += ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thisindex + i * thisinc, thisbright, LINEARBLEND);
+      thisindex += thisrot;
+    }
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

@@ -1,0 +1,44 @@
+addressable_lambda:
+  name: Candy Cane Random
+  update_interval: 100ms
+  lambda: |-
+    static int state = 0;
+    const int width = it.size();
+
+    const Color white = Color(255, 255, 255);
+    static Color color = Color(random(0,255),random(0,255),random(0,255));
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Candy Cane Random");
+    }
+
+    if (color.red == white.red and color.blue == white.blue and color.green == white.green)
+    {
+      color = Color(random(0,255),random(0,255),random(0,255));
+    }
+
+    for (int i = width - 1; i > 0; i--) 
+    {
+      it[i] = it[i - 1].get();
+    }
+
+    if(state < width/2)
+    {
+      it[0] = color;
+    } 
+    else 
+    {
+      it[0] = white;
+    }
+
+    state += 1;
+    if (state >= width) 
+    {
+      color = Color(random(0,255),random(0,255),random(0,255));
+      if (color.red == white.red and color.blue == white.blue and color.green == white.green)
+      {
+        color = Color(random(0,255),random(0,255),random(0,255));
+      }
+      state = 0;
+    }

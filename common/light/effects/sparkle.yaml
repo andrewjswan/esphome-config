@@ -1,0 +1,21 @@
+addressable_lambda:
+  name: Sparkle
+  update_interval: 100ms
+  lambda: |-
+    static int red = 250;
+    static int green = 250;
+    static int blue = 250;
+    
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Sparkle");
+    }
+
+    it.all() = Color::BLACK;
+    
+    int pixel = 10 + random(it.size() - 20);
+    it[pixel+2] = Color(red, green, blue);
+    it[pixel+1] = Color(red, green, blue);
+    it[pixel]   = Color(red, green, blue);
+    it[pixel-1] = Color(red, green, blue);
+    it[pixel-2] = Color(red, green, blue);

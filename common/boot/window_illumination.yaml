@@ -1,0 +1,10 @@
+on_boot:
+  priority: -100
+  then:
+    - light.turn_off:
+        id: neopixel_led
+    - delay: 5s
+    - logger.log: 
+        format: "${name} started, LED: ${type_leds}:${num_leds}:${pin_leds}, Reboot: ${reboot_timeout}"
+        level: INFO
+        tag: start

@@ -1,0 +1,11 @@
+strobe:
+  name: Strobe Green
+  colors:
+    - state: True
+      brightness: ${strobe}
+      red: 0%
+      green: 100%
+      blue: 0%
+      duration: 1000ms
+    - state: False
+      duration: 1000ms

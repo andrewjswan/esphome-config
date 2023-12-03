@@ -1,0 +1,16 @@
+﻿substitutions:
+  energy_method: left
+
+number:
+  # Power Supply
+  - !include ../common/number/power_supply.yaml
+
+sensor:
+  # Current
+  - !include ../common/sensor/led_current.yaml
+
+  # Power
+  - !include ../common/sensor/led_power.yaml
+
+  # Energy Today Usage
+  - !include ../common/sensor/energy_today_usage.yaml

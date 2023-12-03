@@ -1,0 +1,29 @@
+lambda:
+  name: Strobe
+  update_interval: 1s
+  lambda: |-
+    static int state = 0;
+
+    if (initial_run) 
+    {
+      ESP_LOGD("effect", "Strobe");
+    }
+
+    auto call = id(neopixel_led).turn_on();
+    call.set_transition_length(300);
+
+    if (state == 0) 
+    {
+      call.set_brightness(1.0);
+    }
+    else if (state == 1)
+    {
+      call.set_brightness(0.01);
+    }
+    call.perform();
+
+    state ++;
+    if (state == 2)
+    {
+      state = 0;
+    }

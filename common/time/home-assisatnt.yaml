@@ -1,0 +1,12 @@
+# Time from Home Assistant
+time:
+  - platform: homeassistant
+    id: esp_time
+    update_interval: 1h
+    on_time_sync:
+      then:
+        if:
+          condition:
+            time.has_time:
+          then:
+            - logger.log: Time has been set and is valid!

@@ -1,0 +1,99 @@
+addressable_lambda:
+  name: Snow Flack
+  update_interval: 43ms
+  lambda: |-
+    static int step = 0;
+    
+    static int startstepa = 0;
+    static int startpositiona = 0;
+    static int endpositiona = 0;
+    static int directiona = 0;
+    
+    static int startstepb = 0;
+    static int startpositionb = 0;
+    static int endpositionb = 0;
+    static int directionb = 0;
+    
+    if(initial_run)
+    {
+      ESP_LOGD("effect", "Snow Flack");
+
+      it.all() = Color::BLACK;
+
+      step = 0;
+      
+      startstepa = 10;
+      startpositiona = ${num_leds} / 2;
+      endpositiona = 10;
+      directiona = -1;
+      
+      startstepb = 10;
+      startpositionb = ${num_leds} - 10;
+      endpositionb = ${num_leds} / 2;
+      directionb = -1;
+    }
+
+    if(step >= startstepa-3+(directiona*3) && step <= startstepa+(endpositiona-startpositiona)*directiona-3+(directiona*3))
+    {
+      it[startpositiona+((step-startstepa)*directiona)-3+(directiona*3)] = Color(77, 54, 32);
+    }
+    if(step >= startstepa-3+(directiona*2) && step <= startstepa+(endpositiona-startpositiona)*directiona-3+(directiona*2))
+    {
+      it[startpositiona+((step-startstepa)*directiona)-3+(directiona*2)] = Color(255, 181, 108);
+    }
+    if(step >= startstepa-3+(directiona*1) && step <= startstepa+(endpositiona-startpositiona)*directiona-3+(directiona*1))
+    {
+      it[startpositiona+((step-startstepa)*directiona)-3+(directiona*1)] = Color(179, 127, 76);
+    }
+    if(step >= startstepa-3 && step <= startstepa+(endpositiona-startpositiona)*directiona-3)
+    {
+      it[startpositiona+((step-startstepa)*directiona)-3] = Color(77, 54, 32);
+    }
+    if(step >= startstepa-3-(directiona*1) && step <= startstepa+(endpositiona-startpositiona)*directiona-3-(directiona*1))
+    {
+      it[startpositiona+((step-startstepa)*directiona)-3-(directiona*1)] = Color(51, 36, 22);
+    }
+    if(step >= startstepa-3-(directiona*2) && step <= startstepa+(endpositiona-startpositiona)*directiona-3-(directiona*2))
+    {
+      it[startpositiona+((step-startstepa)*directiona)-3-(directiona*2)] = Color(26, 18, 11);
+    }
+    if(step >= startstepa-3-(directiona*3) && step <= startstepa+(endpositiona-startpositiona)*directiona-3-(directiona*3))
+    {
+      it[startpositiona+((step-startstepa)*directiona)-3-(directiona*3)] = Color::BLACK;
+    }
+
+    if(step >= startstepb-3+(directionb*3) && step <= startstepb+(endpositionb-startpositionb)*directionb-3+(directionb*3))
+    {
+      it[startpositionb+((step-startstepb)*directionb)-3+(directionb*3)] = Color(77, 54, 32);
+    }
+    if(step >= startstepb-3+(directionb*2) && step <= startstepb+(endpositionb-startpositionb)*directionb-3+(directionb*2))
+    {
+      it[startpositionb+((step-startstepb)*directionb)-3+(directionb*2)] = Color(255, 181, 108);
+    }
+    if(step >= startstepb-3+(directionb*1) && step <= startstepb+(endpositionb-startpositionb)*directionb-3+(directionb*1))
+    {
+      it[startpositionb+((step-startstepb)*directionb)-3+(directionb*1)] = Color(179, 127, 76);
+    }
+    if(step >= startstepb-3 && step <= startstepb+(endpositionb-startpositionb)*directionb-3)
+    {
+      it[startpositionb+((step-startstepb)*directionb)-3] = Color(77, 54, 32);
+    }
+    if(step >= startstepb-3-(directionb*1) && step <= startstepb+(endpositionb-startpositionb)*directionb-3-(directionb*1))
+    {
+      it[startpositionb+((step-startstepb)*directionb)-3-(directionb*1)] = Color(51, 36, 22);
+    }
+    if(step >= startstepb-3-(directionb*2) && step <= startstepb+(endpositionb-startpositionb)*directionb-3-(directionb*2))
+    {
+      it[startpositionb+((step-startstepb)*directionb)-3-(directionb*2)] = Color(26, 18, 11);
+    }
+    if(step >= startstepb-3-(directionb*3) && step <= startstepb+(endpositionb-startpositionb)*directionb-3-(directionb*3))
+    {
+      it[startpositionb+((step-startstepb)*directionb)-3-(directionb*3)] = Color::BLACK;
+    }
+
+    step = step + 1;
+
+    if(step >= 110 || step < 0)
+    {
+      step = 0;
+    }

@@ -1,0 +1,24 @@
+addressable_lambda:
+  name: FastLED Noice
+  update_interval: 50ms
+  lambda: |-
+    static uint16_t count = 0;
+    static uint16_t dist = 12321; 
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Noice");
+
+      it.all() = Color::BLACK;
+    }
+
+    for (int i = 0; i < it.size(); i++)
+    {
+      byte idx = inoise8(i * id(fastled_variant).state / 10, dist + i * id(fastled_variant).state, count);
+      CRGB color = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], idx, 255, LINEARBLEND);
+
+      it[i] = Color(color.r, color.g, color.b);
+    }
+    dist += beatsin8(10, 1, 4);
+    
+    count += (id(fastled_speed).state - 128) / 10;

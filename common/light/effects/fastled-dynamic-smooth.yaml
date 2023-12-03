@@ -1,0 +1,56 @@
+addressable_lambda:
+  name: FastLED Dynamic smooth
+  update_interval: 10ms
+  lambda: |-
+    static uint8_t data[${num_leds}];
+    static uint32_t step;
+ 
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Dynamic smooth");
+
+      InitLeds(${num_leds});
+      for (int i = 0; i < it.size(); i++)
+      {
+        data[i] = random8();
+        leds[i] = CRGB(0, 0, 0);
+      }
+      step = 0;
+    }
+
+    uint32_t cycleTime = 50 + (255 - id(fastled_speed).state) * 15;
+    if (step >= cycleTime)
+    {
+      for (int i = 0; i < it.size(); i++) 
+      {
+        if (random8() <= (64 + id(fastled_variant).state) / 2)
+        {
+          data[i] = random8();
+        }
+      }
+      step = 0;
+    }
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      CRGB color = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], data[i], 255, LINEARBLEND);
+      if (id(fastled_speed).state > 0)
+      {
+        CRGB ledcolor = leds[i];
+        uint8_t red   = ((color.red * 16)   + (ledcolor.red   * (0xFF - 16))) >> 8;
+        uint8_t green = ((color.green * 16) + (ledcolor.green * (0xFF - 16))) >> 8;
+        uint8_t blue  = ((color.blue * 16)  + (ledcolor.blue  * (0xFF - 16))) >> 8;
+        leds[i]       = CRGB(red, green, blue);
+      }
+      else
+      {
+        leds[i] = color;
+      }
+    }
+    
+    step += 10; // update interval
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

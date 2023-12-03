@@ -1,0 +1,51 @@
+addressable_lambda:
+  name: FastLED Confetti
+  update_interval: 10ms
+  lambda: |-
+    static uint8_t thisindex = 0; // Указатель на элемент палитры
+    static uint8_t thisinc;
+    static uint8_t thisfade;
+    static uint8_t thisdiff;
+
+    static int variant = -1;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Confetti");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    if (variant != id(fastled_variant).state)
+    {
+      if (id(fastled_variant).state > 170)
+      {
+        thisinc = 2;
+        thisfade = 8;
+        thisdiff = 64;
+      } 
+      else if (id(fastled_variant).state > 85)
+      {
+        thisinc = 1;
+        thisfade = 1;
+        thisdiff = 1;
+      }
+      else
+      {
+        thisinc = 1;
+        thisfade = 2;
+        thisdiff = 32;
+      }
+      variant = (int)id(fastled_variant).state;
+    }
+
+    fadeToBlackBy(leds, it.size(), thisfade); // Задухание светодиодов на значение thisfade
+    uint16_t pos = random16(it.size());
+    leds[pos] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thisindex + random8(thisdiff) / 4 , 255, LINEARBLEND); // Munge the values and pick a colour from the palette
+    thisindex = thisindex + thisinc;                                                                                                // base palette counter increments here.
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

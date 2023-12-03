@@ -1,0 +1,38 @@
+addressable_lambda:
+  name: Wheel of Color
+  update_interval: 100ms
+  lambda: |-
+    Color colors[] = { Color(255,0,0), 
+                       Color(0,255,0), 
+                       Color(255,255,0),  
+                       Color(0,0,255),  
+                       Color(255,82,0),  
+                       Color(163,0,255),  
+                     };
+    static int state = 0;
+    static int step = 0;
+    const int color_size = 6;
+    static int width = it.size();
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Wheel of Color");
+    }
+
+    for (int i = width - 1; i > 0; i--) 
+    {
+      it[i] = it[i - 1].get();
+    }
+
+    it[0] = colors[state];
+
+    step += 1;
+    if (step >= width)
+    {
+      step = 0;
+      state += 1;
+      if (state >= color_size) 
+      {
+        state = 0;
+      }
+    }

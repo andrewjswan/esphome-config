@@ -1,0 +1,35 @@
+addressable_lambda:
+  name: Vesuvius
+  update_interval: 150ms
+  lambda: |-
+    Color colors[] = { Color(255,0,0), 
+                       Color(0,255,0), 
+                       Color(255,255,0),  
+                       Color(0,0,255),  
+                       Color(255,0,255),  
+                       Color(0,255,255),  
+                       Color(255,255,255),  
+                       Color(0,0,0),  
+                     };
+    static int color = 0;
+    static int step = 0;
+    const int color_size = 8;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Vesuvius");
+    }
+
+    it[it.size()/2 - step - 1 ]  = colors[color];
+    it[it.size()/2 + step] = colors[color];
+
+    step += 1;
+    if (step >= it.size()/2)
+    {
+      step = 0;
+      color += 1;
+      if (color >= color_size) 
+      {
+        color = 0;
+      }
+    }

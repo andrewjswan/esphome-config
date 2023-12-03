@@ -1,0 +1,15 @@
+strobe:
+  name: Strobe Police
+  colors:
+    - state: True
+      brightness: 100%
+      red: 100%
+      green: 0%
+      blue: 0%
+      duration: 500ms
+    - state: True
+      brightness: 100%
+      red: 0%
+      green: 0%
+      blue: 100%
+      duration: 500ms

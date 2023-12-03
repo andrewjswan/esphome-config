@@ -1,0 +1,4 @@
+# Enable logging - Debug
+logger:
+  baud_rate: 0
+  id: esp_log

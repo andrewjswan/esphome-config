@@ -1,0 +1,21 @@
+addressable_lambda:
+  name: FastLED Rainbow Beat
+  update_interval: 10ms
+  lambda: |-
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Rainbow Beat");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    uint8_t beatA = beatsin8(17, 0, 255); // Starting HUE
+    uint8_t beatB = beatsin8(13, 0, 255);
+
+    fill_rainbow(leds, it.size(), (beatA + beatB) / 2, 8);
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

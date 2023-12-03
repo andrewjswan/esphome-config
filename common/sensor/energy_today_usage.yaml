@@ -1,0 +1,11 @@
+platform: total_daily_energy
+name: "${name} Energy"
+power_id: power
+filters:
+  # Multiplication factor from W to kW is 0.001
+  - multiply: 0.001
+unit_of_measurement: kWh
+# icon: mdi:calendar-clock
+device_class: energy
+state_class: total_increasing
+method: ${energy_method}

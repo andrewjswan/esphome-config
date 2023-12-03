@@ -1,0 +1,27 @@
+addressable_lambda:
+  name: Blue Scan
+  update_interval: 25ms
+  lambda: |-
+    static int step = 0;
+    static int direction = 1;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Blue Scan");
+
+      step = 0;
+    }
+
+    it[step] = Color(0,0,255);
+    if(step > 0 && step < it.size())
+    {
+      it[step + (direction * -1)] = Color(0,0,0);
+    }
+
+    step = step + direction;
+
+    if(step >= it.size() || step < 0)
+    {
+      direction = direction * -1;
+      step = step + (direction * 2);
+    }

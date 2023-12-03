@@ -1,0 +1,44 @@
+addressable_lambda:
+  name: FastLED Fire
+  update_interval: 20ms
+  lambda: |-
+    #define HUE_START 3     // начальный цвет огня (0 красный, 80 зелёный, 140 молния, 190 розовый)
+    #define HUE_GAP 18      // коэффициент цвета огня (чем больше - тем дальше заброс по цвету)
+    #define SMOOTH_K 0.15   // коэффициент плавности огня
+    #define MIN_BRIGHT 80   // мин. яркость огня
+    #define MAX_BRIGHT 255  // макс. яркость огня
+    #define MIN_SAT 245     // мин. насыщенность
+    #define MAX_SAT 255     // макс. насыщенность
+    
+    static byte zoneValues[${num_leds}];
+    static byte zoneRndValues[${num_leds}];
+    
+    static byte rndTime = 0;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Fire");
+
+      it.all() = Color::BLACK;
+    }
+
+    if (rndTime > 5) // 100ms
+    {
+      rndTime = 0;
+      for (int i = 0; i < it.size(); i++) 
+      {
+        zoneRndValues[i] = random(0, 10);
+      }
+    }
+  
+    for (int i = 0; i < it.size(); i++) 
+    {
+      zoneValues[i] = (float)zoneValues[i] * (1 - SMOOTH_K) + (float)zoneRndValues[i] * 10 * SMOOTH_K;
+      it[i] = ESPHSVColor(
+                          HUE_START + map(zoneValues[i], 20, 60, 0, HUE_GAP),                   // H
+                          constrain(map(zoneValues[i], 20, 60, MAX_SAT, MIN_SAT), 0, 255),      // S
+                          constrain(map(zoneValues[i], 20, 60, MIN_BRIGHT, MAX_BRIGHT), 0, 255) // V
+                         );
+    }
+
+    rndTime++;

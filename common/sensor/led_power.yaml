@@ -1,0 +1,10 @@
+platform: template
+name: ${name} Power
+id: power
+lambda: |-
+  return id(current).state * 5; // A * 5V
+unit_of_measurement: W
+device_class: power
+state_class: measurement
+accuracy_decimals: 1
+update_interval: ${update_interval}

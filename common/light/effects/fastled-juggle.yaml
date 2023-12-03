@@ -1,0 +1,50 @@
+addressable_lambda:
+  name: FastLED Juggle
+  update_interval: 10ms
+  lambda: |-
+    static uint8_t thisindex = 0;
+    static uint8_t numdots;
+    static uint8_t thisfade;
+    static uint8_t thisbeat;
+    static uint8_t thisdiff;
+
+    static int variant = -1;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Juggle");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    if (variant != id(fastled_variant).state)
+    {
+      if (id(fastled_variant).state > 128)
+      {
+        numdots = 4;
+        thisfade = 32;
+        thisbeat = 12;
+        thisdiff = 20;
+      }
+      else
+      {
+        numdots = 2;
+        thisfade = 16;
+        thisbeat = 8;
+        thisdiff = 64;
+      }
+      variant = (int)id(fastled_variant).state;
+    }
+
+    fadeToBlackBy(leds, it.size(), thisfade); // Затухание к черному
+    for (int i = 0; i < numdots; i++) 
+    {
+      leds[beatsin16(thisbeat + i + numdots, 0, it.size() - 1)] += ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thisindex , 255, LINEARBLEND); // Munge the values and pick a colour from the palette
+      thisindex += thisdiff;
+    }
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

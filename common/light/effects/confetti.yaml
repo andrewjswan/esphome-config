@@ -1,0 +1,15 @@
+addressable_lambda:
+  name: Confetti
+  update_interval: 50ms
+  lambda: |-
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Confetti");
+    }
+
+    it.all().fade_to_black(50);
+    for (int x = 0; x < 1; x++)
+    {
+      int pos = random(it.size());
+      it[pos] = ESPHSVColor(0 + random(100), 200, 200);
+    }

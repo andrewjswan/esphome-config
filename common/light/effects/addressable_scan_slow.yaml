@@ -1,0 +1,4 @@
+addressable_scan:
+  name: Scan Slow
+  move_interval: 100ms
+  scan_width: 2

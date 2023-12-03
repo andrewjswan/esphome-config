@@ -1,0 +1,5 @@
+# Web Server
+web_server:
+  auth:
+    username: admin
+    password: !secret home.password

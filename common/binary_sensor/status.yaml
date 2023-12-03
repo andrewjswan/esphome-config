@@ -1,0 +1,4 @@
+# ESPHome Status
+platform: status
+name: ${name} Status
+device_class: connectivity

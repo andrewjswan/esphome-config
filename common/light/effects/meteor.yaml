@@ -1,0 +1,43 @@
+addressable_lambda:
+  name: Meteor
+  update_interval: 30ms
+  lambda: |-
+    static int red = 250;
+    static int green = 250;
+    static int blue = 250;
+
+    static int meteorSize = 10;
+    static int meteorTrailDecay = 64;
+    static bool meteorRandomDecay = true;
+
+    static int i = 0;
+
+    if (initial_run) 
+    {
+      ESP_LOGD("effect", "Meteor");
+
+      it.all() = Color::BLACK;
+    }
+
+    for(int j = 0; j < it.size(); j++)
+    {
+      if((!meteorRandomDecay) || (random(10) > 5))
+      {
+        it[j].fade_to_black(meteorTrailDecay);
+      }
+    }
+
+    // draw meteor
+    for(int j = 0; j < meteorSize; j++)
+    {
+      if((i-j < it.size()) && (i-j>=0) )
+      {
+        it[i-j] = Color(red, green, blue);;
+      }
+    }
+
+    i++;
+    if (i > it.size() * 2)
+    {
+      i = 0;
+    }

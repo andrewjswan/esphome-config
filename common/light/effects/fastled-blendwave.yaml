@@ -1,0 +1,26 @@
+addressable_lambda:
+  name: FastLED Blend Wave
+  update_interval: 10ms
+  lambda: |-
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Blend Wave");
+
+      InitLeds(${num_leds});
+      it.all() = Color::BLACK;
+    }
+
+    uint8_t speed = beatsin8(6, 0, 255);
+
+    CRGB color1 = blend(CHSV(beatsin8(3, 0, 255), 255, 255), CHSV(beatsin8(4, 0, 255), 255, 255), speed);
+    CRGB color2 = blend(CHSV(beatsin8(4, 0, 255), 255, 255), CHSV(beatsin8(3, 0, 255), 255, 255), speed);
+
+    uint8_t loc1 = beatsin16(10, 0, it.size() - 1);
+
+    fill_gradient_RGB(leds, 0, color2, loc1, color1);
+    fill_gradient_RGB(leds, loc1, color2, it.size() - 1, color1);
+   
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

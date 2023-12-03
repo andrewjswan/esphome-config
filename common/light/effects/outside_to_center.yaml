@@ -1,0 +1,50 @@
+addressable_lambda:
+  name: Outside to Center
+  update_interval: 50ms
+  lambda: |-
+    const int eye = 8;
+    const int indent = 10;
+
+    static int red = 250;
+    static int green = 250;
+    static int blue = 250;
+    
+    static int direction = 1;
+    static int step;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Outside to Center");
+
+      step = indent;
+    }
+
+    it.all() = Color::BLACK;
+
+    if(step > indent && step < it.size() / 2 - indent)
+    {
+      it[step] = Color(red / 10, green / 10, blue / 10);
+      for(int j = 1; j <= eye; j++) 
+      {
+        it[step+j] = Color(red, green, blue);
+      }
+
+      it[it.size()-step] = Color(red / 10, green / 10, blue / 10);
+      for(int j = 1; j <= eye; j++) 
+      {
+        it[it.size()-step-j] = Color(red, green, blue);
+      }
+      it[it.size()-step-eye-1] = Color(red / 10, green / 10, blue / 10);
+    }
+
+    step = step + direction;
+
+    if(step >= it.size() / 2 - indent || step <= indent)
+    {
+      direction = direction * -1;
+      step = step + (direction * 2);
+
+      red = random(100, 250);
+      green = random(100, 250);
+      blue = random(100, 250);
+    }

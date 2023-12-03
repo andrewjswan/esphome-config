@@ -1,0 +1,22 @@
+addressable_lambda:
+  name: FastLED Gradient
+  update_interval: 30ms
+  lambda: |-
+    static uint16_t count = 0;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Gradient");
+
+      it.all() = Color::BLACK;
+    }
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      byte idx = map(i, 0, it.size(), 0, 255) + count; // прямой градиент
+      CRGB color = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], idx, 255, LINEARBLEND);
+
+      it[i] = Color(color.r, color.g, color.b);
+    }
+
+    count += (id(fastled_speed).state - 128) / 10;

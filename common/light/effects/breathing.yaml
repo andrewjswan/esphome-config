@@ -1,0 +1,28 @@
+lambda:
+  name: Breathing
+  update_interval: 16s
+  lambda: |-
+    static int state = 0;
+
+    if (initial_run) 
+    {
+      ESP_LOGD("effect", "Breathing");
+    }
+
+    auto call = id(neopixel_led).turn_on();
+    call.set_transition_length(15000);
+
+    if (state == 0) 
+    {
+      call.set_brightness(1.0);
+    }
+    else if (state == 1)
+    {
+      call.set_brightness(0.01);
+    }
+    call.perform();
+    state ++;
+    if (state == 2)
+    {
+      state = 0;
+    }

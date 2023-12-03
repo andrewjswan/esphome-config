@@ -1,0 +1,47 @@
+addressable_lambda:
+  name: FastLED Serendipitous Circles
+  update_interval: 5ms
+  lambda: |-
+    static uint8_t thisindex = 0; // Указатель на элемент палитры
+
+    static uint16_t Xorig = 0x013;
+    static uint16_t Yorig = 0x021;
+    static uint16_t X = Xorig;
+    static uint16_t Y = Yorig;
+
+    static uint16_t Xn;
+    static uint16_t Yn;
+    
+    static int count = 0;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Serendipitous Circles");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    count++;
+    if (count > 1000) // EVERY_N_SECONDS(5)
+    {
+      X = Xorig;
+      Y = Yorig;
+
+      count = 0;
+    }
+
+    Xn = X - (Y / 2); Yn = Y + (Xn / 2);
+
+    X = Xn;
+    Y = Yn;
+
+    thisindex = (sin8(X) + cos8(Y)) / 2;
+    leds[X % (it.size())] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thisindex, 255, LINEARBLEND);
+
+    fadeToBlackBy(leds, it.size(), 16); // 8 bit, 1 = slow, 255 = fast
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

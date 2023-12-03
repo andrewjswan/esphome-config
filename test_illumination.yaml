@@ -1,0 +1,74 @@
+substitutions:
+  device: esp_test_window
+  name: Test Window
+  location: ${name}
+  update_interval: 3s
+  device_ip: 192.168.0.0
+  reboot_timeout: 0s
+  num_leds: "300"
+  type_leds: "GRB"
+  flagflip: "0"
+  pin_leds: "GPIO16"
+  color_correct_bright: "50%"
+  project_name: "ajs.led_light"
+  project_version: "1.0.5"
+  comment: "Test Window Illumination"
+
+esphome:
+  name: ${device}
+  comment: $comment
+  build_path: ./.build/$device
+  project:
+    name: $project_name
+    version: $project_version
+  libraries:
+    - "FastLED"
+  includes:
+    - includes/light/light.h
+    - includes/light/palettes.h
+  <<: !include common/boot/window_illumination.yaml
+
+<<: !include common/esp/esp32_node.yaml
+
+<<: !include common/common.yaml
+
+packages:
+  led_power: !include packages/led_power.yaml
+
+number:
+  # FastLed Settings
+  - !include common/number/fastled_speed.yaml
+  - !include common/number/fastled_variant.yaml
+  - !include common/number/fastled_palette.yaml
+
+binary_sensor:
+  # ESP Status
+  - !include common/binary_sensor/status.yaml
+    
+text_sensor:
+  # ESPHome Version
+  - !include common/text_sensor/version.yaml
+
+  # Uptime
+  - !include common/text_sensor/uptime.yaml
+
+sensor:
+  # Uptime
+  - !include common/sensor/uptime.yaml
+
+  # WiFi Signal
+  - !include common/sensor/wifi-signal.yaml
+
+  # ESP32 Magnetic / Hall Sensor
+  - !include common/sensor/magnetic.yaml
+
+  # ESP32 Internal Temperature
+  - !include common/sensor/device_temperature.yaml
+
+switch:
+  # Restart
+  - !include common/switch/restart.yaml
+
+light:
+  # Neopixel
+  - !include common/light/neopixel_illumination_fastled.yaml

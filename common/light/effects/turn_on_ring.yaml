@@ -1,0 +1,36 @@
+addressable_lambda:
+  name: "Turn On Ring"
+  update_interval: 30ms
+  lambda: |-
+    static int step;
+    static int start;
+
+    if (initial_run) 
+    {
+      ESP_LOGD("effect", "Turn On Ring");
+
+      it.all() = Color::BLACK;
+
+      step = 0;
+      start = it.size() / 4;
+    }
+
+    if (step < start)
+    {
+      it[start - step] = current_color;
+      it[start + step] = current_color;
+
+      it[it.size() - start - step] = current_color;
+      it[it.size() - start + step] = current_color;
+
+      step++;
+    }
+    else if (step == start)
+    {
+      it.all() = current_color;
+
+      auto call = id(neopixel_led).turn_on();
+      call.set_effect("None");
+      call.set_rgb(current_color.red / 255.0, current_color.green / 255.0, current_color.blue / 255.0);
+      call.perform();
+    }

@@ -1,0 +1,7 @@
+﻿# ESP32 Magnetic / Hall Sensor
+platform: esp32_hall
+name: "${name} Hall Sensor"
+update_interval: ${update_interval}
+id: magnetic
+entity_category: diagnostic
+

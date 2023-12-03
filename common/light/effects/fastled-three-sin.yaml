@@ -1,0 +1,62 @@
+addressable_lambda:
+  name: FastLED ThreeSin
+  update_interval: 50ms
+  lambda: |-
+    static uint8_t mul1;
+    static uint8_t mul2;
+    static uint8_t mul3;
+
+    static int wave1;
+    static int wave2;
+    static int wave3;
+
+    static int variant = -1;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED ThreeSin");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    if (variant != id(fastled_variant).state)
+    {
+      if (id(fastled_variant).state > 170)
+      {
+        mul1 = 5;
+        mul2 = 8;
+        mul3 = 7;
+      } 
+      else if (id(fastled_variant).state > 85)
+      {
+        mul1 = 6;
+        mul2 = 9;
+        mul3 = 11;
+      }
+      else
+      {
+        mul1 = 3;
+        mul2 = 4;
+        mul3 = 5;
+      }
+
+      variant = (int)id(fastled_variant).state;
+    }
+
+    int8_t thisdir = 1;
+
+    wave1 += beatsin8(10, -4, 4) * thisdir;
+    wave2 += beatsin8(15, -2, 2) * thisdir;
+    wave3 += beatsin8(12, -3, 3) * thisdir;
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      uint8_t tmp = sin8(mul1 * i + wave1) + sin8(mul1 * i + wave2) + sin8(mul1 * i + wave3);
+      leds[i] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], tmp, 255, LINEARBLEND);
+    }
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

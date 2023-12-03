@@ -1,0 +1,68 @@
+addressable_lambda:
+  name: FastLED Noise Wide
+  update_interval: 20ms
+  lambda: |-
+    static uint32_t x, hue_time; // x & hue_time values
+    static uint8_t octaves;      // how many octaves to use for the brightness
+    static uint8_t hue_octaves;  // how many octaves to use for the hue
+    static int xscale;           // the 'distance' between points on the x axis
+    static uint32_t hxy;         // not sure about this
+    static int hue_scale;        // the 'distance' between points for the hue noise
+    static int hue_speed;        // how fast we move through hue noise
+    static uint8_t x_speed;      // adjust this value to move along the x axis between frames
+    static int8_t hxyinc;
+
+    static int variant = -1;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Noise Wide");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    if (variant != id(fastled_variant).state)
+    {
+      if (id(fastled_variant).state > 128)
+      {
+        octaves = random16(1, 3);
+        hue_octaves = random16(1, 5);
+        hxy = random16();
+        x = random16();
+        xscale = random16();
+        hue_scale = random16(10, 50);
+        hue_speed = random16(1, 3);
+        x_speed = random16(1, 30);
+        hxyinc = random16(1, 15);
+        hue_time = random16();
+      } 
+      else
+      {
+        octaves = 1;
+        hue_octaves = 2;
+        hxy = 6000;
+        x = 5000;
+        xscale = 3000;
+        hue_scale = 50;
+        hue_speed = 15;
+        x_speed = 100;
+        hxyinc = 3;
+        hue_time = 0;
+      }
+
+      variant = (int)id(fastled_variant).state;
+    }
+
+    fill_noise16(leds, it.size(), octaves, x, xscale, hue_octaves, hxy, hue_scale, hue_time);
+
+    int8_t thisdir = 1;
+
+    hxy += hxyinc * thisdir;
+    x += x_speed * thisdir;
+    hue_time += hue_speed * thisdir;
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

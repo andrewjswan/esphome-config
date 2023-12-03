@@ -1,0 +1,6 @@
+# ESPHome Uptime
+platform: uptime
+name: ${name} Uptime
+unit_of_measurement: s
+id: device_uptime
+update_interval: ${update_interval}

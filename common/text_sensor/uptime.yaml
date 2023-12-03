@@ -1,0 +1,42 @@
+﻿# ESPHome Uptime
+platform: template
+name: ${name} Uptime (formatted)
+lambda: |-
+  uint32_t uptime = (id(device_uptime).state);
+  if (uptime == UINT32_MAX || uptime < 60)
+  {
+    return { String("Только запущен...").c_str() };
+  }
+
+  int minutes = (uptime % 3600) / 60;
+  int hours = (uptime % 86400) / 3600;
+  int days = uptime / 86400;
+
+  String result = F("");
+  if (days > 0) 
+  {
+    // return { (String(days) + " д. " + String(hours) + " ч. " + String(minutes) + " мин.").c_str() };
+    result = String(days);
+    result += " д. ";
+    result += String(hours);
+    result += " ч. ";
+    result += String(minutes);
+    result += " мин.";
+  }
+  else if (hours > 0) 
+  {
+    // return { (String(hours) + " ч. " + String(minutes) + " мин.").c_str() };
+    result = String(hours);
+    result += " ч. ";
+    result += String(minutes);
+    result += " мин.";
+  } 
+  else 
+  {
+    // return { (String(minutes) + " мин.").c_str() };
+    result = String(minutes);
+    result += " мин.";
+  }
+  return { result.c_str() };
+update_interval: ${update_interval}
+icon: mdi:clock-start

@@ -1,0 +1,10 @@
+platform: template
+name: ${name} Fastled Palette
+min_value: 0
+max_value: 52
+step: 1
+optimistic: true
+id: fastled_palette
+initial_value: 0
+mode: slider
+entity_category: config

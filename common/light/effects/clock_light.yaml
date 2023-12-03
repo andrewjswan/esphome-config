@@ -1,0 +1,112 @@
+addressable_lambda:
+  name: Clock Light
+  update_interval: 33ms
+  lambda: |-
+    static Color clock_line_colors [${num_leds}];
+
+    if (initial_run) 
+    {
+      ESP_LOGD("effect", "Clock Light");
+
+      for (int i = 0; i < it.size(); i++)
+      {
+        clock_line_colors[i] = it[i].get();
+      }
+    }
+
+    auto time = id(esp_time).now();
+    if (!time.is_valid()) 
+    {
+      return;
+    }
+
+    int amount = 1;
+    int step = amount * 2;
+
+    // fade out old colors
+    for (int i = 0; i < it.size(); i++) 
+    {
+      // fade out color
+      int red = clock_line_colors[i].red;
+      int green = clock_line_colors[i].green;
+      int blue = clock_line_colors[i].blue;
+
+      if (red < amount) { red = 0; } else { red -= amount; }
+      if (green < amount) { green = 0; } else { green -= amount; }
+      if (blue < amount) { blue = 0; } else { blue -= amount; }
+
+      clock_line_colors[i] = Color(red, green, blue);
+    }
+
+    // show time
+    if (time.minute == 0 or time.minute == 15 or time.minute == 30 or time.minute == 45)
+    {
+      int z = round(time.second * 1.0 * (it.size() / 2 - 1) / 60.0 + 1);
+      int x = it.size() / 2 - z;
+      int y = z + it.size() / 2 - 1;
+      
+      // fade in new colors
+      int i = x;
+      {
+        int red = clock_line_colors[i].red;
+        int green = clock_line_colors[i].green;
+        int blue = clock_line_colors[i].blue;
+       
+        if (time.minute == 0) // hour
+        {
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        } 
+        else if (time.minute == 30) // half hour
+        {
+          if (red > 190) { red = 190; } else { red += step; }
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        } 
+        else if (time.minute == 15 or time.minute == 45) // quoter hour
+        {
+          if (green > 190) { green = 190; } else { green += step; }
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        } 
+        else
+        {
+          if (red > 250) { red = 255; } else { red += step; }
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        }
+
+        clock_line_colors[i] = Color(red, green, blue);
+      }
+
+      i = y;
+      {
+        int red = clock_line_colors[i].red;
+        int green = clock_line_colors[i].green;
+        int blue = clock_line_colors[i].blue;
+        
+        if (time.minute == 0) // hour
+        {
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        } 
+        else if (time.minute == 30) // half hour
+        {
+          if (red > 190) { red = 190; } else { red += step; }
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        } 
+        else if (time.minute == 15 or time.minute == 45) // quoter hour
+        {
+          if (green > 190) { green = 190; } else { green += step; }
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        } 
+        else
+        {
+          if (red > 250) { red = 255; } else { red += step; }
+          if (blue > 250) { blue = 255; } else { blue += step; }
+        }
+
+        clock_line_colors[i] = Color(red, green, blue);
+      }
+    }
+
+    // apply colors to light
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = clock_line_colors[i];
+    }

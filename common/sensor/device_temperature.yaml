@@ -1,0 +1,3 @@
+platform: internal_temperature
+name: ${name} Device Temperature
+id: device_temperature

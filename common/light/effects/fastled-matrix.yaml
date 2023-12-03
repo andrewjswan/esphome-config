@@ -1,0 +1,96 @@
+addressable_lambda:
+  name: FastLED Matrix
+  update_interval: 40ms
+  lambda: |-
+    static uint8_t thisindex;
+    static uint8_t thisdir;
+    static uint8_t thisrot;
+    static uint8_t bgclr;
+    static uint8_t bgbri;
+
+    static int variant = -1;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Matrix");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    if (variant != id(fastled_variant).state)
+    {
+      if (id(fastled_variant).state > 170)
+      {
+        thisindex = 64;
+        thisdir = -1;
+        thisrot = 1;
+        bgclr = 100;
+        bgbri = 10;
+      } 
+      else if (id(fastled_variant).state > 85)
+      {
+        thisindex = 192;
+        thisdir = -1;
+        thisrot = 0;
+        bgclr = 50;
+        bgbri = 0;
+      }
+      else
+      {
+        thisindex = 128;
+        thisdir = 1;
+        thisrot = 0;
+        bgclr = 200;
+        bgbri = 6;
+      }
+      variant = (int)id(fastled_variant).state;
+    }
+
+    if (thisrot) 
+    {
+      thisindex++; // Increase palette index to change colours on the fly
+    }
+
+    if (random8(90) > 80) 
+    {
+      if (thisdir == -1)
+      {
+        leds[0] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thisindex, 255, LINEARBLEND); // Foreground matrix colour
+      }
+      else
+      {
+        leds[it.size() - 1] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thisindex, 255, LINEARBLEND);
+      }
+    } 
+    else 
+    {
+      if (thisdir == -1)
+      {
+        leds[0] = CHSV(bgclr, 255, bgbri); // Background colour
+      }
+      else
+      {
+        leds[it.size() - 1] = CHSV(bgclr, 255, bgbri);
+      }
+    }
+
+    if (thisdir == -1) // Move the foreground colour down the line.
+    {
+      for (int i = it.size() - 1; i > 0 ; i--)
+      {
+        leds[i] = leds[i - 1];
+      }
+    } 
+    else 
+    {
+      for (int i = 0; i < it.size() - 1 ; i++)
+      {
+        leds[i] = leds[i + 1];
+      }
+    }
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

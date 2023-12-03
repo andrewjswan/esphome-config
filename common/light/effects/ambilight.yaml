@@ -1,0 +1,83 @@
+addressable_lambda:
+  name: Ambilight
+  update_interval: 100ms
+  lambda: |-
+    const int line_width = 8;
+    const int led_width = it.size();
+    static bool run = false;
+    
+    static Color line_colors[line_width];
+    static Color old_led_colors[${num_leds}];
+    static Color new_led_colors[${num_leds}];
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Ambilight");
+
+      run = false;
+      it.all() = Color::BLACK;
+    }
+    
+    if (run) 
+    {
+      return;
+    }
+    run = true;
+    
+    HTTPClient http;
+    if (http.begin("http://${philips_tv}:1925/1/ambilight/processed"))
+    {
+      http.setConnectTimeout(100);
+      int httpResponseCode = http.GET();
+
+      if (httpResponseCode == HTTP_CODE_OK)
+      {
+        DynamicJsonDocument root(1536);
+        DeserializationError error = deserializeJson(root, http.getStream());
+        if (!error) 
+        {
+          if (root.containsKey("layer1")) 
+          {
+            for(int i = 0; i < 9; i++)
+            {
+              int r = root["layer1"]["top"][String(i)]["r"];
+              int g = root["layer1"]["top"][String(i)]["g"];
+              int b = root["layer1"]["top"][String(i)]["b"];
+              line_colors[i] = Color(r, g, b).lighten(${ambilight_color_correct});
+            }
+            
+            // Fill Led
+            for (int i = 0; i < led_width; i++)
+            {
+              int j = (i * (line_width - 1) + led_width / 2) / led_width;
+              new_led_colors[i] = line_colors[j];
+              old_led_colors[i] = it[i].get();
+            }
+            
+            // Smooth fill 
+            int step = 10;
+            for (int i = 1; i <= step; i++)
+            {
+              for (int j = 0; j < led_width; j++)
+              {
+                Color old_color = new_led_colors[j];
+                Color new_color = new_led_colors[j];
+                int r = ((new_color.red - old_color.red) / step) * i + old_color.red;
+                int g = ((new_color.green - old_color.green) / step) * i + old_color.green;
+                int b = ((new_color.blue - old_color.blue) / step) * i + old_color.blue;
+                it[j] = Color(r, g, b);
+              }
+              delay(90 / step);
+            }
+            
+            // Final fill
+            for (int i = 0; i < led_width; i++)
+            {
+              it[i] = new_led_colors[i];
+            }
+          }
+        }
+      }
+    }
+    http.end();
+    run = false;

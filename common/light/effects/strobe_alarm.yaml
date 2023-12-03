@@ -1,0 +1,11 @@
+strobe:
+  name: Strobe Alarm
+  colors:
+    - state: True
+      brightness: 100%
+      red: 100%
+      green: 0%
+      blue: 0%
+      duration: 500ms
+    - state: False
+      duration: 500ms

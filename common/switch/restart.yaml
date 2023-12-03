@@ -1,0 +1,3 @@
+# Restart ESPHome
+platform: restart
+name: ${name} Restart

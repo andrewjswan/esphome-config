@@ -1,0 +1,61 @@
+addressable_lambda:
+  name: "Strobe"
+  update_interval: 10ms
+  lambda: |-
+    static Color leds[${num_leds}];
+    static int step;
+    static int direction;
+
+    if (initial_run) 
+    {
+      ESP_LOGD("effect", "Strobe");
+
+      std::fill_n(leds, it.size(), Color::BLACK);
+
+      step = 0;
+      direction = 1;
+    }
+
+    for (int i = 0; i < it.size(); i++)
+    {
+      Color old_color = leds[i];
+
+      int percentage = 10;
+
+      int red = old_color.red;
+      int red_step = std::max(1, (int) ((red / 100.0) * percentage));
+
+      int green = old_color.green;
+      int green_step = std::max(1, (int) ((green / 100.0) * percentage));
+
+      int blue = old_color.blue;
+      int blue_step = std::max(1, (int) ((blue / 100.0) * percentage));
+
+      if (direction == 1)
+      {
+        if (current_color.red - red <= red_step) { red = current_color.red; } else { red += red_step; }
+        if (current_color.green - green <= green_step) { green = current_color.green; } else { green += green_step; }
+        if (current_color.blue - blue <= blue_step) { blue = current_color.blue; } else { blue += blue_step; }
+      }
+      else
+      {
+        if (red <= red_step) { red = 0; } else { red -= red_step; }
+        if (green <= green_step) { green = 0; } else { green -= green_step; }
+        if (blue <= blue_step) { blue = 0; } else { blue -= blue_step; }
+      }
+
+      leds[i] = Color(red, green, blue, 0);
+    }
+
+    // apply colors to light
+    for (int i = 0; i < it.size(); i++)
+    {
+      it[i] = leds[i];
+    }
+
+    step++;
+    if (step >= 50 + 25 * direction)
+    {
+      step = 0;
+      direction = (direction == 0) ? 1 : 0;
+    }

@@ -1,0 +1,9 @@
+<<: !include wifi.yaml
+<<: !include mdns.yaml
+<<: !include api.yaml
+<<: !include ota/online.yaml
+#<<: !include web/web_server_debug.yaml
+<<: !include web/web_server.yaml
+<<: !include time/home-assisatnt.yaml
+#<<: !include logger/debug.yaml
+<<: !include logger/info.yaml

@@ -1,0 +1,132 @@
+addressable_lambda:
+  name: FastLED TwoSin
+  update_interval: 20ms
+  lambda: |-
+    #define qsuba(x, b)  ((x>b)?x-b:0) // Analog Unsigned subtraction macro. if result <0, then => 0
+
+    static uint8_t allfreq;       // Меняет частоту. Переменная для эффектов one_sin_pal и two_sin.
+    static int8_t  thisspeed;     // Изменение стандартной скорости
+    static int8_t  thatspeed;     // You can change the speed, and use negative values.
+    static uint8_t thishue;       // Оттенок
+    static uint8_t thathue;       // You can change the starting hue for other wave.
+    static int8_t  thisdir;       // Направление движения эффекта. принимает значение -1 или 1.
+    static uint8_t thisrot;       // Измение скорости вращения волны.
+    static uint8_t thatrot;       // You can change how quickly the hue rotates for the other wave.
+    static uint8_t thiscutoff;    // Если яркость ниже этой, то яркость = 0.
+    static uint8_t thatcutoff;    // You can change the cutoff value to display that wave. Lower value = longer wave.
+    static int     thisphase = 0; // Изменение фазы
+    static int     thatphase = 0; // Phase change value gets calculated.
+
+    static int variant = -1;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED TwoSin");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    if (variant != id(fastled_variant).state)
+    {
+      if (id(fastled_variant).state > 210)
+      {
+        allfreq = 2;
+        thisspeed = 1;
+        thatspeed = 2;
+        thishue = 0;
+        thathue = 128;
+        thisdir = 1;
+        thisrot = 1;
+        thatrot = 1;
+        thiscutoff = 128;
+        thatcutoff = 192;
+      } 
+      else if (id(fastled_variant).state > 168)
+      {
+        allfreq = 4;
+        thisspeed = -1;
+        thatspeed = 0;
+        thishue = 64;
+        thathue = 192;
+        thisdir = 1;
+        thisrot = 0;
+        thatrot = 0;
+        thiscutoff = 64;
+        thatcutoff = 192;
+      }
+      else if (id(fastled_variant).state > 126)
+      {
+        allfreq = 6;
+        thisspeed = 2;
+        thatspeed = 3;
+        thishue = 96;
+        thathue = 224;
+        thisdir = 1;
+        thisrot = 0;
+        thatrot = 0;
+        thiscutoff = 64;
+        thatcutoff = 64;
+      }
+      else if (id(fastled_variant).state > 84)
+      {
+        allfreq = 20;
+        thisspeed = 2;
+        thatspeed = -1;
+        thishue = 24;
+        thathue = 180;
+        thisdir = 1;
+        thisrot = 0;
+        thatrot = 1;
+        thiscutoff = 64;
+        thatcutoff = 128;
+      }
+      else if (id(fastled_variant).state > 42)
+      {
+        allfreq = 10;
+        thisspeed = 1;
+        thatspeed = -2;
+        thishue = 48;
+        thathue = 160;
+        thisdir = -1;
+        thisrot = 1;
+        thatrot = -1;
+        thiscutoff = 128;
+        thatcutoff = 192;
+      }
+      else
+      {
+        allfreq = 32;  
+        thisspeed = 2;
+        thatspeed = 3;
+        thishue = 96;
+        thathue = 224;
+        thisdir = 1;
+        thisrot = 1;
+        thatrot = 2;
+        thiscutoff = 128;
+        thatcutoff = 64;
+      }
+
+      variant = (int)id(fastled_variant).state;
+    }
+
+    thisphase += thisspeed * thisdir;
+    thatphase += thatspeed * thisdir;
+
+    thishue = thishue + thisrot; // Hue rotation is fun for thiswave.
+    thathue = thathue + thatrot; // It's also fun for thatwave.
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      int thisbright = qsuba(cubicwave8((i * allfreq) + thisphase), thiscutoff);       // qsub sets a minimum value called thiscutoff. If < thiscutoff, then bright = 0. Otherwise, bright = 128 (as defined in qsub)..
+      int thatbright = qsuba(cubicwave8((i * allfreq) + 128 + thatphase), thatcutoff); // This wave is 180 degrees out of phase (with the value of 128).
+
+      leds[i] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thishue, thisbright, LINEARBLEND);
+      leds[i] += ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thathue, thatbright, LINEARBLEND);
+    }
+
+    for (int i = 0; i < it.size(); i++) 
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

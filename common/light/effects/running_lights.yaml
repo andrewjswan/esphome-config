@@ -1,0 +1,41 @@
+addressable_lambda:
+  name: Running Lights
+  update_interval: 50ms
+  lambda: |-
+    static int pos = 0;
+    static int speed = 0;
+    static int hsv;
+    static Color color;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Running Lights");
+
+      hsv = random(0,255);
+      color = ESPHSVColor(hsv, 255, 255).to_rgb();
+    }
+
+    pos++;
+    for (int i = 0; i < it.size(); i++)
+    {
+      float coef = (sin(i + pos) * 127.0 + 128.0) / 255.0;
+      it[i] = Color(coef * color.r, coef * color.g, coef * color.b);
+    }
+
+    speed++;
+    if (speed > 5)
+    {
+      speed = 0;
+
+      hsv++;
+      if (hsv > 255)
+      {
+        hsv = 0;
+      }
+      color = ESPHSVColor(hsv, 255, 255).to_rgb();
+    }
+
+    if (pos > it.size() * 2)
+    {
+      pos = 0;
+    }

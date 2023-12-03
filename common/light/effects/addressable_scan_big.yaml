@@ -1,0 +1,4 @@
+addressable_scan:
+  name: Scan Big
+  move_interval: 50ms
+  scan_width: 5

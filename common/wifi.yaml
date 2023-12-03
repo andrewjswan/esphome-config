@@ -1,0 +1,22 @@
+# WiFi
+wifi:
+  ssid: !secret home.wifi
+  password: !secret home.wifi.password
+  domain: !secret home.domain
+  fast_connect: true
+#  power_save_mode: none
+
+  # Static IP
+  manual_ip:
+    static_ip: ${device_ip}
+    gateway: !secret home.iot.gateway
+    subnet: !secret home.iot.mask
+    dns1: !secret home.iot.dns1
+    dns2: !secret home.iot.dns2
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${name} Fallback
+    password: !secret home.password
+
+captive_portal:

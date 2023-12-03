@@ -1,0 +1,10 @@
+platform: template
+name: ${name} Fastled Speed
+min_value: 0
+max_value: 255
+step: 1
+optimistic: true
+id: fastled_speed
+initial_value: 100
+mode: slider
+entity_category: config

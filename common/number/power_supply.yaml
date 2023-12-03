@@ -1,0 +1,12 @@
+platform: template
+name: ${name} Power Supply
+min_value: 0.0
+max_value: 10.0
+step: 0.5
+optimistic: true
+id: power_supply
+initial_value: 0.5
+mode: slider
+entity_category: config
+restore_value: true
+unit_of_measurement: A
