@@ -1,0 +1,2 @@
+# esphome-config
+ESPHome Config
