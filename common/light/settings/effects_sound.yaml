@@ -1,0 +1,123 @@
+effects:
+  - !include ../effects/rise_and_fade.yaml
+  - !include ../effects/random.yaml
+  - !include ../effects/pulse.yaml
+  - !include ../effects/flicker.yaml
+  - !include ../effects/candle_flicker.yaml
+  - !include ../effects/addressable_rainbow.yaml
+  - !include ../effects/addressable_color_wipe.yaml
+  - !include ../effects/addressable_scan_big.yaml
+  - !include ../effects/addressable_twinkle.yaml
+  - !include ../effects/addressable_random_twinkle.yaml
+  - !include ../effects/addressable_fireworks.yaml
+  - !include ../effects/addressable_fireworks_random.yaml
+  - !include ../effects/exponent_light.yaml
+  - !include ../effects/fire_ring.yaml
+  - !include ../effects/blue_fire.yaml
+  - !include ../effects/hsv.yaml
+  - !include ../effects/confetti.yaml
+  - !include ../effects/candy_cane.yaml
+  - !include ../effects/candy_cane_random.yaml
+  - !include ../effects/wheel_of_color.yaml
+  - !include ../effects/vesuvius.yaml
+  - !include ../effects/fire.yaml
+  - !include ../effects/breathing.yaml
+  - !include ../effects/breathing_rgb.yaml
+  - !include ../effects/blue_scan.yaml
+  - !include ../effects/christmas_red_green.yaml
+  - !include ../effects/bluez.yaml
+  - !include ../effects/outside_to_center.yaml
+  - !include ../effects/sparkle.yaml
+  - !include ../effects/running_lights.yaml
+  - !include ../effects/snow_flack.yaml
+  - !include ../effects/rainbow_new.yaml
+  - !include ../effects/gold_glitter.yaml
+  - !include ../effects/meteor.yaml
+  - !include ../effects/balls.yaml
+  - !include ../effects/ukraine.yaml
+  - !include ../effects/sunrise.yaml
+  - !include ../effects/clock.yaml
+  - !include ../effects/clock_full.yaml
+  - !include ../effects/strobe_common.yaml
+  - !include ../effects/strobe_police.yaml
+  - !include ../effects/fastled-blendwave.yaml
+  - !include ../effects/fastled-candles.yaml
+  - !include ../effects/fastled-colorwaves.yaml
+  - !include ../effects/fastled-confetti.yaml
+  - !include ../effects/fastled-dynamic-smooth.yaml
+  - !include ../effects/fastled-fire.yaml
+  - !include ../effects/fastled-gradient.yaml
+  - !include ../effects/fastled-juggle.yaml
+  - !include ../effects/fastled-matrix.yaml
+  - !include ../effects/fastled-noice.yaml
+  - !include ../effects/fastled-noise-wide.yaml
+  - !include ../effects/fastled-one-sin.yaml
+  - !include ../effects/fastled-two-sin.yaml
+  - !include ../effects/fastled-three-sin.yaml
+  - !include ../effects/fastled-plasma.yaml
+  - !include ../effects/fastled-rainbow-beat.yaml
+  - !include ../effects/fastled-rainbow-march.yaml
+  - !include ../effects/fastled-serendipitous.yaml
+  - addressable_lambda:
+      name: BinMap with Music
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "BinMap with Music");
+        }
+        music_leds.ShowFrame(MODE_BINMAP, current_color, &it);
+  - addressable_lambda:
+      name: GravFreq with Music
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "GravFreq with Music");
+        }
+        music_leds.ShowFrame(MODE_GRAV, current_color, &it);
+  - addressable_lambda:
+      name: GraviCenter with Music
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "GraviCenter with Music");
+        }
+        music_leds.ShowFrame(MODE_GRAVICENTER, current_color, &it);
+  - addressable_lambda:
+      name: GraviCentric with Music
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "GraviCentric with Music");
+        }
+        music_leds.ShowFrame(MODE_GRAVICENTRIC, current_color, &it);
+  - addressable_lambda:
+      name: Pixels with Music
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Pixels with Music");
+        }
+        music_leds.ShowFrame(MODE_PIXELS, current_color, &it);
+  - addressable_lambda:
+      name: Jungles with Music
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Jungles with Music");
+        }
+        music_leds.ShowFrame(MODE_JUNGLES, current_color, &it);
+  - addressable_lambda:
+      name: Midnoise with Music
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Midnoise with Music");
+        }
+        music_leds.ShowFrame(MODE_MIDNOISE, current_color, &it);

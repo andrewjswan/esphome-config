@@ -1,0 +1,71 @@
+substitutions:
+  device: esp_sound_reactive
+  name: Sound Reactive
+  location: ${name}
+  update_interval: 3s
+  device_ip: 192.168.0.0
+  reboot_timeout: 0s
+  num_leds: "300"
+  type_leds: "GRB"
+  flagflip: "0"
+  pin_leds: "GPIO16"
+  color_correct_bright: "50%"
+  sunrise: "100"
+  project_name: "ajs.led_light_sound"
+  project_version: "1.5.5"
+  comment: "Window Illumination with Sound Reactive effects"
+
+esphome:
+  name: ${device}
+  comment: $comment
+  build_path: ./.build/$device
+  project:
+    name: $project_name
+    version: $project_version
+  libraries:
+    - FastLED
+    - arduinoFFT=https://github.com/kosme/arduinoFFT.git#develop
+  includes:
+    - includes/light/light.h
+    - includes/light/palettes.h
+    - includes/sound/music_leds_esphome.h
+    - includes/sound/VisualEffect.h
+    - includes/sound/audio_source.h
+    - includes/sound/audio_reactive.h
+  <<: !include common/boot/window_illumination.yaml
+
+<<: !include common/esp/esp32_wrover.yaml
+
+<<: !include common/common.yaml
+
+packages:
+  common: !include packages/common_32.yaml
+  led_power: !include packages/led_power.yaml
+
+binary_sensor:
+  - platform: gpio
+    name: ${name} Button
+    pin:
+      number: GPIO26
+      mode:
+        input: true
+        pullup: true
+    filters:
+      - delayed_on: 32ms
+    on_release:
+      then:
+        - light.toggle: neopixel_led
+
+number:
+  # FastLed Settings
+  - !include common/number/fastled_speed.yaml
+  - !include common/number/fastled_variant.yaml
+  - !include common/number/fastled_palette.yaml
+
+switch:
+  # FastLed Solid color instead color from Palettes
+  - !include common/switch/fastled_solid.yaml
+
+light:
+  # Neopixel
+  - !include common/light/neopixel_illumination_sound.yaml

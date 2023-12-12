@@ -1,0 +1,7 @@
+# FastLed Solid color instead color from Palettes
+platform: template
+name: ${name} Fastled Solid Color
+id: solid_color
+icon: mdi:palette-outline
+optimistic: true
+restore_mode: ALWAYS_OFF
