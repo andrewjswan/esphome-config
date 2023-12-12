@@ -1,0 +1,34 @@
+﻿name: Build
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  configuration:
+    name: Build configuration list
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: echo "matrix=$(ls *.yaml | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+  build:
+    name: Build ${{ matrix.config-file }}
+    needs: configuration
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config-file: ${{ fromJson(needs.configuration.outputs.matrix) }}
+      fail-fast: false
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Build firmware
+        uses: esphome/build-action@v1
+        id: esphome-build
+        with:
+          yaml_file: ${{ matrix.config-file }}
+          version: latest
