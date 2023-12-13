@@ -1,0 +1,27 @@
+substitutions:
+  device: esp_daikin_air_sensor
+  name: DAIKIN
+  location: ${name}
+  device_ip: 192.168.0.0
+  reboot_timeout: 0s
+  update_interval: 60s
+  project_name: "DAIKIN.BRY88AB151K"
+  project_version: "PM2105"
+#  project_version: "PM2005"
+  comment: "DAIKIN Air Sensor (BRY88AB151K)"
+
+esphome:
+  name: ${device}
+  comment: $comment
+  build_path: ./.build/$device
+  project:
+    name: $project_name
+    version: $project_version
+
+<<: !include common/esp/esp32_node.yaml
+
+<<: !include common/common.yaml
+
+packages:
+  common: !include packages/common_32.yaml
+  daikin: !include packages/daikin_air_sensor.yaml

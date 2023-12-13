@@ -1,0 +1,46 @@
+﻿esphome:
+  libraries:
+    - FastLED
+    - arduinoFFT=https://github.com/kosme/arduinoFFT.git#develop
+  includes:
+    - includes/light/light.h
+    - includes/light/palettes.h
+    - includes/sound/music_leds_esphome.h
+    - includes/sound/VisualEffect.h
+    - includes/sound/audio_source.h
+    - includes/sound/audio_reactive.h
+
+# Over The Air Update Component
+ota:
+  on_begin:
+    then:
+      - lambda: |-
+          music_leds.~MusicLeds();
+
+number:
+  # FastLed Settings
+  - !include ../common/number/fastled_speed.yaml
+  - !include ../common/number/fastled_variant.yaml
+  - !include ../common/number/fastled_palette.yaml
+
+binary_sensor:
+  - platform: gpio
+    name: ${name} Button
+    pin:
+      number: GPIO26
+      mode:
+        input: true
+        pullup: true
+    filters:
+      - delayed_on: 32ms
+    on_release:
+      then:
+        - light.toggle: neopixel_led
+
+switch:
+  # FastLed Solid color instead color from Palettes
+  - !include ../common/switch/fastled_solid.yaml
+
+light:
+  # Neopixel with Sound Reactive
+  - !include ../common/light/neopixel_illumination_sound.yaml

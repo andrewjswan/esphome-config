@@ -1,0 +1,341 @@
+esphome:
+  includes:
+    - includes/daikin/cm1106.h
+    - includes/daikin/pm2105.h
+    # - includes/daikin/pm2005.h
+
+logger:
+  logs:
+    hdc1080: WARN
+    sgp30: WARN
+    sensor: WARN
+    component: ERROR
+
+uart:
+- id: cm1106_uart
+  rx_pin: 16
+  tx_pin: 17
+  baud_rate: 9600
+
+i2c:
+  - id: pm25_bus
+    sda: 23
+    scl: 22
+    scan: true
+
+  - id: th_bus
+    sda: 19
+    scl: 21
+    scan: true
+
+sensor:
+  - platform: custom
+    lambda: |-
+      auto cm1106Sensor = new CM1106Sensor(id(cm1106_uart), 10000);
+      App.register_component(cm1106Sensor);
+      return {cm1106Sensor};
+    sensors:
+      - name: "${name} CO2 Sensor"
+        id: co2sensor
+        device_class: carbon_dioxide
+        state_class: measurement
+        unit_of_measurement: "ppm"
+
+  - platform: custom
+    lambda: |-
+      auto pmsensor = new pm2005();
+      App.register_component(pmsensor);
+      return {pmsensor->vpm1, pmsensor->vpm25, pmsensor->vpm10};
+    sensors:
+      - name: "${name} PM1 Sensor"
+        id: pm1sensor
+        unit_of_measurement: μg/m³
+        accuracy_decimals: 0
+        device_class: pm1
+      - name: "${name} PM2.5 Sensor"
+        id: pm25sensor
+        device_class: pm25
+        state_class: measurement
+        unit_of_measurement: "µg/m³"
+      - name: "${name} PM10 Sensor"
+        id: pm10sensor
+        unit_of_measurement: μg/m³
+        accuracy_decimals: 0
+        device_class: pm10
+
+  - platform: sgp30
+    i2c_id: th_bus
+    compensation:
+      temperature_source: temperature
+      humidity_source: humidity
+    eco2:
+      id: eco2sensor
+      internal: true
+    tvoc:
+      name: "${name} TVOC Sensor"
+      id: tvocsensor
+      device_class: volatile_organic_compounds
+      unit_of_measurement: "µg/m³"
+      filters:
+        - throttle: 15s
+        - lambda: |-
+            if (x * id(tvocmultiply).state > id(tvocmax).state) 
+            {
+              return id(tvocmax).state;
+            } 
+            else 
+            {
+              return x * id(tvocmultiply).state;
+            }
+
+  - platform: hdc1080
+    i2c_id: th_bus
+    update_interval: 15s
+    temperature:
+      name: "${name} Temperature Sensor"
+      id: temperature
+      device_class: temperature
+      filters:
+        - lambda: return x - id(temperatureoffset).state;
+    humidity:
+      name: "${name} Humidity Sensor"
+      id: humidity
+      device_class: humidity
+      filters:
+        - lambda: return x * id(humiditymultiply).state;
+        - clamp:
+            max_value: 100
+
+switch:
+  - platform: template
+    name: "${name} Sleep Mode"
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: mdi:sleep
+    id: sleepmode
+    optimistic: true
+
+  - platform: custom
+    lambda: |-
+      auto cm1106Calib = new CM1106CalibrateSwitch(id(cm1106_uart));
+      App.register_component(cm1106Calib);
+      return {cm1106Calib};
+    switches:
+      id: calibration
+      internal: true
+
+  - platform: gpio
+    pin: 4
+    id: co2led
+    internal: true
+
+  - platform: gpio
+    pin: 32
+    id: tvocch2oled
+    internal: true
+
+  - platform: gpio
+    pin: 33
+    id: pm25led
+    internal: true
+
+status_led:
+  pin: 25
+
+number:
+  - platform: template
+    name: "${name} Threshold CO2"
+    entity_category: "config"
+    id: co2threshold
+    optimistic: true
+    unit_of_measurement: "ppm"
+    min_value: 400
+    max_value: 5000
+    step: 100
+    initial_value: 1000
+    restore_value: true
+
+  - platform: template
+    name: "${name} Threshold PM2.5"
+    entity_category: "config"
+    id: pm25threshold
+    optimistic: true
+    unit_of_measurement: "µg/m³"
+    min_value: 0
+    max_value: 200
+    step: 10
+    initial_value: 50
+    restore_value: true
+
+  - platform: template
+    name: "${name} Threshold TVOC"
+    entity_category: "config"
+    id: tvocthreshold
+    optimistic: true
+    unit_of_measurement: "µg/m³"
+    min_value: 0
+    max_value: 20000
+    step: 1000
+    initial_value: 1000
+    restore_value: true
+
+  - platform: template
+    name: "${name} TVOC MAX"
+    entity_category: "config"
+    id: tvocmax
+    optimistic: true
+    unit_of_measurement: "µg/m³"
+    min_value: 5000
+    max_value: 20000
+    step: 1000
+    initial_value: 10000
+    restore_value: true
+
+  - platform: template
+    name: "${name} TVOC Multiply"
+    entity_category: "config"
+    id: tvocmultiply
+    optimistic: true
+    min_value: 1
+    max_value: 5
+    step: 0.1
+    initial_value: 3
+    restore_value: true
+
+  - platform: template
+    name: "${name} Humidity Multiply"
+    entity_category: "config"
+    id: humiditymultiply
+    optimistic: true
+    min_value: 1
+    max_value: 1.6
+    step: 0.01
+    initial_value: 1.4
+    restore_value: true
+
+  - platform: template
+    name: "${name} Temperature Offset"
+    entity_category: "config"
+    id: temperatureoffset
+    optimistic: true
+    min_value: 0
+    max_value: 10
+    step: 0.1
+    initial_value: 6
+    restore_value: true
+
+binary_sensor:
+  - platform: template
+    internal: true
+    id: tvocch2olambda
+    lambda: |-
+      if (id(sleepmode).state == false)
+      {
+        if (id(tvocsensor).state > id(tvocthreshold).state)
+        {
+          return true;
+        } 
+        else 
+        {
+          return false;
+        }
+      } 
+      else
+      {
+        return false;
+      }
+    on_press:
+      then:
+        - switch.turn_on: tvocch2oled
+    on_release:
+      then:
+        - switch.turn_off: tvocch2oled
+
+  - platform: template
+    internal: true
+    id: co2lambda
+    lambda: |-
+      if (id(sleepmode).state == false)
+      {
+        if (id(co2sensor).state > id(co2threshold).state)
+        {
+          return true;
+        }
+        else
+        {
+          return false;
+        }
+      }
+      else
+      {
+        return false;
+      }
+    on_press:
+      then:
+        - switch.turn_on: co2led
+    on_release:
+      then:
+        - switch.turn_off: co2led
+
+  - platform: template
+    internal: true
+    id: pm25lambda
+    lambda: |-
+      if (id(sleepmode).state == false)
+      {
+        if (id(pm25sensor).state > id(pm25threshold).state)
+        {
+          return true;
+        } 
+        else
+        {
+          return false;
+        }
+      }
+      else
+      {
+        return false;
+      }
+    on_press:
+      then:
+        - switch.turn_on: pm25led
+    on_release:
+      then:
+        - switch.turn_off: pm25led
+
+  - platform: template
+    internal: true
+    id: co2_calibration
+    lambda: |-
+      if (id(co2sensor).state == 400)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    filters:
+      - delayed_on: 15min
+    on_press:
+      then:
+        - switch.turn_on: calibration
+
+  - platform: gpio
+    pin: 34
+    id: RESET
+    internal: true
+    on_press:
+      then:
+        - button.press: reset
+
+button:
+  - platform: factory_reset
+    id: reset
+    internal: true
+
+  - platform: template
+    name: "${name} CO2 Calibration"
+    entity_category: "diagnostic"
+    on_press:
+      then:
+        - switch.turn_on: calibration

@@ -22,11 +22,6 @@ esphome:
   project:
     name: $project_name
     version: $project_version
-  libraries:
-    - "FastLED"
-  includes:
-    - includes/light/light.h
-    - includes/light/palettes.h
   <<: !include common/boot/window_illumination.yaml
 
 <<: !include common/esp/esp32_node.yaml
@@ -36,13 +31,4 @@ esphome:
 packages:
   common: !include packages/common_32.yaml
   led_power: !include packages/led_power.yaml
-
-number:
-  # FastLed Settings
-  - !include common/number/fastled_speed.yaml
-  - !include common/number/fastled_variant.yaml
-  - !include common/number/fastled_palette.yaml
-
-light:
-  # Neopixel
-  - !include common/light/neopixel_illumination_fastled.yaml
+  light: !include packages/light_fastled.yaml
