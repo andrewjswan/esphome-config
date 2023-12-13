@@ -1,0 +1,52 @@
+# Nous A1
+
+substitutions:
+  status_gpio: GPIO00 # - Red, GPIO02 - Blue
+  energy_method: right
+  project_name: "ajs.nous_a1_socket"
+  project_version: "1.0.5"
+
+esphome:
+  name: ${device}
+  comment: $comment
+  build_path: ./.build/$device
+  project:
+    name: $project_name
+    version: $project_version
+  <<: !include ../common/boot/nous_a1.yaml
+
+<<: !include ../common/esp/esp8266_8285_restore.yaml
+
+<<: !include ../common/common.yaml
+
+<<: !include ../common/led/status.yaml
+<<: !include ../common/led/blue.yaml
+#<<: !include ../common/led/red.yaml
+
+binary_sensor:
+  # Nous A1 Toggle Relay On/Off
+  - !include ../common/binary_sensor/nous_a1_relay.yaml
+      
+  # Nous A1 Overpowering
+  - !include ../common/binary_sensor/nous_a1_overpowering.yaml
+    
+sensor:
+  # Nous A1 Today Usage
+  - !include ../common/sensor/energy_today_usage.yaml
+
+  # Nous A1 HLW8012
+  - !include ../common/sensor/nous_a1_hlw8012.yaml
+
+select:
+  # Nous A1 Power On Default
+  - !include ../common/select/power_on_default.yaml
+
+switch:
+  # Nous A1 Switch
+  - !include ../common/switch/nous_a1_switch.yaml
+
+  # Nous A1 Relay
+  - !include ../common/switch/nous_a1_relay.yaml
+
+# Gosund SP111 - https://www.esphome-devices.com/devices/Gosund-SP111
+# Nous A1 - https://github.com/esphome/issues/issues/1146

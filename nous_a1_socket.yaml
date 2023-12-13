@@ -1,0 +1,32 @@
+substitutions:
+  device: esp_nous_socket
+  name: Nous A1 Socket
+  location: ${name}
+  update_interval: 60s
+  device_ip: 192.168.0.0
+  reboot_timeout: 15min
+  comment: "Nous A1"
+  
+  # Higher value gives lower watt readout
+  current_res: "0.0012"
+  # Lower value gives lower voltage readout
+  voltage_div: "771"
+  # Max power
+  max_power: "2500"
+
+  amperage_calibration1: "0.441 -> 0.459"
+  amperage_calibration2: "3.495 -> 3.635"
+  amperage_calibration3: "7.872 -> 8.188"
+  amperage_min: "0.07"
+
+  voltage_calibration1: "229.4 -> 225.9"
+  voltage_calibration2: "234.0 -> 230.4"
+
+  wattage_calibration1: "193.77 -> 99.60"
+  wattage_calibration2: "1559.22 -> 795.10"
+  wattage_calibration3: "3464.41 -> 1775.93"
+  wattage_min: "1.5"
+
+packages:
+  common: !include packages/common_8266.yaml
+  nous: !include packages/nous_a1.yaml

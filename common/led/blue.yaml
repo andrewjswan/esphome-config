@@ -1,0 +1,5 @@
+output:
+  - platform: gpio
+    pin: GPIO02
+    inverted: true
+    id: led_blue

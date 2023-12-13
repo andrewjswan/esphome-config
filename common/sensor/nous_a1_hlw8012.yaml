@@ -1,0 +1,72 @@
+platform: hlw8012
+sel_pin:
+  number: GPIO12
+  inverted: True
+cf_pin: GPIO05
+cf1_pin: GPIO04
+change_mode_every: 5
+current_resistor: ${current_res}
+voltage_divider: ${voltage_div}
+update_interval: 5s
+
+current:
+  name: "${name} Current"
+  unit_of_measurement: A
+  accuracy_decimals: 3
+  # icon: mdi:current-ac
+  device_class: current
+  state_class: measurement
+  filters:
+    # Map from sensor -> measured value
+    - calibrate_linear:
+        - 0.000 -> 0.000
+        - ${amperage_calibration1}
+        - ${amperage_calibration2}
+        - ${amperage_calibration3}
+    # Furthermore it corrects ${amperage_min}A for the power usage of the plug.
+    - lambda: if (x <= ${amperage_min}) return 0; else return x;
+    - median:
+        window_size: 5
+        send_every: 3
+
+voltage:
+  name: "${name} Voltage"
+  unit_of_measurement: V
+  accuracy_decimals: 1
+  #icon: mdi:flash-outline
+  device_class: voltage
+  state_class: measurement
+  filters:
+    # Map from sensor -> measured value
+    - calibrate_linear:
+        - 0.0 -> 0.0
+        - ${voltage_calibration1}
+        - ${voltage_calibration2}
+    - median:
+        window_size: 5
+        send_every: 3
+           
+power:
+  name: "${name} Power"
+  unit_of_measurement: W
+  id: power
+  # icon: mdi:gauge
+  device_class: power
+  state_class: measurement
+  accuracy_decimals: 1
+  filters:
+    # Map from sensor -> measured value
+    - calibrate_linear:
+        - 0.00 -> 0.00
+        - ${wattage_calibration1}
+        - ${wattage_calibration2}
+        - ${wattage_calibration3}
+    # Make everything below ${wattage_min}W appear as just 0W.
+    - lambda: if (x <= ${wattage_min}) return 0; else return x;
+  on_value_range:
+    - above: ${max_power}
+      then:
+        - switch.turn_off: button_switch
+        - binary_sensor.template.publish:
+            id: overpowering
+            state: ON

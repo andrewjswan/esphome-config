@@ -1,0 +1,9 @@
+platform: template
+name: "${name} Switch"
+# icon: mdi:flash
+optimistic: true
+id: button_switch
+turn_on_action:
+  - switch.turn_on: relay
+turn_off_action:
+  - switch.turn_off: relay

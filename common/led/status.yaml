@@ -1,0 +1,5 @@
+status_led:
+  pin:
+    number: ${status_gpio}
+    inverted: True
+  id: led_status

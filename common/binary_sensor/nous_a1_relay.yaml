@@ -1,0 +1,9 @@
+# Nous A1 Toggle Relay On/Off
+platform: gpio
+pin:
+  number: GPIO13
+  mode: INPUT_PULLUP
+  inverted: True
+id: button_state
+on_press:
+  - switch.toggle: button_switch

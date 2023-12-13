@@ -1,0 +1,11 @@
+platform: gpio
+pin: GPIO15
+id: relay
+restore_mode: RESTORE_DEFAULT_OFF
+on_turn_on:
+  - binary_sensor.template.publish:
+      id: overpowering
+      state: OFF
+  - output.turn_on: led_blue
+on_turn_off:
+  - output.turn_off: led_blue

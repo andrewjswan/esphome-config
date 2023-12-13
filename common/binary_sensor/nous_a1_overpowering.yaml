@@ -1,0 +1,4 @@
+platform: template
+name: "${name} Overpowering"
+id: overpowering
+device_class: problem

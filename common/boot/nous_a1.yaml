@@ -1,0 +1,26 @@
+on_boot:
+  priority: 600
+  then:
+    - binary_sensor.template.publish:
+        id: overpowering
+        state: OFF
+    - if:
+        condition:
+          lambda: 'return id(power_on_default).state == "On";'
+        then:
+          - switch.turn_on: button_switch
+          - switch.turn_on: relay
+          - output.turn_on: led_blue
+        else:
+          - if:
+              condition:
+                lambda: 'return id(power_on_default).state == "Last" and id(relay).state;'
+              then:
+                - switch.turn_on: button_switch
+                - switch.turn_on: relay
+                - output.turn_on: led_blue
+              else:
+                - switch.turn_off: button_switch
+                - switch.turn_off: relay
+                - output.turn_off: led_blue
+
