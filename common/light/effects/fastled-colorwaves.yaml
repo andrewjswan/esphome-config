@@ -63,10 +63,10 @@ addressable_lambda:
       bri8 += (255 - brightdepth);
 
       uint8_t index = hue8;
-      index = scale8( index, 240);
+      index = scale8( index, 240 );
 
-      CRGB newcolor = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], index, bri8);
-      if (id(fastled_variant).state < 128) // направление
+      CRGB newcolor = color_from_palette(index, current_color, bri8);
+      if (id(fastled_variant).state < 128)                                      // Направление
       {
         nblend(leds[(it.size() - 1) - i], newcolor, 128);
       }

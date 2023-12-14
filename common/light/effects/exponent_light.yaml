@@ -15,7 +15,7 @@ addressable_lambda:
     int8_t g = ceil(current_color.g * y);
     int8_t b = ceil(current_color.b * y);
     
-    it.all() = Color(r,g,b);
+    it.all() = Color(r, g, b);
     
     x += 1;
     if (x == 400)

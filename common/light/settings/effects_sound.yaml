@@ -1,5 +1,4 @@
 effects:
-  - !include ../effects/rise_and_fade.yaml
   - !include ../effects/random.yaml
   - !include ../effects/pulse.yaml
   - !include ../effects/flicker.yaml
@@ -38,6 +37,7 @@ effects:
   - !include ../effects/sunrise.yaml
   - !include ../effects/clock.yaml
   - !include ../effects/clock_full.yaml
+  - !include ../effects/rise_and_fade.yaml
   - !include ../effects/strobe_common.yaml
   - !include ../effects/strobe_police.yaml
   - !include ../effects/fastled-blendwave.yaml

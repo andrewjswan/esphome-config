@@ -122,8 +122,8 @@ addressable_lambda:
       int thisbright = qsuba(cubicwave8((i * allfreq) + thisphase), thiscutoff);       // qsub sets a minimum value called thiscutoff. If < thiscutoff, then bright = 0. Otherwise, bright = 128 (as defined in qsub)..
       int thatbright = qsuba(cubicwave8((i * allfreq) + 128 + thatphase), thatcutoff); // This wave is 180 degrees out of phase (with the value of 128).
 
-      leds[i] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thishue, thisbright, LINEARBLEND);
-      leds[i] += ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thathue, thatbright, LINEARBLEND);
+      leds[i] =  color_from_palette(thishue, current_color, thisbright);
+      leds[i] += color_from_palette(thathue, current_color, thatbright);
     }
 
     for (int i = 0; i < it.size(); i++) 

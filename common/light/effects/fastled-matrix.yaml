@@ -49,18 +49,18 @@ addressable_lambda:
 
     if (thisrot) 
     {
-      thisindex++; // Increase palette index to change colours on the fly
+      thisindex++;                                                              // Increase palette index to change colours on the fly
     }
 
     if (random8(90) > 80) 
     {
       if (thisdir == -1)
       {
-        leds[0] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thisindex, 255, LINEARBLEND); // Foreground matrix colour
+        leds[0] = color_from_palette(thisindex, current_color);                 // Foreground matrix colour
       }
       else
       {
-        leds[it.size() - 1] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thisindex, 255, LINEARBLEND);
+        leds[it.size() - 1] = color_from_palette(thisindex, current_color);
       }
     } 
     else 
@@ -75,7 +75,7 @@ addressable_lambda:
       }
     }
 
-    if (thisdir == -1) // Move the foreground colour down the line.
+    if (thisdir == -1)                                                          // Move the foreground colour down the line.
     {
       for (int i = it.size() - 1; i > 0 ; i--)
       {

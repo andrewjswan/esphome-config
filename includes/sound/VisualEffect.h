@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <FastLED.h>
+
+#include "light.h"
 #include "audio_reactive.h"
 
 class VisualEffect
@@ -13,7 +15,6 @@ class VisualEffect
     int gravityCounter = 0;
 
     CRGB color_blend(CRGB color1, CRGB color2, uint16_t blend, bool b16 = false);
-    CRGB color_from_palette(int index);
 
     void fade_out(CRGB * physic_leds, uint8_t rate);
 
@@ -74,17 +75,6 @@ CRGB IRAM_ATTR VisualEffect::color_blend(CRGB color1, CRGB color2, uint16_t blen
   uint32_t b3 = ((b2 * blend) + (b1 * (blendmax - blend))) >> shift;
 
   return CRGB(r3, g3, b3);
-}
-
-// *****************************************************************************************************************************************************************
-CRGB VisualEffect::color_from_palette(int index)
-{
-  if (id(solid_color).state)
-  {
-    return main_color;
-  }
-
-  return ColorFromPalette(paletteArr[(int)id(fastled_palette).state], index, 255, LINEARBLEND);
 }
 
 // *****************************************************************************************************************************************************************
@@ -149,8 +139,8 @@ void VisualEffect::visualize_gravfreq(CRGB * physic_leds)                       
     if (index < 0) index = 0;
     index = scale8(index, 240); // Cut off blend at palette "end"
     
-    physic_leds[i + _leds_num / 2] = color_from_palette(index);
-    physic_leds[_leds_num / 2 - i - 1] = color_from_palette(index);
+    physic_leds[i + _leds_num / 2] = color_from_palette(index, main_color);
+    physic_leds[_leds_num / 2 - i - 1] = color_from_palette(index, main_color);
   }
 
   if (tempsamp >= topLED)
@@ -186,8 +176,8 @@ void VisualEffect::visualize_gravcenter(CRGB * physic_leds)                     
   for (int i=0; i<tempsamp; i++)
   {
     uint8_t index = inoise8(i * segmentSampleAvg + millis(), 5000 + i * segmentSampleAvg);
-    physic_leds[i + _leds_num / 2] = color_blend(back_color, color_from_palette(index), segmentSampleAvg * 8);
-    physic_leds[_leds_num / 2 - i - 1] = color_blend(back_color, color_from_palette(index), segmentSampleAvg * 8);
+    physic_leds[i + _leds_num / 2] = color_blend(back_color, color_from_palette(index, main_color), segmentSampleAvg * 8);
+    physic_leds[_leds_num / 2 - i - 1] = color_blend(back_color, color_from_palette(index, main_color), segmentSampleAvg * 8);
   }
 
   if (tempsamp >= topLED)
@@ -197,8 +187,8 @@ void VisualEffect::visualize_gravcenter(CRGB * physic_leds)                     
 
   if (topLED >= 0)
   {
-    physic_leds[topLED + _leds_num / 2]     = color_from_palette(millis());
-    physic_leds[_leds_num / 2 - 1 - topLED] = color_from_palette(millis());
+    physic_leds[topLED + _leds_num / 2]     = color_from_palette(millis(), main_color);
+    physic_leds[_leds_num / 2 - 1 - topLED] = color_from_palette(millis(), main_color);
   }
   gravityCounter = (gravityCounter + 1) % gravity;
 } // visualize_gravcenter()
@@ -219,8 +209,8 @@ void VisualEffect::visualize_gravcentric(CRGB * physic_leds)                    
   for (int i = 0; i < tempsamp; i++)
   {
     uint8_t index = segmentSampleAvg*24 + millis() / 200;
-    physic_leds[i + _leds_num/2]       = color_from_palette(index);
-    physic_leds[_leds_num / 2 - 1 - i] = color_from_palette(index);
+    physic_leds[i + _leds_num/2]       = color_from_palette(index, main_color);
+    physic_leds[_leds_num / 2 - 1 - i] = color_from_palette(index, main_color);
   }
 
   if (tempsamp >= topLED)
@@ -269,8 +259,8 @@ void VisualEffect::visualize_binmap(CRGB * physic_leds)                         
 
     if (sumBin > maxVal) sumBin = maxVal;                 // Make sure our bin isn't higher than the max . . which we capped earlier.
 
-    uint8_t bright = constrain(mapff(sumBin, 0, maxVal, 0, 255), 0, 255);                        // Map the brightness in relation to maxVal and crunch to 8 bits.
-    physic_leds[i] = color_blend(back_color, color_from_palette(i * 8 + millis() / 50), bright); // 'i' is just an index in the palette. The FFT value, bright, is the intensity.
+    uint8_t bright = constrain(mapff(sumBin, 0, maxVal, 0, 255), 0, 255);                                    // Map the brightness in relation to maxVal and crunch to 8 bits.
+    physic_leds[i] = color_blend(back_color, color_from_palette(i * 8 + millis() / 50, main_color), bright); // 'i' is just an index in the palette. The FFT value, bright, is the intensity.
   } // for i
 } // visualize_binmap
 
@@ -282,7 +272,7 @@ void VisualEffect::visualize_pixels(CRGB * physic_leds)                         
   for (int i = 0; i < (int)id(fastled_variant).state / 16; i++)
   {
     uint16_t segLoc = random(_leds_num); // 16 bit for larger strands of LED's.
-    physic_leds[segLoc] = color_blend(back_color, color_from_palette(myVals[i % 32] + i * 4), sampleAgc);
+    physic_leds[segLoc] = color_blend(back_color, color_from_palette(myVals[i % 32] + i * 4, main_color), sampleAgc);
   }
 } // visualize_pixels()
 
@@ -295,7 +285,7 @@ void VisualEffect::visualize_juggles(CRGB * physic_leds)                        
 
   for (int i = 0; i < (int)id(fastled_variant).state / 32 + 1; i++)
   {
-    physic_leds[beatsin16((int)id(fastled_speed).state / 4 + i * 2, 0, _leds_num - 1)] = color_blend(back_color, color_from_palette(millis() / 4 + i * 2), my_sampleAgc);
+    physic_leds[beatsin16((int)id(fastled_speed).state / 4 + i * 2, 0, _leds_num - 1)] = color_blend(back_color, color_from_palette(millis() / 4 + i * 2, main_color), my_sampleAgc);
   }
 } // visualize_juggles()
 
@@ -317,7 +307,7 @@ void VisualEffect::visualize_midnoise(CRGB * physic_leds)                       
   for (int i = (_leds_num / 2 - maxLen); i < (_leds_num / 2 + maxLen); i++)
   {
     uint8_t index = inoise8(i * tmpSound + x, y + i * tmpSound);  // Get a value from the noise function. I'm using both x and y axis.
-    physic_leds[i] = color_from_palette(index);
+    physic_leds[i] = color_from_palette(index, main_color);
   }
 
   x = x + beatsin8(5,0,10);

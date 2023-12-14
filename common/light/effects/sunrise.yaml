@@ -1,4 +1,4 @@
-﻿lambda:
+lambda:
   name: Sunrise
   update_interval: 15s
   lambda: |- 
@@ -15,7 +15,7 @@
     call.set_brightness(state / 100.0);
     call.perform(); 
 
-    if (state < 50)
+    if (state < ${sunrise})
     {
       state++;
     }

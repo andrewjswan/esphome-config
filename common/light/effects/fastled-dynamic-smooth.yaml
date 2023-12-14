@@ -33,7 +33,7 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++) 
     {
-      CRGB color = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], data[i], 255, LINEARBLEND);
+      CRGB color = color_from_palette(data[i], current_color);
       if (id(fastled_speed).state > 0)
       {
         CRGB ledcolor = leds[i];

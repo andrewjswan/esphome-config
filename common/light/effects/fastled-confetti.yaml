@@ -40,10 +40,10 @@ addressable_lambda:
       variant = (int)id(fastled_variant).state;
     }
 
-    fadeToBlackBy(leds, it.size(), thisfade); // Задухание светодиодов на значение thisfade
+    fadeToBlackBy(leds, it.size(), thisfade);                                         // Задухание светодиодов на значение thisfade
     uint16_t pos = random16(it.size());
-    leds[pos] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], thisindex + random8(thisdiff) / 4 , 255, LINEARBLEND); // Munge the values and pick a colour from the palette
-    thisindex = thisindex + thisinc;                                                                                                // base palette counter increments here.
+    leds[pos] = color_from_palette(thisindex + random8(thisdiff) / 4, current_color); // Munge the values and pick a colour from the palette
+    thisindex = thisindex + thisinc;                                                  // base palette counter increments here.
 
     for (int i = 0; i < it.size(); i++) 
     {

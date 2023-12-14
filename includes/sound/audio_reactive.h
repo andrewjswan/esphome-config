@@ -20,6 +20,8 @@
 #include <driver/i2s.h>
 #include "audio_source.h"
 
+#define SOUND_REACTIVE
+
 #define WLED_GLOBAL
 #define _INIT(x) = x
 
@@ -131,7 +133,6 @@ float fftBin[samplesFFT];
 // Oh, and bins 0,1,2 are no good, so we'll zero them out.
 float fftCalc[16];
 int fftResult[16];                              // Our calculated result table, which we feed to the animations.
-float fftResultMax[16];                         // A table used for testing to determine how our post-processing is working.
 float fftAvg[16];
 
 // Table of linearNoise results to be multiplied by soundSquelch in order to reduce squelch across fftResult bins.

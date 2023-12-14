@@ -1,3 +1,5 @@
+#pragma once
+
 #include <FastLED.h>
 
 DEFINE_GRADIENT_PALETTE( Fire_gp ) {

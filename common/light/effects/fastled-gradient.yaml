@@ -13,8 +13,8 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++) 
     {
-      byte idx = map(i, 0, it.size(), 0, 255) + count; // прямой градиент
-      CRGB color = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], idx, 255, LINEARBLEND);
+      byte idx = map(i, 0, it.size(), 0, 255) + count;                          // Прямой градиент
+      CRGB color = color_from_palette(idx, current_color);
 
       it[i] = Color(color.r, color.g, color.b);
     }

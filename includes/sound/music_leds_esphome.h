@@ -141,7 +141,7 @@ void MusicLeds::ShowFrame(PLAYMODE CurrentMode, esphome::Color current_color, li
   limitSampleDynamics();
 
   effect->main_color = CRGB(current_color.r, current_color.g, current_color.b);
-  if (id(solid_color).state)
+  if ((int)id(fastled_palette).state == 0)
   {
     effect->back_color = CRGB(current_color.r / 100 * 5, current_color.g / 100 * 5, current_color.b / 100 * 5); // 5% from main color
   }

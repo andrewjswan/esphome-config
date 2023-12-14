@@ -23,24 +23,6 @@ number:
   - !include ../common/number/fastled_variant.yaml
   - !include ../common/number/fastled_palette.yaml
 
-binary_sensor:
-  - platform: gpio
-    name: ${name} Button
-    pin:
-      number: GPIO26
-      mode:
-        input: true
-        pullup: true
-    filters:
-      - delayed_on: 32ms
-    on_release:
-      then:
-        - light.toggle: neopixel_led
-
-switch:
-  # FastLed Solid color instead color from Palettes
-  - !include ../common/switch/fastled_solid.yaml
-
 light:
   # Neopixel with Sound Reactive
   - !include ../common/light/neopixel_illumination_sound.yaml

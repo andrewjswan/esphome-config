@@ -5,6 +5,6 @@ max_value: 255
 step: 1
 optimistic: true
 id: fastled_variant
-initial_value: 0
+initial_value: 128
 mode: slider
 entity_category: config

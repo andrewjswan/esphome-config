@@ -52,8 +52,8 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++) 
     {
-      uint8_t tmp = sin8(mul1 * i + wave1) + sin8(mul1 * i + wave2) + sin8(mul1 * i + wave3);
-      leds[i] = ColorFromPalette(paletteArr[(int)id(fastled_palette).state], tmp, 255, LINEARBLEND);
+      uint8_t index = sin8(mul1 * i + wave1) + sin8(mul1 * i + wave2) + sin8(mul1 * i + wave3);
+      leds[i] = color_from_palette(index, current_color);
     }
 
     for (int i = 0; i < it.size(); i++) 
