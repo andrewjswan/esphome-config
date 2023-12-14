@@ -6,6 +6,7 @@
 #include "FastLED.h"
 #include "palettes.h"
 
+// *****************************************************************************************************************************************************************
 CRGB* leds;
 CRGBPalette16 randomPalette;
 
@@ -14,7 +15,8 @@ uint32_t randomPaletteChange = 0;
 CRGB color_from_palette(int index, esphome::Color current_color, uint8_t brightness);
 CRGB color_from_palette(int index, CRGB current_color, uint8_t brightness);
 
-void InitLeds(int size) 
+// *****************************************************************************************************************************************************************
+void InitLeds(int size)
 {
   if (leds == NULL) 
   {
@@ -22,12 +24,21 @@ void InitLeds(int size)
   }
 }
 
+// *****************************************************************************************************************************************************************
+void FreeLeds()
+{
+  delete [] leds;
+  leds = nullptr;
+}
+
+// *****************************************************************************************************************************************************************
 CRGB color_from_palette(int index, esphome::Color current_color, uint8_t brightness = 255)
 {
   CRGB color = CRGB(current_color.r, current_color.g, current_color.b);
   return color_from_palette(index, color, brightness);
 }
 
+// *****************************************************************************************************************************************************************
 CRGB color_from_palette(int index, CRGB current_color, uint8_t brightness = 255)
 {
   if ((int)id(fastled_palette).state == 0)                                      // Current led color
@@ -70,6 +81,7 @@ CRGB color_from_palette(int index, CRGB current_color, uint8_t brightness = 255)
 }
 
 #ifdef SOUND_REACTIVE                                                           // SOUND_REACTIVE
+// *****************************************************************************************************************************************************************
 CRGBPalette16 getAudioPalette(int pal)
 {
   // https://forum.makerforums.info/t/hi-is-it-possible-to-define-a-gradient-palette-at-runtime-the-define-gradient-palette-uses-the/63339
@@ -103,6 +115,7 @@ CRGBPalette16 getAudioPalette(int pal)
   return CRGBPalette16(xyz);
 }
 
+// *****************************************************************************************************************************************************************
 CRGB getCRGBForBand(int x, int pal)
 { 
   extern int fftResult[];                                                       // Summary of bins Array. 16 summary bins.

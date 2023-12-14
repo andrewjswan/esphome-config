@@ -20,8 +20,6 @@ class MusicLeds
   private:
     class VisualEffect * effect;
 
-    CRGB* physic_leds;
-
     PLAYMODE CurrentMode = MODE_GRAV;
 
   public:
@@ -97,8 +95,7 @@ MusicLeds::~MusicLeds()
   delete effect;
   effect = nullptr;
 
-  delete [] physic_leds;
-  physic_leds = nullptr;
+  FreeLeds();
 }
 
 void MusicLeds::ShowFrame(PLAYMODE CurrentMode, esphome::Color current_color, light::AddressableLight *p_it)
@@ -108,10 +105,7 @@ void MusicLeds::ShowFrame(PLAYMODE CurrentMode, esphome::Color current_color, li
     effect = new VisualEffect(p_it->size());
   }
 
-  if (physic_leds == NULL) 
-  {
-    physic_leds = new CRGB[p_it->size()];
-  }
+  InitLeds(p_it->size());
 
   if (disableSoundProcessing)
   {
@@ -153,31 +147,31 @@ void MusicLeds::ShowFrame(PLAYMODE CurrentMode, esphome::Color current_color, li
   switch(CurrentMode)
   {
     case MODE_BINMAP:
-      effect->visualize_binmap(physic_leds);
+      effect->visualize_binmap(leds);
       break;
     case MODE_GRAV:
-      effect->visualize_gravfreq(physic_leds);
+      effect->visualize_gravfreq(leds);
       break;
     case MODE_GRAVICENTER:
-      effect->visualize_gravcenter(physic_leds);
+      effect->visualize_gravcenter(leds);
       break;
     case MODE_GRAVICENTRIC:
-      effect->visualize_gravcentric(physic_leds);
+      effect->visualize_gravcentric(leds);
       break;
     case MODE_PIXELS:
-      effect->visualize_pixels(physic_leds);
+      effect->visualize_pixels(leds);
       break;
     case MODE_JUNGLES:
-      effect->visualize_juggles(physic_leds);
+      effect->visualize_juggles(leds);
       break;
     case MODE_MIDNOISE:
-      effect->visualize_midnoise(physic_leds);
+      effect->visualize_midnoise(leds);
       break;
   }
 
   for (int i = 0; i < p_it->size(); i++)
   {
-    (*p_it)[i] = Color(physic_leds[i].r, physic_leds[i].g, physic_leds[i].b);
+    (*p_it)[i] = Color(leds[i].r, leds[i].g, leds[i].b);
   }
 
   #if defined delay
