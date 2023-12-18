@@ -11,8 +11,6 @@ substitutions:
   pin_leds: "GPIO16"
   color_correct_bright: "50%"
   sunrise: "100"
-  project_name: "ajs.led_light_sound"
-  project_version: "1.5.5"
   comment: "Window Illumination with Sound Reactive effects"
 
 esphome:

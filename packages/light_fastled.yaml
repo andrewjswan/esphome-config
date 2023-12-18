@@ -1,4 +1,8 @@
-﻿esphome:
+substitutions:
+  project_name: "ajs.Light - Fastled"
+  project_version: "1.0.5"
+
+esphome:
   libraries:
     - "FastLED"
   includes:

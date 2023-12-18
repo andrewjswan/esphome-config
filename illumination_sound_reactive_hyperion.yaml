@@ -1,6 +1,6 @@
 substitutions:
-  device: esp_fastled
-  name: Fastled Effects
+  device: esp_sound_reactive_hyperion
+  name: Sound Reactive Hyperion
   location: ${name}
   update_interval: 3s
   device_ip: 192.168.0.0
@@ -11,7 +11,7 @@ substitutions:
   pin_leds: "GPIO16"
   color_correct_bright: "50%"
   sunrise: "100"
-  comment: "Window Illumination with FastLed effects"
+  comment: "Window Illumination with Sound Reactive and Hyperion effects"
 
 esphome:
   name: ${device}
@@ -22,11 +22,11 @@ esphome:
     version: $project_version
   <<: !include common/boot/window_illumination.yaml
 
-<<: !include common/esp/esp32_node.yaml
+<<: !include common/esp/esp32_wrover.yaml
 
 <<: !include common/common.yaml
 
 packages:
   common: !include packages/common_32.yaml
   led_power: !include packages/led_power.yaml
-  light: !include packages/light_fastled.yaml
+  light: !include packages/light_sound_reactive_hyperion.yaml

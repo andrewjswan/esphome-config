@@ -123,3 +123,4 @@ effects:
           ESP_LOGD("effect", "Midnoise with Music");
         }
         music_leds.ShowFrame(MODE_MIDNOISE, current_color, &it);
+  - !include ../effects/hyperion_ddp.yaml

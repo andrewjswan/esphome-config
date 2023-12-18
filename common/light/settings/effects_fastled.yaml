@@ -33,6 +33,7 @@ effects:
   - !include ../effects/gold_glitter.yaml
   - !include ../effects/meteor.yaml
   - !include ../effects/balls.yaml
+  - !include ../effects/tail.yaml
   - !include ../effects/ukraine.yaml
   - !include ../effects/sunrise.yaml
   - !include ../effects/clock.yaml
@@ -58,3 +59,4 @@ effects:
   - !include ../effects/fastled-rainbow-beat.yaml
   - !include ../effects/fastled-rainbow-march.yaml
   - !include ../effects/fastled-serendipitous.yaml
+  - !include ../effects/fastled-tunnel.yaml

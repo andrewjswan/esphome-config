@@ -1,5 +1,5 @@
 substitutions:
-  project_name: "ajs.Light - Sound Reactive"
+  project_name: "ajs.Light - Sound Reactive - Hyperion"
   project_version: "1.5.5"
 
 esphome:
@@ -13,6 +13,14 @@ esphome:
     - includes/sound/VisualEffect.h
     - includes/sound/audio_source.h
     - includes/sound/audio_reactive.h
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/KaufHA/common
+    components: [ ddp ]
+
+ddp:
 
 # Over The Air Update Component
 ota:
@@ -28,5 +36,5 @@ number:
   - !include ../common/number/fastled_palette.yaml
 
 light:
-  # Neopixel with Sound Reactive
-  - !include ../common/light/neopixel_illumination_sound.yaml
+  # Neopixel with Sound Reactive and Hyperion
+  - !include ../common/light/neopixel_illumination_sound_hyperion.yaml

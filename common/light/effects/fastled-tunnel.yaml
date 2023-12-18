@@ -1,0 +1,40 @@
+﻿addressable_lambda:
+  name: Fastled Tunnel
+  update_interval: 50ms
+  lambda: |-
+    static unsigned int PulseArray[][3] = 
+    {
+      {0, 10, 30} ,   //  PulseArray0 {hi-res position, speed, back-and-forth} */
+      {0, 40, 50}     //  PulseArray1 {hi-res position, speed, back-and-forth} */
+    };
+
+    static unsigned int FinalLEDPos;      // final native-res LED position
+    static unsigned int Resolution = 100; // for creating higher resolution
+    static unsigned int PulseLength = 5;  // length of the pulse
+    static unsigned int TotalPulses = sizeof(PulseArray) / sizeof(PulseArray[0]);          
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "Fastled Tunnel");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+    }
+
+    it.all().darken(10); // create a fade
+    
+    for (int ThisPulse = 0; ThisPulse < TotalPulses; ThisPulse++)
+    {
+      unsigned int Delta = beatsin8(20, 0, PulseArray[ThisPulse][2]) * PulseArray[ThisPulse][1]; // create the back-and-forth
+      unsigned int DeltaHiResPos = PulseArray[ThisPulse][0] + Delta;                             // add it to the position
+      unsigned int DeltaLEDPos = DeltaHiResPos / Resolution;                                     // convert to native resolution
+    
+      for (int i = 0; i < PulseLength; i++) {
+        FinalLEDPos = (DeltaLEDPos +i) % it.size(); // handles out of range
+        FinalLEDPos = it.size() - FinalLEDPos;      // flip it
+        it[FinalLEDPos] = current_color;            // display it
+      }
+    
+      PulseArray[ThisPulse][0] = PulseArray[ThisPulse][0] + PulseArray[ThisPulse][1];               // move the pulse forward
+      if(PulseArray[ThisPulse][0] > (it.size() - 1) * Resolution) { PulseArray[ThisPulse][0] = 0;}; // wrap it
+    }
