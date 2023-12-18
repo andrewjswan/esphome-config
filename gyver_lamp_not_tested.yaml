@@ -1,0 +1,34 @@
+substitutions:
+  device: esp_gyver_lamp
+  name: Gyver Lamp
+  location: ${name}
+  update_interval: 60s
+  device_ip: 192.168.0.0
+  reboot_timeout: 0s
+  num_leds: "256"
+  type_leds: "GRB"
+  flagflip: "0"
+  pin_leds: "GPIO2"
+  color_correct_bright: "50%"
+  sunrise: "100"
+  project_name: "ajs.Gyver Lamp"
+  project_version: "1.0.5"
+  comment: "ESPHome Gyver Lamp by Andrew J.Swan"
+
+esphome:
+  name: ${device}
+  comment: $comment
+  build_path: ./.build/$device
+  project:
+    name: $project_name
+    version: $project_version
+  <<: !include common/boot/window_illumination.yaml
+
+<<: !include common/esp/esp8266_node.yaml
+
+<<: !include common/common.yaml
+
+packages:
+  common: !include packages/common_8266.yaml
+  led_power: !include packages/led_power.yaml
+  light: !include packages/light_gyver_lamp.yaml

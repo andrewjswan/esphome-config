@@ -1,9 +1,14 @@
 #pragma once
 
+#include "light.h"
+#include "constants.h"
+#include "utility.h"
+#include "effect_ticker.h"
+
 class GyverLamp
 {
   private:
-    uint8_t CurrentMode = EFF_LAVALAMP;
+    uint8_t cMode = EFF_WHITE_COLOR;
 
   public:
     GyverLamp();
@@ -24,6 +29,13 @@ GyverLamp::~GyverLamp()
 void GyverLamp::ShowFrame(uint8_t CurrentMode, esphome::Color current_color, light::AddressableLight *p_it)
 {
   InitLeds(p_it->size());
+
+  if (cMode != CurrentMode)
+  {
+    cMode = CurrentMode;
+  }
+  currentMode = CurrentMode;
+  loadingFlag = true;
 
   effectsTick();
 

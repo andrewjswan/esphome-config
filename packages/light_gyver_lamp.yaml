@@ -1,0 +1,28 @@
+﻿esphome:
+  libraries:
+    - FastLED
+  includes:
+    - includes/gyver/light.h
+    - includes/gyver/constants.h
+    - includes/gyver/utility.h
+    - includes/gyver/effect_ticker.h
+    - includes/gyver/effects.h
+    - includes/gyver/noise_effects.h
+    - includes/gyver/gyver_lamp_esphome.h
+
+# Over The Air Update Component
+ota:
+  on_begin:
+    then:
+      - lambda: |-
+          gyver_lamp.~GyverLamp();
+
+number:
+  # FastLed Settings
+  - !include ../common/number/fastled_speed.yaml
+  - !include ../common/number/fastled_variant.yaml
+  - !include ../common/number/fastled_palette.yaml
+
+light:
+  # Neopixel with Sound Reactive
+  - !include ../common/light/neopixel_gyver_lamp.yaml

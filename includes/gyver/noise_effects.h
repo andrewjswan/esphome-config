@@ -1,5 +1,9 @@
 #pragma once
 
+#include "FastLED.h"
+#include "constants.h"
+#include "utility.h"
+
 // ************* НАСТРОЙКИ *************
 /*
 // "масштаб" эффектов. Чем меньше, тем крупнее!
@@ -36,13 +40,23 @@ CRGBPalette16 currentPalette(PartyColors_p);
 uint8_t colorLoop = 1;
 uint8_t ihue = 0;
 
+void fillNoiseLED();
+void fillnoise8();
+
 void madnessNoiseRoutine()
 {
   if (loadingFlag)
   {
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings){
+        uint8_t tmp = random8(9U);
+        setModeSettings(30U+tmp*tmp, 20U+random8(41U));
+      }
+    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     loadingFlag = false;
-    scale = modes[currentMode].Scale;
-    speed = modes[currentMode].Speed;
+    scale = (int)id(fastled_variant).state;
+    speed = (int)id(fastled_speed).state;
   }
   fillnoise8();
   for (uint8_t i = 0; i < WIDTH; i++)
@@ -60,10 +74,17 @@ void rainbowNoiseRoutine()
 {
   if (loadingFlag)
   {
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings){
+        uint8_t tmp = random8(10U);
+        setModeSettings(20U+tmp*tmp, 1U+random8(23U));
+      }
+    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     loadingFlag = false;
     currentPalette = RainbowColors_p;
-    scale = modes[currentMode].Scale;
-    speed = modes[currentMode].Speed;
+    scale = (int)id(fastled_variant).state;
+    speed = (int)id(fastled_speed).state;
     colorLoop = 1;
   }
   fillNoiseLED();
@@ -73,10 +94,16 @@ void rainbowStripeNoiseRoutine()
 {
   if (loadingFlag)
   {
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings){
+        setModeSettings(8U+random8(17U), 1U+random8(9U));
+      }
+    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     loadingFlag = false;
     currentPalette = RainbowStripeColors_p;
-    scale = modes[currentMode].Scale;
-    speed = modes[currentMode].Speed;
+    scale = (int)id(fastled_variant).state;
+    speed = (int)id(fastled_speed).state;
     colorLoop = 1;
   }
   fillNoiseLED();
@@ -86,6 +113,12 @@ void zebraNoiseRoutine()
 {
   if (loadingFlag)
   {
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings){
+        setModeSettings(12U+random8(16U), 1U+random8(9U));
+      }
+    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     loadingFlag = false;
     // 'black out' all 16 palette entries...
     fill_solid(currentPalette, 16, CRGB::Black);
@@ -94,8 +127,8 @@ void zebraNoiseRoutine()
     currentPalette[4] = CRGB::White;
     currentPalette[8] = CRGB::White;
     currentPalette[12] = CRGB::White;
-    scale = modes[currentMode].Scale;
-    speed = modes[currentMode].Speed;
+    scale = (int)id(fastled_variant).state;
+    speed = (int)id(fastled_speed).state;
     colorLoop = 1;
   }
   fillNoiseLED();
@@ -106,9 +139,15 @@ void forestNoiseRoutine()
   if (loadingFlag)
   {
     loadingFlag = false;
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings){
+        setModeSettings(70U+random8(31U), 2U+random8(24U));
+      }
+    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     currentPalette = ForestColors_p;
-    scale = modes[currentMode].Scale;
-    speed = modes[currentMode].Speed;
+    scale = (int)id(fastled_variant).state;
+    speed = (int)id(fastled_speed).state;
     colorLoop = 0;
   }
   fillNoiseLED();
@@ -118,10 +157,16 @@ void oceanNoiseRoutine()
 {
   if (loadingFlag)
   {
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings){
+        setModeSettings(6U+random8(25U), 4U+random8(8U));
+      }
+    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     loadingFlag = false;
     currentPalette = OceanColors_p;
-    scale = modes[currentMode].Scale;
-    speed = modes[currentMode].Speed;
+    scale = (int)id(fastled_variant).state;
+    speed = (int)id(fastled_speed).state;
     colorLoop = 0;
   }
 
@@ -132,10 +177,17 @@ void plasmaNoiseRoutine()
 {
   if (loadingFlag)
   {
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings){
+        uint8_t tmp = random8(10U);
+        setModeSettings(20U+tmp*tmp, 1U+random8(27U));
+      }
+    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     loadingFlag = false;
     currentPalette = PartyColors_p;
-    scale = modes[currentMode].Scale;
-    speed = modes[currentMode].Speed;
+    scale = (int)id(fastled_variant).state;
+    speed = (int)id(fastled_speed).state;
     colorLoop = 1;
   }
   fillNoiseLED();
@@ -145,10 +197,16 @@ void cloudsNoiseRoutine()
 {
   if (loadingFlag)
   {
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings){
+        setModeSettings(15U+random8(36U), 1U+random8(10U));
+      }
+    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     loadingFlag = false;
     currentPalette = CloudColors_p;
-    scale = modes[currentMode].Scale;
-    speed = modes[currentMode].Speed;
+    scale = (int)id(fastled_variant).state;
+    speed = (int)id(fastled_speed).state;
     colorLoop = 0;
   }
   fillNoiseLED();
@@ -158,10 +216,17 @@ void lavaNoiseRoutine()
 {
   if (loadingFlag)
   {
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings){
+        uint8_t tmp = random8(9U);
+        setModeSettings(10U+tmp*tmp, 5U+random8(16U));
+      }
+    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     loadingFlag = false;
     currentPalette = LavaColors_p;
-    scale = modes[currentMode].Scale;
-    speed = modes[currentMode].Speed;
+    scale = (int)id(fastled_variant).state;
+    speed = (int)id(fastled_speed).state;
     colorLoop = 0;
   }
   fillNoiseLED();

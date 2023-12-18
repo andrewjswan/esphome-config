@@ -1,0 +1,10 @@
+effects:
+  - addressable_lambda:
+      name: Lava Lamp
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Lava Lamp");
+        }
+        gyver_lamp.ShowFrame(EFF_LAVALAMP, current_color, &it);

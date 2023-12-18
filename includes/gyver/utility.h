@@ -1,39 +1,5 @@
 #pragma once
 
-// служебные функции
-
-// залить все
-void fillAll(CRGB color)
-{
-  for (int16_t i = 0; i < NUM_LEDS; i++)
-    leds[i] = color;
-}
-
-// функция отрисовки точки по координатам X Y
-void drawPixelXY(int8_t x, int8_t y, CRGB color)
-{
-  if (x < 0 || x > (WIDTH - 1) || y < 0 || y > (HEIGHT - 1)) return;
-  uint32_t thisPixel = XY((uint8_t)x, (uint8_t)y) * SEGMENTS;
-  for (uint8_t i = 0; i < SEGMENTS; i++)
-  {
-    leds[thisPixel + i] = color;
-  }
-}
-
-// функция получения цвета пикселя по его номеру
-uint32_t getPixColor(uint32_t thisSegm)
-{
-  uint32_t thisPixel = thisSegm * SEGMENTS;
-  if (thisPixel > NUM_LEDS - 1) return 0;
-  return (((uint32_t)leds[thisPixel].r << 16) | ((uint32_t)leds[thisPixel].g << 8 ) | (uint32_t)leds[thisPixel].b); // а почему не просто return (leds[thisPixel])?
-}
-
-// функция получения цвета пикселя в матрице по его координатам
-uint32_t getPixColorXY(uint8_t x, uint8_t y)
-{
-  return getPixColor(XY(x, y));
-}
-
 // ************* НАСТРОЙКА МАТРИЦЫ *****
 #if (CONNECTION_ANGLE == 0 && STRIP_DIRECTION == 0)
 #define _WIDTH WIDTH
@@ -76,6 +42,8 @@ uint32_t getPixColorXY(uint8_t x, uint8_t y)
 #define THIS_Y (WIDTH - x - 1)
 
 #else
+!!!!!!!!!!!!!!!!!!!!!!!!!!!   смотрите инструкцию: https://alexgyver.ru/wp-content/uploads/2018/11/scheme3.jpg
+!!!!!!!!!!!!!!!!!!!!!!!!!!!   такого сочетания CONNECTION_ANGLE и STRIP_DIRECTION не бывает
 #define _WIDTH WIDTH
 #define THIS_X x
 #define THIS_Y y
@@ -83,18 +51,9 @@ uint32_t getPixColorXY(uint8_t x, uint8_t y)
 
 #endif
 
-// получить номер пикселя в ленте по координатам
-// библиотека FastLED тоже использует эту функцию
-uint16_t XY(uint8_t x, uint8_t y)
-{
-  if (!(THIS_Y & 0x01) || MATRIX_TYPE)               // Even rows run forwards
-    return (THIS_Y * _WIDTH + THIS_X);
-  else                                                  
-    return (THIS_Y * _WIDTH + _WIDTH - THIS_X - 1);  // Odd rows run backwards
-}
-
 // если у вас матрица необычной формы с зазорами/вырезами, либо просто маленькая, тогда вам придётся переписать функцию XY() под себя
 // массив для переадресации можно сформировать на этом онлайн-сервисе: https://macetech.github.io/FastLED-XY-Map-Generator/
+// или тут по-русски: https://firelamp.pp.ua/matrix_generator/
 
 // ниже пример функции, когда у вас матрица 8х16, а вы хотите, чтобы эффекты рисовались, будто бы матрица 16х16 (рисуем по центру, а по бокам обрезано)
 //   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
@@ -111,8 +70,8 @@ uint16_t XY(uint8_t x, uint8_t y)
 //   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
 //   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
 //   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  8  9  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  7  6  5  4  3  2  1  0  -  -  -  -
+//   -  -  -  -  Х  Х  Х  Х  Х  Х  9  8  -  -  -  - 
+//   -  -  -  -  0  1  2  3  4  5  6  7  -  -  -  -
 /*
 uint8_t XY (uint8_t x, uint8_t y) {
   // any out of bounds address maps to the first hidden pixel
@@ -121,22 +80,22 @@ uint8_t XY (uint8_t x, uint8_t y) {
   }
 
   const uint8_t XYTable[] = {
-   248, 249, 250, 251, 120, 121, 122, 123, 124, 125, 126, 127, 252, 253, 254, 255,
-   247, 246, 245, 244, 119, 118, 117, 116, 115, 114, 113, 112, 243, 242, 241, 240,
-   232, 233, 234, 235, 104, 105, 106, 107, 108, 109, 110, 111, 236, 237, 238, 239,
-   231, 230, 229, 228, 103, 102, 101, 100,  99,  98,  97,  96, 227, 226, 225, 224,
-   216, 217, 218, 219,  88,  89,  90,  91,  92,  93,  94,  95, 220, 221, 222, 223,
-   215, 214, 213, 212,  87,  86,  85,  84,  83,  82,  81,  80, 211, 210, 209, 208,
-   200, 201, 202, 203,  72,  73,  74,  75,  76,  77,  78,  79, 204, 205, 206, 207,
-   199, 198, 197, 196,  71,  70,  69,  68,  67,  66,  65,  64, 195, 194, 193, 192,
-   184, 185, 186, 187,  56,  57,  58,  59,  60,  61,  62,  63, 188, 189, 190, 191,
-   183, 182, 181, 180,  55,  54,  53,  52,  51,  50,  49,  48, 179, 178, 177, 176,
-   168, 169, 170, 171,  40,  41,  42,  43,  44,  45,  46,  47, 172, 173, 174, 175,
-   167, 166, 165, 164,  39,  38,  37,  36,  35,  34,  33,  32, 163, 162, 161, 160,
-   152, 153, 154, 155,  24,  25,  26,  27,  28,  29,  30,  31, 156, 157, 158, 159,
-   151, 150, 149, 148,  23,  22,  21,  20,  19,  18,  17,  16, 147, 146, 145, 144,
-   136, 137, 138, 139,   8,   9,  10,  11,  12,  13,  14,  15, 140, 141, 142, 143,
-   135, 134, 133, 132,   7,   6,   5,   4,   3,   2,   1,   0, 131, 130, 129, 128
+   255, 254, 253, 252, 127, 126, 125, 124, 123, 122, 121, 120, 251, 250, 249, 248,
+   240, 241, 242, 243, 112, 113, 114, 115, 116, 117, 118, 119, 244, 245, 246, 247,
+   239, 238, 237, 236, 111, 110, 109, 108, 107, 106, 105, 104, 235, 234, 233, 232,
+   224, 225, 226, 227,  96,  97,  98,  99, 100, 101, 102, 103, 228, 229, 230, 231,
+   223, 222, 221, 220,  95,  94,  93,  92,  91,  90,  89,  88, 219, 218, 217, 216,
+   208, 209, 210, 211,  80,  81,  82,  83,  84,  85,  86,  87, 212, 213, 214, 215,
+   207, 206, 205, 204,  79,  78,  77,  76,  75,  74,  73,  72, 203, 202, 201, 200,
+   192, 193, 194, 195,  64,  65,  66,  67,  68,  69,  70,  71, 196, 197, 198, 199,
+   191, 190, 189, 188,  63,  62,  61,  60,  59,  58,  57,  56, 187, 186, 185, 184,
+   176, 177, 178, 179,  48,  49,  50,  51,  52,  53,  54,  55, 180, 181, 182, 183,
+   175, 174, 173, 172,  47,  46,  45,  44,  43,  42,  41,  40, 171, 170, 169, 168,
+   160, 161, 162, 163,  32,  33,  34,  35,  36,  37,  38,  39, 164, 165, 166, 167,
+   159, 158, 157, 156,  31,  30,  29,  28,  27,  26,  25,  24, 155, 154, 153, 152,
+   144, 145, 146, 147,  16,  17,  18,  19,  20,  21,  22,  23, 148, 149, 150, 151,
+   143, 142, 141, 140,  15,  14,  13,  12,  11,  10,   9,   8, 139, 138, 137, 136,
+   128, 129, 130, 131,   0,   1,   2,   3,   4,   5,   6,   7, 132, 133, 134, 135
   };
 
   uint8_t i = (y * 16) + x;
@@ -144,28 +103,59 @@ uint8_t XY (uint8_t x, uint8_t y) {
 }
 */
 
-// оставлено для совместимости со эффектами из старых прошивок
-uint16_t getPixelNumber(uint8_t x, uint8_t y)
+// залить все
+void fillAll(CRGB color)
 {
-  return XY(x, y);
+  for (uint16_t i = 0; i < NUM_LEDS; i++)
+    leds[i] = color;
 }
 
-// восстановление настроек эффектов на настройки по умолчанию
-void restoreSettings()
+// получить номер пикселя в ленте по координатам
+// библиотека FastLED тоже использует эту функцию
+uint16_t XY(uint8_t x, uint8_t y)
 {
-  if (defaultSettingsCOUNT == MODE_AMOUNT)          // если пользователь не накосячил с количеством строк в массиве настроек в Constants.h, используем их
-    for (uint8_t i = 0; i < MODE_AMOUNT; i++) {
-      modes[i].Brightness = pgm_read_byte(&defaultSettings[i][0]);
-      modes[i].Speed      = pgm_read_byte(&defaultSettings[i][1]);
-      modes[i].Scale      = pgm_read_byte(&defaultSettings[i][2]);
-    }
-  else                                              // иначе берём какие-то абстрактные
-    for (uint8_t i = 0; i < MODE_AMOUNT; i++) {
-      modes[i].Brightness = 50U;
-      modes[i].Speed      = 225U;
-      modes[i].Scale      = 40U;
-    }  
+  if (!(THIS_Y & 0x01) || MATRIX_TYPE)               // Even rows run forwards
+    return (THIS_Y * _WIDTH + THIS_X);
+  else                                                  
+    return (THIS_Y * _WIDTH + _WIDTH - THIS_X - 1);  // Odd rows run backwards
 }
+
+// функция отрисовки точки по координатам X Y
+#if (WIDTH > 127) || (HEIGHT > 127)
+void drawPixelXY(int16_t x, int16_t y, CRGB color)
+#else
+void drawPixelXY(int8_t x, int8_t y, CRGB color)
+#endif
+{
+  if (x < 0 || x > (WIDTH - 1) || y < 0 || y > (HEIGHT - 1)) return;
+  //uint32_t thisPixel = XY((uint8_t)x, (uint8_t)y) * SEGMENTS;
+  //for (uint8_t i = 0; i < SEGMENTS; i++)
+  //{
+  //  leds[thisPixel + i] = color;
+  //}
+  leds[XY(x, y)] = color;
+}
+
+// функция получения цвета пикселя по его номеру
+//uint32_t getPixColor(uint32_t thisSegm)
+//{
+//  uint32_t thisPixel = thisSegm * SEGMENTS;
+//  if (thisPixel > NUM_LEDS - 1) return 0;
+//  return (((uint32_t)leds[thisPixel].r << 16) | ((uint32_t)leds[thisPixel].g << 8 ) | (uint32_t)leds[thisPixel].b); // а почему не просто return (leds[thisPixel])?
+//}
+uint32_t getPixColor(uint16_t thisPixel)
+{
+  if (thisPixel >= NUM_LEDS) return 0;
+  return (((uint32_t)leds[thisPixel].r << 16) | ((uint32_t)leds[thisPixel].g << 8 ) | (uint32_t)leds[thisPixel].b);
+}
+
+
+// функция получения цвета пикселя в матрице по его координатам
+uint32_t getPixColorXY(uint8_t x, uint8_t y)
+{
+  return getPixColor(XY(x, y));
+}
+
 
 // неточный, зато более быстрый квадратный корень
 float sqrt3(const float x)
