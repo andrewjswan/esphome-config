@@ -31,7 +31,7 @@ class pm2005 : public PollingComponent {//, public Sensor {
   Sensor *vpm25 = new Sensor();
   Sensor *vpm10 = new Sensor();
   
-  pm2005() : PollingComponent(1000) {}
+  pm2005(uint32_t update_interval) : PollingComponent(update_interval) {}
 
   void setup() override {
     // This will be called by App.setup()

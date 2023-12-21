@@ -1,3 +1,8 @@
+substitutions:
+  project_name: "DAIKIN.BRY88AB151K"
+  project_version: "PM2105"
+#  project_version: "PM2005"
+
 esphome:
   includes:
     - includes/daikin/cm1106.h
@@ -31,7 +36,7 @@ i2c:
 sensor:
   - platform: custom
     lambda: |-
-      auto cm1106Sensor = new CM1106Sensor(id(cm1106_uart), 10000);
+      auto cm1106Sensor = new CM1106Sensor(id(cm1106_uart), 60000);
       App.register_component(cm1106Sensor);
       return {cm1106Sensor};
     sensors:
@@ -43,7 +48,7 @@ sensor:
 
   - platform: custom
     lambda: |-
-      auto pmsensor = new pm2005();
+      auto pmsensor = new pm2005(60000);
       App.register_component(pmsensor);
       return {pmsensor->vpm1, pmsensor->vpm25, pmsensor->vpm10};
     sensors:
@@ -90,7 +95,6 @@ sensor:
 
   - platform: hdc1080
     i2c_id: th_bus
-    update_interval: 15s
     temperature:
       name: "${name} Temperature Sensor"
       id: temperature
@@ -105,6 +109,7 @@ sensor:
         - lambda: return x * id(humiditymultiply).state;
         - clamp:
             max_value: 100
+    update_interval: ${update_interval}
 
 switch:
   - platform: template

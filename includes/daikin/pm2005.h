@@ -31,7 +31,7 @@ class pm2005 : public PollingComponent {//, public Sensor {
   Sensor *vpm25 = new Sensor();
   Sensor *vpm10 = new Sensor();
   
-  pm2005() : PollingComponent(1000) {}
+  pm2005(uint32_t update_interval) : PollingComponent(update_interval) {}
 
   void setup() override {
     // This will be called by App.setup()
@@ -51,7 +51,7 @@ class pm2005 : public PollingComponent {//, public Sensor {
   void update() override {
     // This will be called every "update_interval" milliseconds.
     
-		byte* buf = new byte[12];		
+	byte* buf = new byte[12];		
   	Wire.requestFrom(0x28, 12);
   	Wire.readBytes(buf, 12);
 /*  
@@ -84,10 +84,10 @@ class pm2005 : public PollingComponent {//, public Sensor {
   	pm10 = buf[8] * 0x100 + buf[9];
   	Sensor_MeasuringMode = buf[10] * 0x100 + buf[11];
   	
-		if(Updated)
-	  {
-	 		ESP_LOGD("custom", "PM1.0: %d", pm1);  		
-	 		ESP_LOGD("custom", "PM2.5: %d", pm25);  		
+	if(Updated)
+    {
+ 		ESP_LOGD("custom", "PM1.0: %d", pm1);  		
+ 		ESP_LOGD("custom", "PM2.5: %d", pm25);  		
 	   	ESP_LOGD("custom", "PM10 : %d", pm10);  		
 	   	vpm1 -> publish_state(pm1);		//输出PM1.0更新		
 	   	vpm25 -> publish_state(pm25);	//输出PM2.5更新		
