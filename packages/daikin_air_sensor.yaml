@@ -82,7 +82,8 @@ sensor:
       device_class: volatile_organic_compounds
       unit_of_measurement: "µg/m³"
       filters:
-        - throttle: 15s
+#        - throttle: ${update_interval}
+        - throttle_average: ${update_interval}
         - lambda: |-
             if (x * id(tvocmultiply).state > id(tvocmax).state) 
             {
