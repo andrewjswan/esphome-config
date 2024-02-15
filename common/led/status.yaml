@@ -2,5 +2,5 @@ status_led:
   pin:
     number: ${status_gpio}
     inverted: True
-    allow_other_uses: true
+    allow_other_uses: ${status_share}
   id: led_status

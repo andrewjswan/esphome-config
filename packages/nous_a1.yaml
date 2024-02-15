@@ -2,6 +2,7 @@
 
 substitutions:
   status_gpio: GPIO00 # - Red, GPIO02 - Blue
+  status_share: "false"
   energy_method: right
   project_name: "ajs.nous_a1_socket"
   project_version: "1.0.5"
@@ -21,7 +22,6 @@ esphome:
 
 <<: !include ../common/led/status.yaml
 <<: !include ../common/led/blue.yaml
-#<<: !include ../common/led/red.yaml
 
 binary_sensor:
   # Nous A1 Toggle Relay On/Off

@@ -3,6 +3,7 @@
 substitutions:
   light_source: light_id
   status_gpio: GPIO13 # Red
+  status_share: "true"
   energy_method: left
   project_name: "ajs.sonoff_mini_light"
   project_version: "1.0.3"
