@@ -72,7 +72,7 @@ binary_sensor:
   - !include ../common/binary_sensor/sonoff_mini_switch.yaml
 
 switch:
-  # # Sonoff Mini Delay Before Turn Off
+  # Sonoff Mini Delay Before Turn Off
   - !include ../common/switch/sonoff_mini_turn_off_delay.yaml
 
 script:
