@@ -1,0 +1,8 @@
+# Sonoff Mini Delay Before Turn Off
+platform: template
+name: ${name} Turn Off Delay
+id: turn_off_delay
+icon: mdi:camera-timer
+optimistic: true
+restore_mode: RESTORE_DEFAULT_OFF
+entity_category: config

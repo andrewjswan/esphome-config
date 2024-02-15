@@ -1,0 +1,13 @@
+platform: template
+name: ${name} Bulb Power
+min_value: 5
+max_value: 100
+step: 1
+optimistic: true
+id: bulb_power
+restore_value: true
+initial_value: 20
+unit_of_measurement: W
+mode: slider
+entity_category: config
+icon: mdi:lightbulb-question

@@ -1,0 +1,86 @@
+# Sonoff Mini - Light
+
+substitutions:
+  light_source: light_id
+  status_gpio: GPIO13 # Red
+  energy_method: left
+  project_name: "ajs.sonoff_mini_light"
+  project_version: "1.0.3"
+
+esphome:
+  name: ${device}
+  comment: $comment
+  build_path: ./.build/$device
+  project:
+    name: $project_name
+    version: $project_version
+  <<: !include ../common/boot/sonoff_mini.yaml
+
+<<: !include ../common/esp/esp8266_esp01_1m_restore.yaml
+
+<<: !include ../common/common.yaml
+
+# Sonoff Mini Red LED (Status)
+<<: !include ../common/led/status.yaml
+
+output:
+  # Sonoff Mini Blue LED
+  - platform: esp8266_pwm
+    id: blue_led
+    pin:
+      number: GPIO13
+      allow_other_uses: true
+    inverted: True
+
+  # Sonoff Mini Relay
+  - platform: gpio
+    pin: GPIO12
+    id: main_light_relay
+
+light:
+  # Sonoff Mini Blue LED light
+  - platform: monochromatic
+    name: ${name} Blue Led
+    output: blue_led
+    internal: true # hides the Blue LED from Homeassistant
+
+  # Sonoff Mini Virtual Light (Relay as Light)
+  - platform: binary
+    name: ${name}
+    output: main_light_relay  
+    id: light_id
+    on_state:
+      - component.update: power
+
+number:
+  # Bulb Power
+  - !include ../common/number/bulb_power.yaml
+
+sensor:
+  # Power
+  - !include ../common/sensor/power.yaml
+
+  # Energy Today Usage
+  - !include ../common/sensor/energy_today_usage.yaml
+
+binary_sensor:
+  # Sonoff Mini internal Button (Reset)
+  - !include ../common/binary_sensor/sonoff_mini_button.yaml
+
+  # Sonoff Mini external Switch
+  - !include ../common/binary_sensor/sonoff_mini_switch.yaml
+
+switch:
+  # # Sonoff Mini Delay Before Turn Off
+  - !include ../common/switch/sonoff_mini_turn_off_delay.yaml
+
+script:
+  # Sonoff Mini Delay Before Turn Off
+  - !include ../common/script/sonoff_mini_turn_off_delay.yaml
+
+select:
+  # Light Power On Default
+  - !include ../common/select/power_on_default.yaml
+
+  # Light Switch Mode
+  - !include ../common/select/switch_mode.yaml

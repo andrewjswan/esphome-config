@@ -1,0 +1,6 @@
+# Sonoff Mini Delay Before Turn Off
+id: turn_off_with_delay
+then:
+  - delay: 5s
+  - light.turn_off:
+      id: light_id  # turn off the main relay

@@ -1,0 +1,11 @@
+platform: template
+name: "${name} Switch Mode"
+id: switch_mode
+icon: mdi:nintendo-switch
+options:
+  - "Edge"
+  - "Following"
+initial_option: "Edge"
+restore_value: true
+optimistic: true
+entity_category: config

@@ -1,0 +1,20 @@
+on_boot:
+  priority: -100
+  then:
+    - if:
+        condition:
+          lambda: 'return id(power_on_default).state == "On";'
+        then:
+          - light.turn_on:
+              id: light_id
+        else:
+          - if:
+              condition:
+                lambda: 'return id(power_on_default).state == "Last" and id(gpio_light_id).state;'
+              then:
+                - light.turn_on:
+                    id: light_id
+              else:
+                - light.turn_off:
+                    id: light_id
+

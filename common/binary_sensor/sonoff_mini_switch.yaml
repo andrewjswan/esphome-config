@@ -1,0 +1,55 @@
+# Sonoff Mini external Switch
+platform: gpio
+name: relay_toggle
+pin: GPIO04
+id: gpio_light_id
+on_press:
+  then:
+    - logger.log: 
+        format: "External switch On press..."
+        level: "DEBUG"
+        tag: "sonoff"
+
+    - if:
+        condition:
+          - script.is_running: turn_off_with_delay
+        then:
+          - script.stop: turn_off_with_delay
+
+    - if:
+        condition:
+          lambda: 'return id(switch_mode).state == "Edge";'
+        then:
+          - light.toggle:
+              id: light_id  # toggle the main relay
+        else:
+          - light.turn_on:
+              id: light_id  # turn on the main relay
+
+on_release:
+  then:
+    - logger.log: 
+        format: "External switch On release..."
+        level: "DEBUG"
+        tag: "sonoff"
+
+    - if:
+        condition:
+          lambda: 'return id(switch_mode).state == "Edge";'
+        then:
+          - light.toggle:
+              id: light_id  # toggle the main relay
+        else:
+          - if:
+              condition:
+                - switch.is_on: turn_off_delay
+              then:
+                - script.execute: turn_off_with_delay
+              else:  
+                - light.turn_off:
+                    id: light_id  # turn off the main relay
+
+filters:
+  - delayed_on: 50ms
+  - delayed_off: 50ms
+internal: true

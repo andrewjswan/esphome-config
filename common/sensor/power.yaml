@@ -1,0 +1,18 @@
+# Power
+platform: template
+name: "${name} Power"
+id: power
+lambda: |-
+  if (id(${light_source}).current_values.is_on())
+  {
+    return id(bulb_power).state;
+  } 
+  else 
+  {
+   return 0;
+  }
+unit_of_measurement: W
+device_class: power
+state_class: measurement
+accuracy_decimals: 1
+update_interval: ${update_interval}

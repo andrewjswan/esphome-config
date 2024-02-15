@@ -1,0 +1,12 @@
+substitutions:
+  device: esp_sonoff_mini_desk_lamp
+  name: Desk Lamp
+  location: ${name}
+  update_interval: 60s
+  device_ip: 192.168.0.0
+  reboot_timeout: 15min
+  comment: "Sonoff Mini Desk Lamp"
+
+packages:
+  common: !include packages/common_8266.yaml
+  mini: !include packages/sonoff_mini.yaml

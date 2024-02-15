@@ -1,0 +1,11 @@
+# Sonoff Mini internal Button (Reset)
+platform: gpio
+pin: GPIO00
+id: reset
+filters:
+  - invert:
+  - delayed_off: 10ms
+on_press:
+  - light.toggle:
+      id: light_id # toggle the main relay
+internal: true
