@@ -1,0 +1,5 @@
+# UART - Senseair S8
+uart:
+  rx_pin: D1
+  tx_pin: D2
+  baud_rate: 9600

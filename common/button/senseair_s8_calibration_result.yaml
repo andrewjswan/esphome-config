@@ -1,0 +1,12 @@
+platform: template
+name: ${name} Sensair S8 Calibrate Result
+id : calibrate_s8_result
+entity_category: diagnostic
+on_press:
+  - logger.log:
+      format: "Sensair S8 Calibrate Result start ..."
+      level: "WARN"
+      tag: "s8"
+  - senseair.abc_get_period: senseair_co2_sensor
+  - delay: 3s
+  - senseair.background_calibration_result: senseair_co2_sensor

@@ -1,0 +1,4 @@
+﻿platform: homeassistant
+id: workday
+entity_id: binary_sensor.workday_today
+internal: true

@@ -1,0 +1,15 @@
+# Automatic Led mode
+platform: template
+name: ${name} Automatic
+id: automatic
+icon: mdi:rocket-launch-outline
+optimistic: true
+restore_mode: RESTORE_DEFAULT_OFF
+turn_on_action:
+  - light.turn_on:
+      id: neopixel_led
+      effect: None
+turn_off_action:
+  - light.turn_on:
+      id: neopixel_led
+      effect: HSV

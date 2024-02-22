@@ -1,0 +1,20 @@
+# SenseAir S8
+platform: senseair
+co2:
+  name: ${name} CO2
+  id: senseair_co2
+  filters:
+  - median:
+      window_size: 3
+      send_every: 2
+      send_first_at: 1
+  - filter_out: 0
+  - lambda: |-
+      if (x <= 10000)
+        return x;
+      else
+        return {};
+  device_class: carbon_dioxide
+  state_class: measurement
+id: senseair_co2_sensor
+update_interval: ${update_interval}
