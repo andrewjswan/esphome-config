@@ -1,0 +1,50 @@
+# ESPHome Uptime
+id: publish_uptime
+then:
+  - mqtt.publish:
+      topic: home/esphome/${device}/uptime
+      payload: !lambda |-
+        auto time = id(esp_time).now();
+        if (!time.is_valid())
+        {
+          return {};
+        }
+
+        auto s_time = id(charge_time).state.c_str();
+
+        tm stime = {0};
+        strptime(s_time, "%Y-%m-%d %H:%M", &stime);
+
+        char c_time[20];
+        strftime(c_time, sizeof(c_time), "%Y-%m-%d %H:%M", localtime(&time.timestamp));
+
+        tm ctime = {0};
+        strptime(c_time, "%Y-%m-%d %H:%M", &ctime);
+
+        time_t startTime = mktime(&stime);
+        time_t currTime = mktime(&ctime);
+        time_t uptime = difftime(currTime, startTime);
+
+        int minutes = (uptime % 3600) / 60;
+        int hours = (uptime % 86400) / 3600;
+        int days = uptime / 86400;
+
+        char suptime[50];
+        if (days > 0) 
+        {
+          sprintf (suptime, "%d д. %d ч. %d мин.", days, hours, minutes);
+        }
+        else if (hours > 0) 
+        {
+          sprintf (suptime, "%d ч. %d мин.", hours, minutes);
+        } 
+        else if (minutes > 0)
+        {
+          sprintf (suptime, "%d мин.", minutes);
+        }
+        else
+        {
+          sprintf (suptime, "Только запущен...");
+        }
+        return { suptime };
+      retain: true

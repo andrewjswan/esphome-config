@@ -1,0 +1,6 @@
+﻿# HA Ventilation
+platform: mqtt_subscribe
+name: "Ventilation"
+id: ventilation
+topic: home/homeassistant/ventilation/${location_low}
+internal: true

@@ -1,0 +1,6 @@
+# Balloon Replace Time
+platform: mqtt_subscribe
+name: "Replace Time"
+id: replace_time
+topic: home/esphome/${device}/ballon_replaced
+internal: true

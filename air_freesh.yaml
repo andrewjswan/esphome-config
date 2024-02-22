@@ -1,0 +1,16 @@
+substitutions:
+  device: esp_air_freesh
+  name: Air Freesh
+  model: AirWick
+  name_low: air_freesh
+  location: ${name}
+  location_low: ${name_low}
+  update_interval: 15s
+  device_ip: 192.168.0.0
+  sleep_interval: 15min
+  night_coef: "2"
+  sleep_coef: "1.06"
+  comment: "Airfresh"
+
+packages:
+  airfresh: !include packages/air_freesh.yaml

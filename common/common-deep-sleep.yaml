@@ -1,0 +1,10 @@
+<<: !include wifi.yaml
+<<: !include mdns.yaml
+<<: !include ota/deep-sleep.yaml
+<<: !include mqtt.yaml
+<<: !include time/sntp.yaml
+#<<: !include logger/verbose.yaml
+#<<: !include logger/debug.yaml
+<<: !include logger/info.yaml
+<<: !include web/web_server.yaml
+<<: !include deep-sleep.yaml

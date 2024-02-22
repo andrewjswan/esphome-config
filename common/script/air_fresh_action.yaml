@@ -1,0 +1,11 @@
+﻿id: air_fresh_action
+then:
+  - logger.log: "Air Fresh: Action..."
+  - mqtt.publish:
+      topic: home/esphome/${device}/air_fresh
+      payload: 0
+      retain: true
+  - switch.turn_on: spray
+  - script.execute: publish_air_fresh_time
+  - script.execute: publish_air_fresh_counter
+  - logger.log: "Air Fresh: Action ended!"

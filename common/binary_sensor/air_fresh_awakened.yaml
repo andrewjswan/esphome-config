@@ -1,0 +1,36 @@
+# Air Fresh Button Awakened
+platform: template
+name: ${name} Air Fresh Awakened
+id: button_awakened
+lambda: |-
+  auto time = id(esp_time).now();
+  if (!time.is_valid())
+  {
+    // ESP_LOGD("time", "Did not get the current time, skip it...");
+    return false;
+  }
+  
+  if (std::string(id(sleep_heartbeat)) == "")
+  {
+    // ESP_LOGD("heartbeat", "Did not get the heartbeat time, skip it...");
+    return false;
+  }
+
+  auto s_time = id(sleep_heartbeat);
+  tm stime = {0};
+  strptime(s_time, "%Y-%m-%d %H:%M", &stime);
+
+  char c_time[20];
+  strftime(c_time, sizeof(c_time), "%Y-%m-%d %H:%M", localtime(&time.timestamp));
+  tm ctime = {0};
+  strptime(c_time, "%Y-%m-%d %H:%M", &ctime);
+
+  time_t startTime = mktime(&stime);
+  time_t currTime = mktime(&ctime);
+  time_t uptime = difftime(currTime, startTime);
+
+  int minutes = uptime / 60;
+
+  // ESP_LOGD("awakened", "Awakened: %d - %d", minutes, id(sleep_int));
+  return minutes < id(sleep_int);
+internal: true

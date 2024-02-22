@@ -1,0 +1,6 @@
+﻿# Air Fresh Action Time
+platform: mqtt_subscribe
+name: "Action Time"
+id: air_fresh_time
+topic: home/esphome/${device}/air_fresh_time
+internal: true

@@ -1,0 +1,6 @@
+﻿id: publish_air_fresh_dummy_time
+then:
+  - mqtt.publish:
+      topic: home/esphome/${device}/air_fresh_time
+      payload: "2021-01-01 01:01"
+      retain: true

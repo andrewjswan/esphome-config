@@ -1,0 +1,27 @@
+﻿mqtt:
+  id: mqtt_client
+  broker: !secret home.mqtt
+  username: !secret home.mqtt.user
+  password: !secret home.mqtt.password
+  client_id: ${name}
+  discovery: false
+  topic_prefix: home/esphome/${device}
+  log_topic: home/esphome/${device}/log
+  birth_message:
+    topic: home/esphome/${device}/status
+    payload: "Online"
+  will_message:
+    topic: home/esphome/${device}/status
+    payload: "Offline"
+  shutdown_message:
+    topic: home/esphome/${device}/status
+    payload: "Shutdown"
+  on_message:
+    - topic: home/esphome/${device}/ota_mode
+      payload: 'ON'
+      then:
+        - deep_sleep.prevent: deep_sleep_mode
+    - topic: home/esphome/${device}/sleep_mode
+      payload: 'ON'
+      then:
+        - deep_sleep.enter: deep_sleep_mode

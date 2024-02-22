@@ -1,0 +1,6 @@
+﻿# HA Occupancy
+platform: mqtt_subscribe
+name: "Occupancy"
+id: occupancy
+topic: home/homeassistant/occupancy/${location_low}
+internal: true

@@ -1,0 +1,9 @@
+﻿# Battery
+platform: template
+name: ${name} Battery
+id: battery
+unit_of_measurement: '%'
+device_class: battery
+state_class: measurement
+entity_category: diagnostic
+accuracy_decimals: 0

@@ -1,0 +1,12 @@
+﻿id: publish_air_fresh_counter
+then:
+  - mqtt.publish:
+      topic: home/esphome/${device}/air_fresh_counter
+      payload: !lambda |-
+        int counter = (int)(id(air_fresh_counter).state);
+        if (abs(counter) > 2000000000)
+        {
+          return "1";
+        }
+        return to_string( ++counter ).c_str();
+      retain: true

@@ -1,0 +1,6 @@
+﻿# HA Someone Home
+platform: mqtt_subscribe
+name: "Someone Home"
+id: someone_home
+topic: home/homeassistant/anyone_home
+internal: true

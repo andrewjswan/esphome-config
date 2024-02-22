@@ -1,0 +1,60 @@
+id: sleep_time
+then:
+  - if:
+      condition:
+        not:
+          - wifi.connected:
+      then:
+        - lambda: |-
+            id(sleep_int) = atoi("${sleep_interval}");
+      else:
+        - if:
+            condition:
+              not:
+                time.has_time:
+            then:
+              - lambda: |-
+                  id(sleep_int) = 5;
+            else:
+              - if:
+                  condition: 
+                    lambda: |-
+                      return (id(occupancy).state == "ON");
+                  then:
+                    - lambda: |-
+                        id(sleep_int) = 3;
+                  else:
+                    - lambda: |-
+                        auto time = id(esp_time).now();
+                        if (!time.is_valid())
+                        {
+                          // ESP_LOGD("time", "Did not get the current time, skip it...");
+                          id(sleep_int) = atoi("${sleep_interval}");
+                        }
+                        else
+                        {
+                          int hour = time.hour;
+                          int min = time.minute;
+                          int inter = atoi("${sleep_interval}");
+                          
+                          if ((hour >= id(night_start)) && ((hour < (id(night_end) - 1)) || (hour == (id(night_end) - 1) && (min <= (60 - inter * $night_coef)))))
+                          {
+                            id(sleep_int) = inter * $night_coef;
+                          }
+                          else
+                          {
+                            id(sleep_int) = inter;
+                          }
+                        }
+
+  - delay: 0.5s
+
+  - logger.log:
+      format: "Deep sleep %dmin..."
+      args: [ 'id(sleep_int)' ]
+      level: INFO
+
+  - deep_sleep.enter: 
+      id: deep_sleep_mode
+      sleep_duration: !lambda |-
+        return id(sleep_int) * 60000 * $sleep_coef;

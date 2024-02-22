@@ -1,0 +1,116 @@
+﻿substitutions:
+  vcc_critical: "2.8"
+  vcc_full: "3.7"
+  refill: "2500"
+  project_name: "ajs.air_fresh"
+  project_version: "1.0.5"
+
+<<: !include ../common/globals/air_fresh.yaml
+
+esphome:
+  name: $device
+  comment: $comment
+  build_path: ./.build/$device
+  project:
+    name: $project_name
+    version: $project_version
+  <<: !include ../common/boot/air_fresh.yaml
+
+<<: !include ../common/esp/esp8266_mini.yaml
+
+<<: !include ../common/common-deep-sleep.yaml
+
+binary_sensor:
+  # Air Fresh Need Spray
+  - !include ../common/binary_sensor/air_fresh_need_spray.yaml
+  
+  # Air Fresh Button Awakened
+  - !include ../common/binary_sensor/air_fresh_awakened.yaml
+
+text_sensor:
+  # ESPHome Version
+  - !include ../common/text_sensor/version.yaml
+
+  # Battery Charge Time
+  - !include ../common/text_sensor/charge_time.yaml
+
+  # Refill Replace Time
+  - !include ../common/text_sensor/replace_time.yaml
+
+  # Air Fresh Action Time
+  - !include ../common/text_sensor/action_time.yaml
+
+  # HA Ventilation
+  - !include ../common/text_sensor/ventilation.yaml
+
+  # HA Occupancy
+  - !include ../common/text_sensor/occupancy.yaml
+
+  # HA Someone Home
+  - !include ../common/text_sensor/someone_home.yaml
+
+  # HA Workday
+  - !include ../common/text_sensor/workday.yaml
+
+  # OTA Mode
+  - !include ../common/text_sensor/ota_mode.yaml
+
+sensor:
+  # WiFi Signal
+  - !include ../common/sensor/wifi-signal.yaml
+
+  # ESP8266 Measuring VCC
+  - !include ../common/sensor/vcc.yaml 
+  - !include ../common/sensor/battery.yaml 
+
+  # Air Fresh On Flag
+  - !include ../common/sensor/air_fresh.yaml
+
+  # Air Fresh Interval
+  - !include ../common/sensor/air_fresh_interval.yaml
+
+  # Air Fresh Counter
+  - !include ../common/sensor/air_fresh_counter.yaml
+
+#  # Air Fresh Refill Level
+#  - !include ../common/sensor/air_fresh_refill.yaml
+
+#  # Air Fresh Refill Remain
+#  - !include ../common/sensor/air_fresh_refill_remain.yaml
+
+#  # Air Fresh Refill Worked Out
+#  - !include ../common/sensor/air_fresh_refill_worked_out.yaml
+
+switch:
+  # Air Fresh
+  - !include ../common/switch/air_fresh.yaml
+  - !include ../common/switch/air_fresh_spray.yaml
+
+  # Restart
+  - !include ../common/switch/restart.yaml
+
+  # Shutdown
+  - !include ../common/switch/shutdown.yaml
+
+script:
+  # Air Fresh
+  - !include ../common/script/charge_time.yaml
+  - !include ../common/script/air_fresh_time.yaml
+  - !include ../common/script/air_fresh_dummy_time.yaml
+  - !include ../common/script/air_fresh_action.yaml
+  - !include ../common/script/air_fresh_counter.yaml
+  - !include ../common/script/sleep_time.yaml
+
+  # Air Fresh Refill
+  - !include ../common/script/air_fresh_refill.yaml
+  - !include ../common/script/air_fresh_refill_remain.yaml
+  - !include ../common/script/air_fresh_refill_worked_out.yaml
+
+  # ESPHome Hearbeat
+  - !include ../common/script/hearbeat.yaml
+  
+  # ESPHome Uptime
+  - !include ../common/script/uptime.yaml
+
+  # ESPHome Device
+  - !include ../common/discovery/air_fresh.yaml

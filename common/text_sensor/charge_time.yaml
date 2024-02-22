@@ -1,0 +1,6 @@
+﻿# Battery Charge Time
+platform: mqtt_subscribe
+name: "Charge Time"
+id: charge_time
+topic: home/esphome/${device}/charge_time
+internal: true

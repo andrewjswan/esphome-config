@@ -1,0 +1,22 @@
+# Over The Air Update Component
+ota:
+  password: !secret home.password
+  on_error:
+    then:
+      - logger.log:
+          format: "OTA Update error %d"
+          args: ["x"]
+          level: "ERROR"
+          tag: "ota"
+  on_begin:
+    then:
+      - mqtt.publish:
+          topic: home/esphome/${device}/ota_mode
+          payload: "OFF"
+          retain: true
+  on_end:
+    then:
+      - logger.log:
+          format: "OTA Update has completed successfully"
+          level: "WARN"
+          tag: "ota"

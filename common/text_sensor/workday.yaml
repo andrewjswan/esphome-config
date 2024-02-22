@@ -1,0 +1,5 @@
+﻿platform: mqtt_subscribe
+name: "Workday"
+id: workday
+topic: home/homeassistant/workday
+internal: true

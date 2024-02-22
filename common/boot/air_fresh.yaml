@@ -1,0 +1,111 @@
+on_boot:
+  priority: 500
+  then:
+    - wait_until:
+        condition:
+          wifi.connected:
+        timeout: 5s
+    - if:
+        condition:
+          not:
+            - wifi.connected:
+        then:
+          - script.execute: sleep_time
+        else:
+          - wait_until:
+              condition:
+                mqtt.connected:
+              timeout: 5s
+          - wait_until:
+              condition:
+                time.has_time:
+              timeout: 5s
+
+          - delay: 1s
+
+          - if:
+              condition:
+                and:
+                  - time.has_time:
+                  - mqtt.connected:
+              then:
+                - if:
+                    condition:
+                      lambda: 'return id(air_fresh_time).state == "";'
+                    then:
+                      - delay: 1s
+                      - if:
+                          condition:
+                            lambda: 'return id(air_fresh_time).state == "";'
+                          then:
+                            - script.execute: publish_air_fresh_dummy_time
+                - if:
+                    condition:
+                      lambda: 'return id(charge_time).state == "";'
+                    then:
+                      - delay: 1s
+                      - if:
+                          condition:
+                            lambda: 'return id(charge_time).state == "";'
+                          then:
+                            - script.execute: publish_charge_time
+#                - script.execute: air_fresh_awakened
+                - if:
+                    condition:
+                      binary_sensor.is_on: need_spray
+                    then:
+                      - script.execute: air_fresh_action
+                - script.execute: publish_hearbeat
+                - script.execute: publish_uptime
+                - script.execute: publish_air_fresh_refill_level
+                - script.execute: publish_air_fresh_refill_remain
+                - script.execute: publish_air_fresh_refill_worked_out
+                - script.execute: publish_air_fresh_device
+              else:
+                - if:
+                    condition:
+                      not:
+                        time.has_time:
+                    then:
+                      - logger.log: 
+                          format: "Time is not synchronized..."
+                          level: "WARN"
+                          tag: "time"
+                - if:
+                    condition:
+                      not:
+                        mqtt.connected:
+                    then:
+                      - logger.log: 
+                          format: "No connection to the MQTT broker..."
+                          level: "WARN"
+                          tag: "mqtt"
+
+          - delay: 1s
+
+          - if:
+              condition:
+                lambda: 'return id(vcc).state < ${vcc_critical};'
+              then:
+                - logger.log: 
+                    format: "Low power (%.1f), shutdown..."
+                    level: "WARN"
+                    tag: "power"
+                    args: [ 'id(vcc).state' ]
+                - switch.turn_on: esp_shutdown
+
+          - if:
+              condition:
+                lambda: 'return id(ota_mode).state != "ON";'
+              then:
+                - script.execute: sleep_time
+              else:
+                - deep_sleep.prevent: deep_sleep_mode
+                - logger.log: 
+                    format: "OTA Mode Enabled..."
+                    level: "WARN"
+                    tag: "ota"
+                - mqtt.publish:
+                    topic: home/esphome/${device}/ota_mode
+                    payload: "OFF"
+                    retain: true

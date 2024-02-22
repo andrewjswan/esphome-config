@@ -1,0 +1,84 @@
+# Air Fresh Need Spray
+platform: template
+name: ${name} Air Fresh Action
+id: need_spray
+lambda: |-
+  #define NIGHT_SILENT
+  
+  if (id(someone_home).state != "ON")
+  {
+    // ESP_LOGD("home", "There's no one at home, we're sleeping...");
+    return false;
+  }
+
+  if (id(button_awakened).state)
+  {
+    // ESP_LOGD("home", "${location} button Pressed, action...");
+    return true;
+  }
+
+  if (id(ventilation).state == "ON")
+  {
+    // ESP_LOGD("home", "${location} ventilation is On, skip it...");
+    return false;
+  }
+
+  if (id(occupancy).state == "ON")
+  {
+    // ESP_LOGD("home", "${location} occupancy is On, skip it...");
+    return false;
+  }
+
+  if ((id(on_flag).state) == 1) 
+  {
+    return true;
+  } 
+
+  auto time = id(esp_time).now();
+  if (!time.is_valid())
+  {
+    // ESP_LOGD("time", "Did not get the current time, skip it...");
+    return false;
+  }
+
+  #ifdef NIGHT_SILENT
+  
+  if (time.hour >= id(night_start) && time.hour < id(night_end))
+  {
+    // ESP_LOGD("time", "Night, skip it...");
+    return false;
+  }
+
+  #endif
+
+  int multiplier = 1;
+  if (time.hour >= id(night_start) && time.hour < id(night_end))
+  {
+    multiplier = $night_coef;
+  }
+
+  auto s_time = id(air_fresh_time).state.c_str();
+
+  tm stime = {0};
+  strptime(s_time, "%Y-%m-%d %H:%M", &stime);
+
+  char c_time[20];
+  strftime(c_time, sizeof(c_time), "%Y-%m-%d %H:%M", localtime(&time.timestamp));
+  tm ctime = {0};
+  strptime(c_time, "%Y-%m-%d %H:%M", &ctime);
+
+  time_t startTime = mktime(&stime);
+  time_t currTime = mktime(&ctime);
+  time_t uptime = difftime(currTime, startTime);
+  
+  int minutes = uptime / 60;
+
+  int step = (int)(id(air_fresh_interval).state);
+  int inter = atoi("${sleep_interval}");
+  if (abs(step) > 240 || abs(step) < inter) // sleep_interval(15m) .. 4H
+  {
+    step = id(interval_int);
+  }
+
+  return minutes >= step * multiplier;
+internal: true

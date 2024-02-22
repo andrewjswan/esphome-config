@@ -1,0 +1,25 @@
+globals:
+  - id: interval_int
+    type: int
+    restore_value: no
+    initial_value: '60'
+
+  - id: night_start
+    type: int
+    restore_value: no
+    initial_value: '1'
+
+  - id: night_end
+    type: int
+    restore_value: no
+    initial_value: '6'
+
+  - id: sleep_int
+    type: int
+    restore_value: yes
+    initial_value: '15'
+
+  - id: sleep_heartbeat
+    type: char[20]
+    restore_value: yes
+    initial_value: ''

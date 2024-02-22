@@ -1,0 +1,32 @@
+id: publish_air_fresh_refill_remain
+then:
+  - mqtt.publish:
+      topic: home/esphome/${device}/sensor/${name_low}_refill_remain/state
+      payload: !lambda |-
+        auto time = id(esp_time).now();
+        if (!time.is_valid())
+        {
+          return {};
+        }
+
+        auto count = id(air_fresh_counter).state;
+        if (count == 0)
+        {
+          return {};
+        }
+
+        auto s_time = id(replace_time).state.c_str();
+        tm stime = {0};
+        strptime(s_time, "%Y-%m-%d %H:%M", &stime);
+
+        char c_time[20];
+        strftime(c_time, sizeof(c_time), "%Y-%m-%d %H:%M", localtime(&time.timestamp));
+        tm ctime = {0};
+        strptime(c_time, "%Y-%m-%d %H:%M", &ctime);
+
+        time_t startTime = mktime(&stime);
+        time_t currTime = mktime(&ctime);;
+        time_t diff = difftime(currTime, startTime);
+
+        return to_string( (int)round(((diff / count) * (${refill} - count)) / 86400) ).c_str();
+      retain: true

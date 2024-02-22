@@ -1,0 +1,5 @@
+# Shutdown ESPHome
+platform: shutdown
+name: ${name} Shutdown
+id: esp_shutdown
+internal: true

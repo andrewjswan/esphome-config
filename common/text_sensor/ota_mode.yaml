@@ -1,0 +1,6 @@
+﻿# OTA Mode
+platform: mqtt_subscribe
+name: "OTA Mode"
+id: ota_mode
+topic: home/esphome/${device}/ota_mode
+internal: true
