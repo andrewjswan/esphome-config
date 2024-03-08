@@ -126,7 +126,6 @@ float FFT_Magnitude = 0.0001;
 // These are the input and output vectors.  Input vectors receive computed results from FFT.
 static float vReal[samplesFFT];
 static float vImag[samplesFFT];
-static float windowWeighingFactors[samplesFFT];
 float fftBin[samplesFFT];
 
 // Try and normalize fftBin values to a max of 4096, so that 4096/16 = 256.
@@ -366,7 +365,7 @@ void limitSampleDynamics(void) {
 #include "arduinoFFT.h"
 
 // Create FFT object
-static ArduinoFFT<float> FFT = ArduinoFFT<float>( vReal, vImag, samplesFFT, SAMPLE_RATE, windowWeighingFactors);
+static ArduinoFFT<float> FFT = ArduinoFFT<float>( vReal, vImag, samplesFFT, SAMPLE_RATE, true);
 
 float fftAdd( int from, int to) {
   int i = from;
