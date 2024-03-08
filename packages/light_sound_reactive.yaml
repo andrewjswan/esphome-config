@@ -5,7 +5,7 @@ substitutions:
 esphome:
   libraries:
     - FastLED
-    - arduinoFFT=https://github.com/kosme/arduinoFFT.git#develop
+    - arduinoFFT=https://github.com/kosme/arduinoFFT.git
   includes:
     - includes/light/light.h
     - includes/light/palettes.h
