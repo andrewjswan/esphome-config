@@ -546,24 +546,24 @@ void FFTcode( void * parameter) {
     micDataSm = (uint16_t)maxSample1;
     micDataReal = maxSample1;
 
-    FFT.dcRemoval();                                            // remove DC offset
-    FFT.windowing(FFTWindow::Blackman_Harris, FFTDirection::Forward);  // Weigh data using "Blackman- Harris" window - sharp peaks due to excellent sideband rejection 
-    FFT.compute(FFTDirection::Forward );                        // Compute FFT
-    FFT.complexToMagnitude();                                   // Compute magnitudes
+    FFT.dcRemoval();                                                  // remove DC offset
+    FFT.windowing(FFTWindow::Blackman_Harris, FFTDirection::Forward); // Weigh data using "Blackman- Harris" window - sharp peaks due to excellent sideband rejection 
+    FFT.compute(FFTDirection::Forward );                              // Compute FFT
+    FFT.complexToMagnitude();                                         // Compute magnitudes
 
     //
     // vReal[3 .. 255] contain useful data, each a 20Hz interval (60Hz - 5120Hz).
     // There could be interesting data at bins 0 to 2, but there are too many artifacts.
     //
 
-    FFT.majorPeak(FFT_MajorPeak, FFT_Magnitude);             // let the effects know which freq was most dominant
-    FFT_MajorPeak = constrain(FFT_MajorPeak, 1.0f, 5120.0f); // restrict value to range expected by effects
+    FFT.majorPeak(&FFT_MajorPeak, &FFT_Magnitude);                    // let the effects know which freq was most dominant
+    FFT_MajorPeak = constrain(FFT_MajorPeak, 1.0f, 5120.0f);          // restrict value to range expected by effects
     FFT_Magnitude = fabsf(FFT_Magnitude);
 
-    for (int i = 0; i < samplesFFT; i++) {                     // Values for bins 0 and 1 are WAY too large. Might as well start at 3.
+    for (int i = 0; i < samplesFFT; i++) {                            // Values for bins 0 and 1 are WAY too large. Might as well start at 3.
       float t = 0.0;
-      t = fabsf(vReal[i]);                                   // just to be sure - values in fft bins should be positive any way
-      t = t / 16.0f;                                        // Reduce magnitude. Want end result to be linear and ~4096 max.
+      t = fabsf(vReal[i]);                                            // just to be sure - values in fft bins should be positive any way
+      t = t / 16.0f;                                                  // Reduce magnitude. Want end result to be linear and ~4096 max.
       fftBin[i] = t;
     } // for()
 
