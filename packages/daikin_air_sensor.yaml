@@ -54,7 +54,7 @@ sensor:
     sensors:
       - name: "${name} PM1 Sensor"
         id: pm1sensor
-        unit_of_measurement: μg/m³
+        unit_of_measurement: "µg/m³"
         accuracy_decimals: 0
         device_class: pm1
       - name: "${name} PM2.5 Sensor"
@@ -64,7 +64,7 @@ sensor:
         unit_of_measurement: "µg/m³"
       - name: "${name} PM10 Sensor"
         id: pm10sensor
-        unit_of_measurement: μg/m³
+        unit_of_measurement: "µg/m³"
         accuracy_decimals: 0
         device_class: pm10
 
