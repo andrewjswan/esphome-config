@@ -2,7 +2,7 @@ substitutions:
   name: "esp-svitlobot"
   friendly_name: "Svitlo Bot"
   project_name: "ajs.svitlobot"
-  project_version: "1.5"
+  project_version: "1.5.1"
   comment: "ESPHome Svitlo Bot"
 
 esphome:
@@ -45,6 +45,17 @@ http_request:
   useragent: "esphome/${name} (${project_version})"
   timeout: 10s
 
+globals:
+  - id: ok
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: error
+    type: int
+    restore_value: no
+    initial_value: '0'
+
 interval:
   - interval: 60s
     then:
@@ -53,17 +64,33 @@ interval:
             and:
               - wifi.connected:
               - lambda: 'return id(my_key).has_state();'
+              - lambda: 'return !id(send_state).is_running();'
           then:
-            - http_request.send: 
-                method: GET
-                verify_ssl: false
-                url: !lambda |-
-                  return ((std::string) "https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str();
-                on_response:
-                  then:
-                    - binary_sensor.template.publish:
-                        id: send_status
-                        state: !lambda 'return status_code == 200;'
+            - script.execute: send_state
+
+script:
+  - id: send_state
+    then:
+      - http_request.send: 
+          method: GET
+          verify_ssl: false
+          url: !lambda |-
+            return ((std::string) "https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str();
+          on_response:
+            then:
+              - lambda: |-
+                  if (status_code == 200) 
+                  {
+                    id(send_status).publish_state(true);
+                    id(ok)++;
+                  } 
+                  else 
+                  {
+                    id(send_status).publish_state(false);
+                    id(error)++;
+                  }
+              - component.update: quality
+    mode: queued
 
 text:
   - platform: template
@@ -76,6 +103,7 @@ text:
     restore_value: true
     icon: mdi:key-chain-variant
     entity_category: config
+    disabled_by_default: true
 
 binary_sensor:
   - platform: template
@@ -84,6 +112,20 @@ binary_sensor:
     icon: mdi:lan-connect
 
 sensor:
+  - platform: template
+    name: "${friendly_name} Delivery Quality"
+    id: quality
+    lambda: |-
+      if (!id(my_key).has_state() || (id(ok) + id(error) == 0))
+      {
+        return NAN;
+      }
+      return id(ok) * 100 / (id(ok) + id(error));
+    accuracy_decimals: 0
+    unit_of_measurement: "%"
+    icon: mdi:wan
+    state_class: measurement
+
   - platform: uptime
     name: "${friendly_name} Uptime"
     entity_category: diagnostic
@@ -94,16 +136,17 @@ sensor:
     icon: mdi:signal
 
 button:
-  - platform: factory_reset
-    name: "${friendly_name} Restart with Factory Default Settings"
-    id: Reset
-    entity_category: diagnostic
-
   - platform: restart
     name: "${friendly_name} Restart"            
     id: Restart
     entity_category: diagnostic
     icon: mdi:restart
+
+  - platform: factory_reset
+    name: "${friendly_name} Restart with Factory Default Settings"
+    id: Reset
+    entity_category: diagnostic
+    disabled_by_default: true
 
 text_sensor:
   - platform: version
