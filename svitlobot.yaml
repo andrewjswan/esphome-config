@@ -15,7 +15,7 @@ esphome:
     version: "${project_version}"
 
 dashboard_import:
-  package_import_url: github://andrewjswan/esphome-config/edit/main/svitlobot.yaml@main
+  package_import_url: github://andrewjswan/esphome-config/svitlobot.yaml@main
 
 esp32:
   board: nodemcu-32s
