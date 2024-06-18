@@ -2,7 +2,7 @@ substitutions:
   name: "esp-svitlobot"
   friendly_name: "Svitlo Bot"
   project_name: "ajs.svitlobot"
-  project_version: "1.5.1"
+  project_version: "1.5.5"
   comment: "ESPHome Svitlo Bot"
 
 esphome:
@@ -20,6 +20,9 @@ dashboard_import:
 esp32:
   board: nodemcu-32s
 
+api:
+  reboot_timeout: 0s
+
 ota:
 
 logger:
@@ -34,7 +37,7 @@ web_server:
   version: 3
 
 wifi:
-  ap: {} # This spawns an AP with the device name and mac address with no password.
+  ap: {}
 
 captive_portal:
 
