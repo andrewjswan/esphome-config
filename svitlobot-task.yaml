@@ -28,10 +28,11 @@ api:
   reboot_timeout: 0s
 
 ota:
-  on_begin:
-    then:
-      - lambda: |-
-          svitlobot_stop();
+  - platform: esphome
+    on_begin:
+      then:
+        - lambda: |-
+            svitlobot_stop();
 
 logger:
   level: INFO
