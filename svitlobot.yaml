@@ -73,19 +73,18 @@ interval:
 script:
   - id: send_state
     then:
-      - http_request.send: 
-          method: GET
+      - http_request.get: 
           url: !lambda |-
             return ((std::string) "https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str();
           on_response:
             then:
               - lambda: |-
-                  if (status_code == 200) 
+                  if (status_code == 200)
                   {
                     id(send_status).publish_state(true);
                     id(ok)++;
-                  } 
-                  else 
+                  }
+                  else
                   {
                     id(send_status).publish_state(false);
                     id(error)++;
