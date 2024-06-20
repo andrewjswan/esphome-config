@@ -75,7 +75,6 @@ script:
     then:
       - http_request.send: 
           method: GET
-          verify_ssl: false
           url: !lambda |-
             return ((std::string) "https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str();
           on_response:
