@@ -79,7 +79,7 @@ script:
           on_response:
             then:
               - lambda: |-
-                  if (response.status_code == 200)
+                  if (response->status_code == 200)
                   {
                     id(send_status).publish_state(true);
                     id(ok)++;
