@@ -2,7 +2,7 @@ substitutions:
   name: "esp-svitlobot-task"
   friendly_name: "Svitlo Bot"
   project_name: "ajs.svitlobot-task"
-  project_version: "3.5.1"
+  project_version: "3.5.3"
   comment: "ESPHome Svitlo Bot (Non Blocking)"
 
 esphome:
@@ -23,6 +23,8 @@ esphome:
 
 esp32:
   board: nodemcu-32s
+#  framework:
+#    type: esp-idf
 
 api:
   reboot_timeout: 0s
@@ -76,14 +78,15 @@ script:
           on_response:
             then:
               - lambda: |-
-                  if (response->status_code == HTTP_CODE_OK)
+                  if (response->status_code == 200)
                   {
-                    ESP_LOGD("SvitloBot", "Response: %s", body.c_str());
+                    ESP_LOGD("SvitloBot", "Send status - success");
                     id(send_status).publish_state(true);
                     id(ok)++;
                   }
                   else
                   {
+                    ESP_LOGE("SvitloBot", "Send status - not success with response code: %d", response->status_code);
                     id(send_status).publish_state(false);
                     id(error)++;
                   }
