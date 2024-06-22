@@ -2,7 +2,7 @@ substitutions:
   name: "esp-svitlobot-task"
   friendly_name: "Svitlo Bot"
   project_name: "ajs.svitlobot-task"
-  project_version: "1.5.7"
+  project_version: "3.5.1"
   comment: "ESPHome Svitlo Bot (Non Blocking)"
 
 esphome:
@@ -66,6 +66,29 @@ globals:
     type: int
     restore_value: no
     initial_value: '0'
+
+script:
+  - id: send_state
+    then:
+      - http_request.get: 
+          url: !lambda |-
+            return ((std::string) "https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str();
+          on_response:
+            then:
+              - lambda: |-
+                  if (response->status_code == HTTP_CODE_OK)
+                  {
+                    ESP_LOGD("SvitloBot", "Response: %s", body.c_str());
+                    id(send_status).publish_state(true);
+                    id(ok)++;
+                  }
+                  else
+                  {
+                    id(send_status).publish_state(false);
+                    id(error)++;
+                  }
+              - component.update: quality
+    mode: queued
 
 text:
   - platform: template

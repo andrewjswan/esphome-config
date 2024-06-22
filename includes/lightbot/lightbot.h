@@ -19,32 +19,13 @@ void svitlobot(void * parameter)
       continue;
     }
 
-    HTTPClient http;
-    WiFiClient client;
-    if (http.begin(client, ("https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str()))
+    if (id(send_state).is_running())
     {
-      int start = millis();
-      int httpResponseCode = http.GET();
-      int end = millis();
-      if (httpResponseCode == HTTP_CODE_OK)
-      {
-        ESP_LOGD("SvitloBot", "Send status - success (%dms)", end - start);
-        id(send_status).publish_state(true);
-        id(ok)++;
-      }
-      else
-      {
-        ESP_LOGD("SvitloBot", "Send status - not success with response code: %d - %s", httpResponseCode, http.errorToString(httpResponseCode).c_str());
-        id(send_status).publish_state(false);
-        id(error)++;
-      }
-      id(quality).update();
+      continue;
     }
-    else
-    {
-      ESP_LOGD("SvitloBot", "Connect failed...");
-    }
-    http.end();
+
+    id(send_state).execute();
+
   } // for(;;)
 } // svitlobot()
 
@@ -63,6 +44,11 @@ void svitlobot_init()
 // SvitloBot Stop
 void svitlobot_stop()
 {
+  if (id(send_state).is_running())
+  {
+    id(send_state).stop();
+  }
+
   vTaskDelete(svitlobot_handle);  // OTA: Avoid crash due to angry watchdog
   svitlobot_handle = nullptr;
 }
