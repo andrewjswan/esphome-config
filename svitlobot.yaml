@@ -2,8 +2,8 @@ substitutions:
   name: "esp-svitlobot"
   friendly_name: "Svitlo Bot"
   project_name: "ajs.svitlobot"
-  project_version: "1.5.5"
-  comment: "ESPHome Svitlo Bot"
+  project_version: "3.5.5"
+  comment: "ESPHome Svitlo Bot (Shadow)"
 
 esphome:
   name: "${name}"
@@ -14,17 +14,31 @@ esphome:
     name: "${project_name}"
     version: "${project_version}"
 
+external_components:
+  - source:
+      type: git
+      url: https://github.com/andrewjswan/esphome-components
+      ref: main
+    components: [ shadow ]
+    refresh: 60s
+
 dashboard_import:
   package_import_url: github://andrewjswan/esphome-config/svitlobot.yaml@main
 
 esp32:
   board: nodemcu-32s
+#  framework:
+#    type: esp-idf
 
 api:
   reboot_timeout: 0s
 
 ota:
   - platform: esphome
+    on_begin:
+      then:
+        - lambda: |-
+            id(svitlobot)->stop();
 
 logger:
   level: INFO
@@ -38,7 +52,7 @@ web_server:
   version: 3
 
 wifi:
-  ap: {}
+  ap: {} # This spawns an AP with the device name and mac address with no password.
 
 captive_portal:
 
@@ -58,39 +72,40 @@ globals:
     restore_value: no
     initial_value: '0'
 
-interval:
-  - interval: 60s
+script:
+  - id: send_state
     then:
       - if:
           condition:
             and:
               - wifi.connected:
               - lambda: 'return id(my_key).has_state();'
-              - lambda: 'return !id(send_state).is_running();'
           then:
-            - script.execute: send_state
-
-script:
-  - id: send_state
-    then:
-      - http_request.get: 
-          url: !lambda |-
-            return ((std::string) "https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str();
-          on_response:
-            then:
-              - lambda: |-
-                  if (response->status_code == HTTP_CODE_OK)
-                  {
-                    id(send_status).publish_state(true);
-                    id(ok)++;
-                  }
-                  else
-                  {
-                    id(send_status).publish_state(false);
-                    id(error)++;
-                  }
-              - component.update: quality
+            - http_request.get: 
+                url: !lambda |-
+                  return ((std::string) "https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str();
+                on_response:
+                  then:
+                    - lambda: |-
+                        if (response->status_code == 200)
+                        {
+                          ESP_LOGD("SvitloBot", "Send status - success");
+                          id(send_status).publish_state(true);
+                          id(ok)++;
+                        }
+                        else
+                        {
+                          ESP_LOGE("SvitloBot", "Send status - not success with response code: %d", response->status_code);
+                          id(send_status).publish_state(false);
+                          id(error)++;
+                        }
+                    - component.update: quality
     mode: queued
+
+shadow:
+  id: svitlobot
+  script_id: send_state
+  interval: 60
 
 text:
   - platform: template
