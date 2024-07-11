@@ -89,10 +89,7 @@ script:
                   return ((std::string) "https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str();
                 on_response:
                   then:
-                    - script.execute:
-                        id: set_state
-                        code: response.status_code
-                        response: ''
+                    - lambda: id(set_state)->execute(response->status_code, '');
                     - globals.set:
                         id: session
                         value: 'false'
@@ -159,7 +156,7 @@ sensor:
     name: "${friendly_name} Delivery Quality"
     id: quality
     lambda: |-
-      if (!id(my_key).has_state() || id(send_quality) < 0))
+      if (!id(my_key).has_state() || id(send_quality) < 0)
       {
         return NAN;
       }
