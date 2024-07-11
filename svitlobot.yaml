@@ -171,7 +171,7 @@ sensor:
     on_value_range:
       - below: 90.0
         then:
-          - button.press: restart
+          - button.press: Restart
 
   - platform: uptime
     name: "${friendly_name} Uptime"
@@ -185,13 +185,13 @@ sensor:
 button:
   - platform: restart
     name: "${friendly_name} Restart"
-    id: restart
+    id: Restart
     entity_category: diagnostic
     icon: mdi:restart
 
   - platform: factory_reset
     name: "${friendly_name} Restart with Factory Default Settings"
-    id: reset
+    id: Reset
     entity_category: diagnostic
     disabled_by_default: true
 
