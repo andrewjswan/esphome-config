@@ -62,15 +62,10 @@ http_request:
   timeout: 10s
 
 globals:
-  - id: ok
+  - id: send_quality
     type: int
     restore_value: no
-    initial_value: '0'
-
-  - id: error
-    type: int
-    restore_value: no
-    initial_value: '0'
+    initial_value: '-1'
 
   - id: session
     type: bool
@@ -94,28 +89,45 @@ script:
                   return ((std::string) "https://api.svitlobot.in.ua/channelPing?channel_key=" + id(my_key).state).c_str();
                 on_response:
                   then:
-                    - lambda: |-
-                        if (response->status_code == 200)
-                        {
-                          ESP_LOGD("SvitloBot", "Send status - success");
-                          id(send_status).publish_state(true);
-                          id(ok)++;
-                        }
-                        else
-                        {
-                          ESP_LOGE("SvitloBot", "Send status - not success with response code: %d", response->status_code);
-                          id(send_status).publish_state(false);
-                          id(error)++;
-                        }
-                        id(session) = false;
-                    - component.update: quality
-            - lambda: |-
-                if (id(session)) 
-                {
-                  id(send_status).publish_state(false);
-                  id(error)++;
-                }
-                id(session) = false;
+                    - script.execute:
+                        id: set_state
+                        code: response->status_code
+                        response: ''
+                    - globals.set:
+                        id: session
+                        value: 'false'
+            - if:
+                condition:
+                  lambda: 'return id(session);'
+                then:
+                  - script.execute:
+                      id: set_state
+                      code: -1
+                      response: ''
+            - component.update: quality
+    mode: queued
+
+  - id: set_state
+    parameters:
+      code: int
+      response: string
+    then:
+      - lambda: |-
+          if (code == 200)
+          {
+            ESP_LOGD("SvitloBot", "Send status - success");
+            id(send_status).publish_state(true);
+            id(send_quality) = id(send_quality) < 0 ? 100 : std::min(100, id(send_quality)++);
+          }
+          else
+          {
+            if (code > 0)
+            {
+              ESP_LOGE("SvitloBot", "Send status - not success with response code: %d", code);
+            }
+            id(send_status).publish_state(false);
+            id(send_quality) = id(send_quality) < 0 ? 0 : std::max(0, id(send_quality)--);
+          }
     mode: queued
 
 shadow:
@@ -147,11 +159,11 @@ sensor:
     name: "${friendly_name} Delivery Quality"
     id: quality
     lambda: |-
-      if (!id(my_key).has_state() || (id(ok) + id(error) == 0))
+      if (!id(my_key).has_state() || id(send_quality) < 0))
       {
         return NAN;
       }
-      return id(ok) * 100 / (id(ok) + id(error));
+      return id(send_quality);
     accuracy_decimals: 0
     unit_of_measurement: "%"
     icon: mdi:wan
@@ -159,7 +171,7 @@ sensor:
     on_value_range:
       - below: 90.0
         then:
-          - button.press: Restart
+          - button.press: restart
 
   - platform: uptime
     name: "${friendly_name} Uptime"
@@ -172,14 +184,14 @@ sensor:
 
 button:
   - platform: restart
-    name: "${friendly_name} Restart"            
-    id: Restart
+    name: "${friendly_name} Restart"
+    id: restart
     entity_category: diagnostic
     icon: mdi:restart
 
   - platform: factory_reset
     name: "${friendly_name} Restart with Factory Default Settings"
-    id: Reset
+    id: reset
     entity_category: diagnostic
     disabled_by_default: true
 
