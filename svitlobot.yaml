@@ -91,7 +91,7 @@ script:
                   then:
                     - script.execute:
                         id: set_state
-                        code: response->status_code
+                        code: response.status_code
                         response: ''
                     - globals.set:
                         id: session
