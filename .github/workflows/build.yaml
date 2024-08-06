@@ -28,10 +28,10 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
       - name: Build firmware
-        uses: esphome/build-action@v3
+        uses: esphome/build-action@v4
         id: esphome-build
         with:
-          yaml_file: ${{ matrix.config-file }}
+          yaml-file: ${{ matrix.config-file }}
           version: latest
           
   ci-status:
