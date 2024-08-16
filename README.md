@@ -3,5 +3,9 @@
 [![GitHub](https://img.shields.io/github/license/andrewjswan/esphome-config?color=blue)](https://github.com/andrewjswan/esphome-config/blob/master/LICENSE)
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
-# esphome-config
-ESPHome Config
+# ESPHome Config
+My configurations of different devices based on ESPHome
+
+> [!TIP]
+> ### SvitloBot
+> https://github.com/andrewjswan/svitlobot
