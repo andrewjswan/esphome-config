@@ -9,19 +9,19 @@ addressable_lambda:
       it.all() = Color::BLACK;
     }
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       if (id(fastled_variant).state < 128)
       {
         // Вариант  efimova1969
         uint8_t flicker = random8(1, 80);
         CRGB color = CRGB(255 - flicker * 2, 150 - flicker, flicker / 2);
-        it[i] = Color(color.r, color.g, color.b);       
+        it[i] = Color(color.r, color.g, color.b);
       }
       else
       {
         uint8_t flicker = random8(1, 15);
         CRGB color = CRGB(255 - flicker * 2, 63 - flicker, flicker / 2);
-        it[i] = Color(color.r, color.g, color.b);       
+        it[i] = Color(color.r, color.g, color.b);
       }
     }

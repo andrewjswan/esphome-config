@@ -10,10 +10,10 @@ then:
       static float coef_min = (0.5 - 0.0) / (${min_co2} - 0);
       static float coef_med = (1.0 - 0.5) / (${med_co2} - ${min_co2});
 
-      bool alert_mode = ((strcasecmp(id(neopixel_led).get_effect_name().c_str(), "Strobe Blue") == 0) or 
-                         (strcasecmp(id(neopixel_led).get_effect_name().c_str(), "Strobe Purple") == 0) or 
-                         (strcasecmp(id(neopixel_led).get_effect_name().c_str(), "Strobe Green") == 0) or 
-                         (strcasecmp(id(neopixel_led).get_effect_name().c_str(), "Strobe Alarm") == 0) or 
+      bool alert_mode = ((strcasecmp(id(neopixel_led).get_effect_name().c_str(), "Strobe Blue") == 0) or
+                         (strcasecmp(id(neopixel_led).get_effect_name().c_str(), "Strobe Purple") == 0) or
+                         (strcasecmp(id(neopixel_led).get_effect_name().c_str(), "Strobe Green") == 0) or
+                         (strcasecmp(id(neopixel_led).get_effect_name().c_str(), "Strobe Alarm") == 0) or
                          (strcasecmp(id(neopixel_led).get_effect_name().c_str(), "Strobe Police") == 0));
 
       if (id(automatic).state and !alert_mode)
@@ -39,7 +39,7 @@ then:
               action = true;
               first_run = false;
             }
-            
+
             if (!id(neopixel_led).remote_values.is_on())
             {
               action = true;

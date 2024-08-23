@@ -8,5 +8,5 @@ then:
         time_t currTime = id(esp_time).now().timestamp;
         strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
         strcpy(id(sleep_heartbeat), str);
-        return  { str }; 
+        return  { str };
       retain: true

@@ -2,7 +2,7 @@
 
 substitutions:
   light_source: light_id
-  status_gpio: GPIO13 # Red
+  status_gpio: GPIO13  # Red
   status_share: "true"
   energy_method: left
   project_name: "ajs.sonoff_mini_light"
@@ -43,12 +43,12 @@ light:
   - platform: monochromatic
     name: ${name} Blue Led
     output: blue_led
-    internal: true # hides the Blue LED from Homeassistant
+    internal: true  # hides the Blue LED from Homeassistant
 
   # Sonoff Mini Virtual Light (Relay as Light)
   - platform: binary
     name: ${name}
-    output: main_light_relay  
+    output: main_light_relay
     id: light_id
     on_state:
       - component.update: power

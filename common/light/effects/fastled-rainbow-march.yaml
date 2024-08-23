@@ -25,7 +25,7 @@ addressable_lambda:
         thisdir = 1;
         thisrot = 1;
         thisdiff = 1;
-      } 
+      }
       else if (id(fastled_variant).state > 85)
       {
         thisdir = 1;
@@ -45,7 +45,7 @@ addressable_lambda:
     thisindex += thisrot * thisdir;
     fill_rainbow(leds, it.size(), thisindex, thisdiff); // I don't change deltahue on the fly as it's too fast near the end of the strip.
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

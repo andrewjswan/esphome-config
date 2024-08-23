@@ -4,7 +4,7 @@ wifi:
   password: !secret home.wifi.password
   domain: !secret home.domain
   fast_connect: true
-#  power_save_mode: none
+  # power_save_mode: none
 
   # Static IP
   manual_ip:

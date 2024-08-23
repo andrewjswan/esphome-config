@@ -23,4 +23,3 @@ on_boot:
                 - switch.turn_off: button_switch
                 - switch.turn_off: relay
                 - output.turn_off: led_blue
-

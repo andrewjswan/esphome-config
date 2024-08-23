@@ -5,7 +5,7 @@ addressable_lambda:
     static Color leds[${num_leds}];
     static int step;
 
-    if (initial_run) 
+    if (initial_run)
     {
       ESP_LOGD("effect", "Radar Ring");
 
@@ -39,8 +39,8 @@ addressable_lambda:
     leds[(step + 1) % it.size()] = current_color;
 
     int i = random(0, it.size() - 1);
-    // if (i > step - 3 && i < step + 3) 
-    if (i == step) 
+    // if (i > step - 3 && i < step + 3)
+    if (i == step)
     {
       leds[i] = Color(255, 255, 255);
     }

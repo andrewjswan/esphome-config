@@ -23,7 +23,7 @@ esphome:
 binary_sensor:
   # Air Fresh Need Spray
   - !include ../common/binary_sensor/air_fresh_need_spray.yaml
-  
+
   # Air Fresh Button Awakened
   - !include ../common/binary_sensor/air_fresh_awakened.yaml
 
@@ -60,8 +60,8 @@ sensor:
   - !include ../common/sensor/wifi-signal.yaml
 
   # ESP8266 Measuring VCC
-  - !include ../common/sensor/vcc.yaml 
-  - !include ../common/sensor/battery.yaml 
+  - !include ../common/sensor/vcc.yaml
+  - !include ../common/sensor/battery.yaml
 
   # Air Fresh On Flag
   - !include ../common/sensor/air_fresh.yaml
@@ -108,7 +108,7 @@ script:
 
   # ESPHome Hearbeat
   - !include ../common/script/hearbeat.yaml
-  
+
   # ESPHome Uptime
   - !include ../common/script/uptime.yaml
 

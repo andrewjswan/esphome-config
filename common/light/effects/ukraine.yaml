@@ -68,11 +68,11 @@ addressable_lambda:
 
     // Fade colors
     // for (int i = 0; i < width; i++)
-    for (int i = 0; i < 2; i++) 
+    for (int i = 0; i < 2; i++)
     {
       // Color old_color = led_colors[i];
       Color old_color = colors[i];
-      
+
       int red = old_color.red;
       int green = old_color.green;
       int blue = old_color.blue;
@@ -94,7 +94,7 @@ addressable_lambda:
       colors[i] = Color(red, green, blue);
     }
     fade_count++;
-    
+
     if(fade_count > fade_amount)
     {
       fade_direction = fade_direction * -1;

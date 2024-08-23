@@ -27,7 +27,7 @@ addressable_lambda:
         thisrot = 1;
         bgclr = 100;
         bgbri = 10;
-      } 
+      }
       else if (id(fastled_variant).state > 85)
       {
         thisindex = 192;
@@ -47,12 +47,12 @@ addressable_lambda:
       variant = (int)id(fastled_variant).state;
     }
 
-    if (thisrot) 
+    if (thisrot)
     {
       thisindex++;                                                              // Increase palette index to change colours on the fly
     }
 
-    if (random8(90) > 80) 
+    if (random8(90) > 80)
     {
       if (thisdir == -1)
       {
@@ -62,8 +62,8 @@ addressable_lambda:
       {
         leds[it.size() - 1] = color_from_palette(thisindex, current_color);
       }
-    } 
-    else 
+    }
+    else
     {
       if (thisdir == -1)
       {
@@ -81,8 +81,8 @@ addressable_lambda:
       {
         leds[i] = leds[i - 1];
       }
-    } 
-    else 
+    }
+    else
     {
       for (int i = 0; i < it.size() - 1 ; i++)
       {
@@ -90,7 +90,7 @@ addressable_lambda:
       }
     }
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

@@ -5,7 +5,7 @@ addressable_lambda:
     const int line_width = 17;
     const int led_width = it.size();
     static bool run = false;
-    
+
     static Color line_colors[line_width];
     static Color old_led_colors[${num_leds}];
     static Color new_led_colors[${num_leds}];
@@ -17,13 +17,13 @@ addressable_lambda:
       run = false;
       it.all() = Color::BLACK;
     }
-    
-    if (run) 
+
+    if (run)
     {
       return;
     }
     run = true;
-    
+
     HTTPClient http;
     if (http.begin("http://${philips_tv}:1925/1/ambilight/processed"))
     {
@@ -34,9 +34,9 @@ addressable_lambda:
       {
         DynamicJsonDocument root(1536);
         DeserializationError error = deserializeJson(root, http.getStream());
-        if (!error) 
+        if (!error)
         {
-          if (root.containsKey("layer1")) 
+          if (root.containsKey("layer1"))
           {
             for(int i = 0; i < 4; i++)
             {
@@ -59,7 +59,7 @@ addressable_lambda:
               int b = root["layer1"]["right"][String(i)]["b"];
               line_colors[i + 13] = Color(r, g, b).lighten(${ambilight_color_correct});
             }
-            
+
             // Fill Led
             for (int i = 0; i < led_width; i++)
             {
@@ -67,8 +67,8 @@ addressable_lambda:
               new_led_colors[i] = line_colors[j];
               old_led_colors[i] = it[i].get();
             }
-            
-            // Smooth fill 
+
+            // Smooth fill
             int step = 10;
             for (int i = 1; i <= step; i++)
             {
@@ -83,7 +83,7 @@ addressable_lambda:
               }
               delay(90 / step);
             }
-            
+
             // Final fill
             for (int i = 0; i < led_width; i++)
             {

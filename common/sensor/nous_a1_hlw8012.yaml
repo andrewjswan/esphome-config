@@ -33,7 +33,7 @@ voltage:
   name: "${name} Voltage"
   unit_of_measurement: V
   accuracy_decimals: 1
-  #icon: mdi:flash-outline
+  # icon: mdi:flash-outline
   device_class: voltage
   state_class: measurement
   filters:
@@ -45,7 +45,7 @@ voltage:
     - median:
         window_size: 5
         send_every: 3
-           
+
 power:
   name: "${name} Power"
   unit_of_measurement: W

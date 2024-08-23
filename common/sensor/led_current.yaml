@@ -9,7 +9,7 @@ lambda: |-
   float current = 60.0; // Wemos Esp 8266 - 60mA
   #endif
 
-  for (int i = 0; i < ${num_leds}; i++) 
+  for (int i = 0; i < ${num_leds}; i++)
   {
     auto c = ((light::AddressableLight *) id(neopixel_led)->get_output())->get(i);
     current += c.get_red() * led;

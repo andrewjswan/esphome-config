@@ -2,7 +2,7 @@
 platform: adc
 pin: VCC
 name: ${name} VCC Voltage
-#update_interval: ${update_interval}
+# update_interval: ${update_interval}
 update_interval: 0.5s
 id: vcc
 icon: mdi:flash-outline
@@ -10,7 +10,7 @@ device_class: voltage
 state_class: measurement
 entity_category: diagnostic
 filters:
-  - max: #  - sliding_window_moving_average:
+  - max:  # - sliding_window_moving_average:
       window_size: 3
       send_every: 3
       send_first_at: 3
@@ -37,6 +37,6 @@ on_value_range:
         format: "Low power (%.1f), shutdown..."
         level: "WARN"
         tag: "power"
-        args: [ 'id(vcc).state' ]
+        args: ['id(vcc).state']
     - switch.turn_on: esp_shutdown
-#    - button.press: esp_shutdown
+    # - button.press: esp_shutdown

@@ -1,0 +1,261 @@
+addressable_lambda:
+  name: FastLED Lava
+  update_interval: 5ms
+  lambda: |-
+    #define WU_WEIGHT(a,b) ((uint8_t) (((a)*(b)+(a)+(b))>>8))
+
+    static uint8_t width = 1;
+    static uint8_t height = 1;
+    static uint8_t object_num = 0;
+
+    static uint8_t hue, step, speed;
+
+    static float* trackingObjectPosX  = nullptr;
+    static float* trackingObjectPosY  = nullptr;
+    static float* trackingObjectShift = nullptr;
+    static float* trackingObjectSpeed = nullptr;
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Lava");
+
+      it.all() = Color::BLACK;
+      InitLeds(${num_leds});
+
+      uint16_t num = ${num_leds};
+      uint16_t diff = ${num_leds};
+
+      if (num % 2 != 0)
+      {
+        num++;
+      }
+
+      for (int a = (int) sqrt(num); a < num; a ++)
+      {
+        if (a != 0 && num % a == 0)
+        {
+          if (diff > a - num / a)
+          {
+            width = a;
+            height = num / width;
+            diff = width - height;
+          }
+        }
+      }
+
+      object_num = (width / 2) - ((width - 1) & 0x01);
+
+      if (trackingObjectPosX == NULL)
+      {
+        trackingObjectPosX = new float[object_num];
+      }
+      if (trackingObjectPosY == NULL)
+      {
+        trackingObjectPosY = new float[object_num];
+      }
+      if (trackingObjectShift == NULL)
+      {
+        trackingObjectShift = new float[object_num];
+      }
+      if (trackingObjectSpeed == NULL)
+      {
+        trackingObjectSpeed = new float[object_num];
+      }
+
+      step = 0;
+
+      uint8_t shift = random8(2);
+      for (uint8_t i = 0; i < object_num; i++)
+      {
+        trackingObjectPosY[i] = i * 2U + shift;
+        trackingObjectPosX[i] = i * 2U + shift;
+        trackingObjectSpeed[i] = (float)random8(5, 11) / (257U - (int)id(fastled_speed).state) / 4.0; // если скорость кадров фиксированная
+        trackingObjectShift[i] = random8(1, 3);                                                       // присваивается случайный целочисленный радиус пузырям от 1 до 2
+      }
+
+      hue = (int)id(fastled_variant).state;
+    }
+
+    for (uint16_t i = 0; i < ${num_leds}; i++)
+    {
+      leds[i] = CRGB::Black;
+    }
+
+    step++;
+    if (step % 0x10 == 0U)
+    {
+      hue++;
+    }
+    CRGB color = CHSV(hue, 255U, 255U);
+
+    for (uint8_t i = 0; i < object_num; i++)
+    {
+      if (trackingObjectPosY[i] + trackingObjectShift[i] >= height - 1)
+      {
+        trackingObjectPosY[i] += (trackingObjectSpeed[i] * ((height - 1 - trackingObjectPosY[i]) / trackingObjectShift[i] + 0.005));
+      }
+      else if (trackingObjectPosY[i] - trackingObjectShift[i] <= 0)
+      {
+        trackingObjectPosY[i] += (trackingObjectSpeed[i] * (trackingObjectPosY[i] / trackingObjectShift[i] + 0.005));
+      }
+      else
+      {
+        trackingObjectPosY[i] += trackingObjectSpeed[i];
+      }
+
+      // bounce off the floor and ceiling?
+      if (trackingObjectPosY[i] < 0.01)                                                               // почему-то при нуле появляется мерцание (один кадр, еле заметно)
+      {
+        trackingObjectSpeed[i] = (float)random8(5, 11) / (257U - (int)id(fastled_speed).state) / 4.0; // если скорость кадров фиксированная
+        trackingObjectPosY[i] = 0.01;
+      }
+      else if (trackingObjectPosY[i] > height - 1.01)                                                 // тоже на всякий пожарный
+      {
+        trackingObjectSpeed[i] = (float)random8(5, 11) / (257U - (int)id(fastled_speed).state) / 4.0; // если скорость кадров фиксированная
+        trackingObjectSpeed[i] = -trackingObjectSpeed[i];
+        trackingObjectPosY[i] = height - 1.01;
+      }
+                                                                                                      // раз круги выглядят убого, рисуем попиксельно 2 размера пузырей
+      for (int8_t x = trackingObjectShift[i] == 2 ? -2 : -1; x < 3; x++)
+        for (int8_t y = trackingObjectShift[i] == 2 ? -2 : -1; y < 3; y++)
+          if ( ((trackingObjectShift[i] == 2) && (abs(x) + abs(y) < 4)) ||
+               ((trackingObjectShift[i] != 2) && (!(x==-1 && (y==-1 || y==2) || x==2 && (y==-1 || y==2)))) )
+          {
+            uint16_t x = fmod(trackingObjectPosX[i] + x + width, width);
+            uint16_t y = trackingObjectPosY[i] + y;
+
+            // extract the fractional parts and derive their inverses
+            uint8_t xx = (x - (int)x) * 255;
+            uint8_t yy = (y - (int)y) * 255;
+            uint8_t ix = 255 - xx, iy = 255 - yy;
+
+            // calculate the intensities for each affected pixel
+            uint8_t wu[4] = {WU_WEIGHT(ix, iy), WU_WEIGHT(xx, iy),
+                             WU_WEIGHT(ix, yy), WU_WEIGHT(xx, yy)};
+
+            // multiply the intensities by the colour, and saturating-add them to the pixels
+            for (uint8_t j = 0; j < 4; j++)
+            {
+              int16_t xn = x + (j & 1);
+              int16_t yn = y + ((j >> 1) & 1);
+
+              int16_t pos = 0;
+              if (!(yn & 0x01))                                                 // Even rows run forwards
+              {
+                pos = (yn * width + xn);
+              }
+              else
+              {
+                pos = (yn * width + width - xn - 1);                            // Odd rows run backwards
+              }
+
+              if (pos >= 0 && pos < ${num_leds})
+              {
+                CRGB clr = leds[pos];
+                clr.r = qadd8(clr.r, (color.r * wu[j]) >> 8);
+                clr.g = qadd8(clr.g, (color.g * wu[j]) >> 8);
+                clr.b = qadd8(clr.b, (color.b * wu[j]) >> 8);
+                leds[pos]  = color;
+              }
+            }
+          }
+    }
+
+    fract8 blur_amount = 20;
+    uint8_t keep = 255 - blur_amount;
+    uint8_t seep = blur_amount >> 1;
+
+    // blur rows
+    for( uint8_t row = 0; row < height; row++ )
+    {
+      CRGB carryover = CRGB::Black;
+      for( uint8_t i = 0; i < width; i++)
+      {
+        int16_t pos = 0;
+        if (!(row & 0x01))                                                      // Even rows run forwards
+        {
+          pos = (row * width + i);
+        }
+        else
+        {
+          pos = (row * width + width - i - 1);                                  // Odd rows run backwards
+        }
+        CRGB cur = leds[pos];
+        CRGB part = cur;
+        part.nscale8(seep);
+        cur.nscale8(keep);
+        cur += carryover;
+        if(i)
+        {
+          if (!(row & 0x01))                                                    // Even rows run forwards
+          {
+            pos = (row * width + (i-i));
+          }
+          else
+          {
+            pos = (row * width + width - (i-i) - 1);                            // Odd rows run backwards
+          }
+          leds[pos] += part;
+        }
+        if (!(row & 0x01))                                                      // Even rows run forwards
+        {
+          pos = (row * width + i);
+        }
+        else
+        {
+          pos = (row * width + width - i - 1);                                  // Odd rows run backwards
+        }
+        leds[pos] = cur;
+        carryover = part;
+      }
+    }
+
+    // blur columns
+    for( uint8_t col = 0; col < width; col++)
+    {
+      CRGB carryover = CRGB::Black;
+      for( uint8_t i = 0; i < height; i++)
+      {
+        int16_t pos = 0;
+        if (!(i & 0x01))                                                        // Even rows run forwards
+        {
+          pos = (i * width + col);
+        }
+        else
+        {
+          pos = (i * width + width - col - 1);                                  // Odd rows run backwards
+        }
+        CRGB cur = leds[pos];
+        CRGB part = cur;
+        part.nscale8(seep);
+        cur.nscale8(keep);
+        cur += carryover;
+        if(i)
+        {
+          if (!((i-1) & 0x01))                                                  // Even rows run forwards
+          {
+            pos = ((i-1) * width + col);
+          }
+          else
+          {
+            pos = ((i-1) * width + width - col - 1);                            // Odd rows run backwards
+          }
+          leds[pos] += part;
+        }
+        if (!(i & 0x01))                                                        // Even rows run forwards
+        {
+          pos = (i * width + col);
+        }
+        else
+        {
+          pos = (i * width + width - col - 1);                                  // Odd rows run backwards
+        }
+        leds[pos] = cur;
+        carryover = part;
+      }
+    }
+
+    for (int i = 0; i < it.size(); i++)
+    {
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+    }

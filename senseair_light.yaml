@@ -41,7 +41,7 @@ binary_sensor:
   - !include common/binary_sensor/workday.yaml
 
   # Night
-  - !include common/binary_sensor/night.yaml     
+  - !include common/binary_sensor/night.yaml
 
 text_sensor:
   # ESPHome Version

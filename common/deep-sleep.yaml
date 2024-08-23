@@ -2,4 +2,4 @@
   run_duration: 30s
   sleep_duration: ${sleep_interval}
   id: deep_sleep_mode
-  #  note that on the ESP8266 GPIO16 (D0) must be connected to the RST pin so that it will wake up again
+  # Note that on the ESP8266 GPIO16 (D0) must be connected to the RST pin so that it will wake up again

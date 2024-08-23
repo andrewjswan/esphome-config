@@ -18,7 +18,7 @@ addressable_lambda:
       color = Color(random(0,255),random(0,255),random(0,255));
     }
 
-    for (int i = width - 1; i > 0; i--) 
+    for (int i = width - 1; i > 0; i--)
     {
       it[i] = it[i - 1].get();
     }
@@ -26,14 +26,14 @@ addressable_lambda:
     if(state < width/2)
     {
       it[0] = color;
-    } 
-    else 
+    }
+    else
     {
       it[0] = white;
     }
 
     state += 1;
-    if (state >= width) 
+    if (state >= width)
     {
       color = Color(random(0,255),random(0,255),random(0,255));
       if (color.red == white.red and color.blue == white.blue and color.green == white.green)

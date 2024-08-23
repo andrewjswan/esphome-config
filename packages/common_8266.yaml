@@ -3,7 +3,7 @@
 binary_sensor:
   # ESP Status
   - !include ../common/binary_sensor/status.yaml
-    
+
 text_sensor:
   # ESPHome Version
   - !include ../common/text_sensor/version.yaml

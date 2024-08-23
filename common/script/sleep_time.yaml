@@ -17,7 +17,7 @@ then:
                   id(sleep_int) = 5;
             else:
               - if:
-                  condition: 
+                  condition:
                     lambda: |-
                       return (id(occupancy).state == "ON");
                   then:
@@ -36,7 +36,7 @@ then:
                           int hour = time.hour;
                           int min = time.minute;
                           int inter = atoi("${sleep_interval}");
-                          
+
                           if ((hour >= id(night_start)) && ((hour < (id(night_end) - 1)) || (hour == (id(night_end) - 1) && (min <= (60 - inter * $night_coef)))))
                           {
                             id(sleep_int) = inter * $night_coef;
@@ -51,10 +51,10 @@ then:
 
   - logger.log:
       format: "Deep sleep %dmin..."
-      args: [ 'id(sleep_int)' ]
+      args: ['id(sleep_int)']
       level: INFO
 
-  - deep_sleep.enter: 
+  - deep_sleep.enter:
       id: deep_sleep_mode
       sleep_duration: !lambda |-
         return id(sleep_int) * 60000 * $sleep_coef;

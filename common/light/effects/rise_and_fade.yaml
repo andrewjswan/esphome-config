@@ -13,7 +13,7 @@ addressable_lambda:
     const bool twoside = false;
     const bool fade = false;
 
-    if (initial_run) 
+    if (initial_run)
     {
       ESP_LOGD("effect", "Rise and Fade x%i / %i", speed, steps);
 
@@ -27,7 +27,7 @@ addressable_lambda:
     uint8_t r = max(1, current_color.r / steps);
     uint8_t g = max(1, current_color.g / steps);
     uint8_t b = max(1, current_color.b / steps);
-    
+
     // Let's light up the ones who got their turn.
     for (int i = 0; i < speed; i++)
     {
@@ -81,7 +81,7 @@ addressable_lambda:
       }
     }
 
-    // Everyone's already on burn, mission over 
+    // Everyone's already on burn, mission over
     if (complete)
     {
       if (fade)

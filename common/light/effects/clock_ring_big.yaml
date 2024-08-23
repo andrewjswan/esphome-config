@@ -4,7 +4,7 @@ addressable_lambda:
   lambda: |-
     static Color clock_ring_colors [${num_leds}];
 
-    if (initial_run) 
+    if (initial_run)
     {
       ESP_LOGD("effect", "Clock Ring");
 
@@ -36,7 +36,7 @@ addressable_lambda:
       hour_idx_vector.push_back(hour_inc_min_idx);
       hour_idx_vector.push_back((hour_inc_min_idx + 1) % it.size());
       hour_idx_vector.push_back((hour_inc_min_idx + 2) % it.size());
-    } 
+    }
     /*
     else
     {
@@ -93,7 +93,7 @@ addressable_lambda:
     {
       minute_color += second_color;
       second_color = minute_color;
-    } 
+    }
     else if (std::find(std::begin(hour_idx_vector), std::end(hour_idx_vector), second_idx) != std::end(hour_idx_vector))
     {
       second_color += hour_color;

@@ -40,7 +40,7 @@ addressable_lambda:
         thisrot = 0;
         thisspeed = 4;
         wavebright = 255;
-      } 
+      }
       else if (id(fastled_variant).state > 175)
       {
         allfreq = 10;
@@ -129,7 +129,7 @@ addressable_lambda:
     thisindex = startindex;
     thisphase += thisdir;   // You can change direction and speed individually.
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {                                                                             // For each of the LED's in the strand, set a brightness based on a wave as follows:
       int thisbright = qsubd(cubicwave8((i * allfreq) + thisphase), thiscutoff);  // qsub sets a minimum value called thiscutoff. If < thiscutoff, then bright = 0. Otherwise, bright = 128 (as defined in qsub)..
       leds[i] = CHSV(bgclr, 255, bgbri);                                          // First set a background colour, but fully saturated.
@@ -137,7 +137,7 @@ addressable_lambda:
       thisindex += thisrot;
     }
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

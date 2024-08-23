@@ -30,14 +30,14 @@ then:
         int days = uptime / 86400;
 
         char suptime[50];
-        if (days > 0) 
+        if (days > 0)
         {
           sprintf (suptime, "%d д. %d ч. %d мин.", days, hours, minutes);
         }
-        else if (hours > 0) 
+        else if (hours > 0)
         {
           sprintf (suptime, "%d ч. %d мин.", hours, minutes);
-        } 
+        }
         else if (minutes > 0)
         {
           sprintf (suptime, "%d мин.", minutes);

@@ -11,7 +11,7 @@ addressable_lambda:
 
     static uint16_t Xn;
     static uint16_t Yn;
-    
+
     static int count = 0;
 
     if (initial_run)
@@ -41,7 +41,7 @@ addressable_lambda:
 
     fadeToBlackBy(leds, it.size(), 16);                                         // 8 bit, 1 = slow, 255 = fast
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

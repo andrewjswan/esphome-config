@@ -36,7 +36,7 @@ addressable_lambda:
         x_speed = random16(1, 30);
         hxyinc = random16(1, 15);
         hue_time = random16();
-      } 
+      }
       else
       {
         octaves = 1;
@@ -62,7 +62,7 @@ addressable_lambda:
     x += x_speed * thisdir;
     hue_time += hue_speed * thisdir;
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

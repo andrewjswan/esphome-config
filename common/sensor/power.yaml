@@ -6,8 +6,8 @@ lambda: |-
   if (id(${light_source}).current_values.is_on())
   {
     return id(bulb_power).state;
-  } 
-  else 
+  }
+  else
   {
    return 0;
   }

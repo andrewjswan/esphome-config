@@ -46,11 +46,11 @@ addressable_lambda:
       hue16 += hueinc16;
       uint8_t hue8 = hue16 / 256;
       uint16_t h16_128 = hue16 >> 7;
-      if (h16_128 & 0x100) 
+      if (h16_128 & 0x100)
       {
         hue8 = 255 - (h16_128 >> 1);
-      } 
-      else 
+      }
+      else
       {
         hue8 = h16_128 >> 1;
       }
@@ -76,7 +76,7 @@ addressable_lambda:
       }
     }
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

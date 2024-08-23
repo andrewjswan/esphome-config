@@ -11,12 +11,12 @@
 
       it.all() = Color::BLACK;
     }
-    
+
     Delta = beatsin8(30, 0, 10);     // add some back and forth
     DeltaPos = ThisPos + Delta;      // add the delta to the current position
     DeltaPos = DeltaPos % it.size(); // handles out of range
 
     it.all().darken(25);              // dim all
     it[DeltaPos] = current_color;     // draw red pixel
-    
+
     ThisPos = ThisPos + 1;

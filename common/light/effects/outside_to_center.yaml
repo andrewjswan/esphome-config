@@ -8,7 +8,7 @@ addressable_lambda:
     static int red = 250;
     static int green = 250;
     static int blue = 250;
-    
+
     static int direction = 1;
     static int step;
 
@@ -24,13 +24,13 @@ addressable_lambda:
     if(step > indent && step < it.size() / 2 - indent)
     {
       it[step] = Color(red / 10, green / 10, blue / 10);
-      for(int j = 1; j <= eye; j++) 
+      for(int j = 1; j <= eye; j++)
       {
         it[step+j] = Color(red, green, blue);
       }
 
       it[it.size()-step] = Color(red / 10, green / 10, blue / 10);
-      for(int j = 1; j <= eye; j++) 
+      for(int j = 1; j <= eye; j++)
       {
         it[it.size()-step-j] = Color(red, green, blue);
       }

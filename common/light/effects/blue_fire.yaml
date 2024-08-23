@@ -7,7 +7,7 @@ addressable_lambda:
       ESP_LOGD("effect", "Blue Fire");
     }
 
-    for( int Pixel = 0; Pixel <= it.size(); Pixel++) 
+    for( int Pixel = 0; Pixel <= it.size(); Pixel++)
     {
       it[Pixel] = Color(22, 24, 130);
       Color color1;
@@ -23,7 +23,7 @@ addressable_lambda:
       int color2[] = {70, 185, 242};
 
       //ESP_LOGD("main", "Color1 :(%d,%d,%d)", color1[0],color1[1],color1[2]);
-      
+
       r1 = (color1[0] ),
       g1 = (color1[1] ),
       b1 = (color1[2] );
@@ -38,7 +38,7 @@ addressable_lambda:
       int rc = random(160);
 
       // subtract
-      
+
       color2[0] = rc/4;
       color2[1] = rc/4;
       color2[2] = rc;
@@ -54,7 +54,7 @@ addressable_lambda:
       r=(int16_t)r1-(int16_t)r2;
       g=(int16_t)g1-(int16_t)g2;
       b=(int16_t)b1-(int16_t)b2;
-      
+
       if(r<0) r=0;
       if(g<0) g=0;
       if(b<0) b=0;

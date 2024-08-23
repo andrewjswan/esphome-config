@@ -12,7 +12,7 @@ addressable_lambda:
 
     static int i = 0;
 
-    if (initial_run) 
+    if (initial_run)
     {
       ESP_LOGD("effect", "Meteor");
 

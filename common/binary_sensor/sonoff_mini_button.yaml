@@ -7,5 +7,5 @@ filters:
   - delayed_off: 10ms
 on_press:
   - light.toggle:
-      id: light_id # toggle the main relay
+      id: light_id
 internal: true

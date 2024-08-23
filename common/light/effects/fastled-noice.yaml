@@ -3,7 +3,7 @@ addressable_lambda:
   update_interval: 50ms
   lambda: |-
     static uint16_t count = 0;
-    static uint16_t dist = 12321; 
+    static uint16_t dist = 12321;
 
     if (initial_run)
     {
@@ -20,5 +20,5 @@ addressable_lambda:
       it[i] = Color(color.r, color.g, color.b);
     }
     dist += beatsin8(10, 1, 4);
-    
+
     count += (id(fastled_speed).state - 128) / 10;

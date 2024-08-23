@@ -5,7 +5,7 @@ pin: GPIO04
 id: gpio_light_id
 on_press:
   then:
-    - logger.log: 
+    - logger.log:
         format: "External switch On press..."
         level: "DEBUG"
         tag: "sonoff"
@@ -28,7 +28,7 @@ on_press:
 
 on_release:
   then:
-    - logger.log: 
+    - logger.log:
         format: "External switch On release..."
         level: "DEBUG"
         tag: "sonoff"
@@ -45,7 +45,7 @@ on_release:
                 - switch.is_on: turn_off_delay
               then:
                 - script.execute: turn_off_with_delay
-              else:  
+              else:
                 - light.turn_off:
                     id: light_id  # turn off the main relay
 

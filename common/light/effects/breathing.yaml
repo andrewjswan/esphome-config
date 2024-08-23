@@ -4,7 +4,7 @@ lambda:
   lambda: |-
     static int state = 0;
 
-    if (initial_run) 
+    if (initial_run)
     {
       ESP_LOGD("effect", "Breathing");
     }
@@ -12,7 +12,7 @@ lambda:
     auto call = id(neopixel_led).turn_on();
     call.set_transition_length(15000);
 
-    if (state == 0) 
+    if (state == 0)
     {
       call.set_brightness(1.0);
     }

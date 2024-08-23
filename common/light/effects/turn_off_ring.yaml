@@ -4,7 +4,7 @@ addressable_lambda:
   lambda: |-
     static int step;
 
-    if (initial_run) 
+    if (initial_run)
     {
       ESP_LOGD("effect", "Turn Off Ring");
 

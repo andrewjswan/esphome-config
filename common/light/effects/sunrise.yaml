@@ -1,7 +1,7 @@
 lambda:
   name: Sunrise
   update_interval: 15s
-  lambda: |- 
+  lambda: |-
     static int state = 10;
 
     if (initial_run)
@@ -9,11 +9,11 @@ lambda:
       ESP_LOGD("effect", "Sunrise");
     }
 
-    auto call = id(neopixel_led).make_call(); 
-    call.set_transition_length(5000); 
-    call.set_rgb(1.0, 0.75, 0.0);  
+    auto call = id(neopixel_led).make_call();
+    call.set_transition_length(5000);
+    call.set_rgb(1.0, 0.75, 0.0);
     call.set_brightness(state / 100.0);
-    call.perform(); 
+    call.perform();
 
     if (state < ${sunrise})
     {

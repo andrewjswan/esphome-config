@@ -5,14 +5,14 @@ icon: mdi:spray
 id: spray
 internal: true
 turn_on_action:
-- switch.turn_on: fu_fu
-- delay: 0.5s
-- switch.turn_off: fu_fu
-#- if:
-#    condition:
-#      lambda: 'return id(button_awakened).state;'
-#    then:
-#      - delay: 1s
-#      - switch.turn_on: fu_fu
-#      - delay: 0.5s
-#      - switch.turn_off: fu_fu
+  - switch.turn_on: fu_fu
+  - delay: 0.5s
+  - switch.turn_off: fu_fu
+  # - if:
+  #     condition:
+  #       lambda: 'return id(button_awakened).state;'
+  #     then:
+  #       - delay: 1s
+  #       - switch.turn_on: fu_fu
+  #       - delay: 0.5s
+  #       - switch.turn_off: fu_fu

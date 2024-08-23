@@ -6,7 +6,7 @@ substitutions:
   device_ip: 192.168.0.0
   reboot_timeout: 15min
   comment: "Nous A1"
-  
+
   # Higher value gives lower watt readout
   current_res: "0.0012"
   # Lower value gives lower voltage readout

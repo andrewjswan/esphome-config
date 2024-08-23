@@ -4,7 +4,7 @@ addressable_lambda:
   lambda: |-
     static uint8_t data[${num_leds}];
     static uint32_t step;
- 
+
     if (initial_run)
     {
       ESP_LOGD("effect", "FastLED Dynamic smooth");
@@ -21,7 +21,7 @@ addressable_lambda:
     uint32_t cycleTime = 50 + (255 - id(fastled_speed).state) * 15;
     if (step >= cycleTime)
     {
-      for (int i = 0; i < it.size(); i++) 
+      for (int i = 0; i < it.size(); i++)
       {
         if (random8() <= (64 + id(fastled_variant).state) / 2)
         {
@@ -31,7 +31,7 @@ addressable_lambda:
       step = 0;
     }
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       CRGB color = color_from_palette(data[i], current_color);
       if (id(fastled_speed).state > 0)
@@ -47,10 +47,10 @@ addressable_lambda:
         leds[i] = color;
       }
     }
-    
+
     step += 10; // update interval
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

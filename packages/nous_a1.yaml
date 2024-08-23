@@ -1,7 +1,7 @@
 # Nous A1
 
 substitutions:
-  status_gpio: GPIO00 # - Red, GPIO02 - Blue
+  status_gpio: GPIO00  # - Red, GPIO02 - Blue
   status_share: "false"
   energy_method: right
   project_name: "ajs.nous_a1_socket"
@@ -26,10 +26,10 @@ esphome:
 binary_sensor:
   # Nous A1 Toggle Relay On/Off
   - !include ../common/binary_sensor/nous_a1_relay.yaml
-      
+
   # Nous A1 Overpowering
   - !include ../common/binary_sensor/nous_a1_overpowering.yaml
-    
+
 sensor:
   # Nous A1 Today Usage
   - !include ../common/sensor/energy_today_usage.yaml

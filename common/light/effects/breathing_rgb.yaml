@@ -14,19 +14,19 @@ lambda:
     #define Color10 0.5, 0.0, 1.0
     #define Color11 0.5, 0.0, 1.0
     #define Color12 1.0, 0.0, 0.5
-    
+
     static int state = 0;
     static int color = 1;
-    
-    if (initial_run) 
+
+    if (initial_run)
     {
       ESP_LOGD("effect", "RGB Breathing");
     }
 
     auto call = id(neopixel_led).turn_on();
     call.set_transition_length(15000);
-    
-    if (state == 0) 
+
+    if (state == 0)
     {
       call.set_brightness(0.01);
     }

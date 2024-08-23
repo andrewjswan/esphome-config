@@ -4,16 +4,16 @@ entity_id: binary_sensor.night_mode
 internal: true
 filters:
   - lambda: |-
-      if (!id(night).has_state()) 
+      if (!id(night).has_state())
       {
         auto time = id(esp_time).now();
-        if (!time.is_valid()) 
+        if (!time.is_valid())
         {
           return false;
         }
         return (time.hour <= 7 or time.hour == 23);
-      } 
-      else 
+      }
+      else
       {
         return x;
       }

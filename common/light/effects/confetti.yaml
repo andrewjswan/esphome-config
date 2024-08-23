@@ -8,7 +8,7 @@ addressable_lambda:
     }
 
     it.all().fade_to_black(50);
-    for (int x = 0; x < 1; x++)
+    for (int x = 0; x < std::max(1, (int) (it.size() / 100.0)); x++)
     {
       int pos = random(it.size());
       it[pos] = ESPHSVColor(0 + random(100), 200, 200);

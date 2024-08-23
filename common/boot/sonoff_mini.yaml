@@ -17,4 +17,3 @@ on_boot:
               else:
                 - light.turn_off:
                     id: light_id
-

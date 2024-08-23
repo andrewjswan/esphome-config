@@ -40,11 +40,11 @@ addressable_lambda:
           pos = 0;
         }
       }
-        
+
       led[i] = colors[pos];
       j++;
     }
-    
+
     for (int s = 0; s < step; s++)
     {
       Color last = led[it.size() - 1];
@@ -53,8 +53,8 @@ addressable_lambda:
         led[i] = led[i - 1];
       }
       led[0] = last;
-    }  
-        
+    }
+
     step++;
     if (step >= it.size())
     {

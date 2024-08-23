@@ -6,7 +6,7 @@ addressable_lambda:
     static int step;
     static int direction;
 
-    if (initial_run) 
+    if (initial_run)
     {
       ESP_LOGD("effect", "Strobe");
 

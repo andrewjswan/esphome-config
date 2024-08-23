@@ -3,17 +3,17 @@ addressable_lambda:
   update_interval: 43ms
   lambda: |-
     static int step = 0;
-    
+
     static int startstepa = 0;
     static int startpositiona = 0;
     static int endpositiona = 0;
     static int directiona = 0;
-    
+
     static int startstepb = 0;
     static int startpositionb = 0;
     static int endpositionb = 0;
     static int directionb = 0;
-    
+
     if(initial_run)
     {
       ESP_LOGD("effect", "Snow Flack");
@@ -21,12 +21,12 @@ addressable_lambda:
       it.all() = Color::BLACK;
 
       step = 0;
-      
+
       startstepa = 10;
       startpositiona = ${num_leds} / 2;
       endpositiona = 10;
       directiona = -1;
-      
+
       startstepb = 10;
       startpositionb = ${num_leds} - 10;
       endpositionb = ${num_leds} / 2;

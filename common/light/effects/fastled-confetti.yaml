@@ -24,7 +24,7 @@ addressable_lambda:
         thisinc = 2;
         thisfade = 8;
         thisdiff = 64;
-      } 
+      }
       else if (id(fastled_variant).state > 85)
       {
         thisinc = 1;
@@ -45,7 +45,7 @@ addressable_lambda:
     leds[pos] = color_from_palette(thisindex + random8(thisdiff) / 4, current_color); // Munge the values and pick a colour from the palette
     thisindex = thisindex + thisinc;                                                  // base palette counter increments here.
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

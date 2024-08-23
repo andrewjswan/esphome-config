@@ -27,7 +27,7 @@ addressable_lambda:
         mul1 = 5;
         mul2 = 8;
         mul3 = 7;
-      } 
+      }
       else if (id(fastled_variant).state > 85)
       {
         mul1 = 6;
@@ -50,13 +50,13 @@ addressable_lambda:
     wave2 += beatsin8(15, -2, 2) * thisdir;
     wave3 += beatsin8(12, -3, 3) * thisdir;
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       uint8_t index = sin8(mul1 * i + wave1) + sin8(mul1 * i + wave2) + sin8(mul1 * i + wave3);
       leds[i] = color_from_palette(index, current_color);
     }
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

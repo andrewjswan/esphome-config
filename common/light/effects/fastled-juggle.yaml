@@ -37,14 +37,14 @@ addressable_lambda:
       variant = (int)id(fastled_variant).state;
     }
 
-    fadeToBlackBy(leds, it.size(), thisfade);                                   // Затухание к черному
-    for (int i = 0; i < numdots; i++) 
+    fadeToBlackBy(leds, it.size(), thisfade);                                                                    // Затухание к черному
+    for (int i = 0; i < numdots; i++)
     {
       leds[beatsin16(thisbeat + i + numdots, 0, it.size() - 1)] += color_from_palette(thisindex, current_color); // Munge the values and pick a colour from the palette
       thisindex += thisdiff;
     }
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

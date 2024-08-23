@@ -9,8 +9,8 @@ addressable_lambda:
       ESP_LOGD("effect", "Gold Glitter");
 
       state = 0;
-    } 
-    
+    }
+
     it.all() = Color(218,165,32);
 
     if(state==0)
@@ -20,8 +20,8 @@ addressable_lambda:
       it[i]   = Color(255,255,255);
       it[i+1] = Color(255,255,255);
       state++;
-    } 
-    else 
+    }
+    else
     {
       state++;
       state = state % 10;

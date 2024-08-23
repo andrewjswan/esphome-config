@@ -6,7 +6,7 @@ addressable_lambda:
     int Sparking = 110;
     static byte heat[${num_leds}/2];
     int cooldown;
-    
+
     if (initial_run)
     {
       ESP_LOGD("effect", "Fire");
@@ -16,40 +16,40 @@ addressable_lambda:
     for(int i = 0; i < it.size() / 2; i++)
     {
       cooldown = random(0, ((Cooling * 10) / it.size() / 2) + 2);
-      
+
       if(cooldown>heat[i])
       {
         heat[i]=0;
-      } 
-      else 
+      }
+      else
       {
         heat[i]=heat[i]-cooldown;
       }
     }
-    
+
     // Step 2. Heat from each cell drifts 'up' and diffuses a little
     for( int k= it.size() / 2 - 1; k >= 2; k--)
     {
       heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
     }
-    
+
     // Step 3. Randomly ignite new 'sparks' near the bottom
     if(random(255) < Sparking)
     {
       int y = random(7);
       heat[y] = heat[y] + random(160,255);
     }
-    
+
     // Step 4. Convert heat to LED colors
     for(int Pixel = 0; Pixel < it.size() / 2; Pixel++)
     {
       // Scale 'heat' down from 0-255 to 0-191
       byte t192 = round((heat[Pixel]/255.0)*191);
-     
+
       // calculate ramp up from
       byte heatramp = t192 & 0x3F;                                      // 0..63
       heatramp <<= 2;                                                   // scale up to 0..252
-     
+
       // figure out which third of the spectrum we're in:
       //this is where you can reverse the effect by switching the commented out lines in all 3 places.
       if(t192 > 0x80)                                                   // hottest

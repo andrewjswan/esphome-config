@@ -3,20 +3,20 @@ addressable_lambda:
   update_interval: 16ms
   lambda: |-
     static int x = -400;
-    
+
     if (initial_run)
     {
       ESP_LOGD("effect", "Exponent Light");
     }
-    
+
     float y = 0.35 + 0.65 * exp(-pow(x, 2) / 49000);
-    
+
     int8_t r = ceil(current_color.r * y);
     int8_t g = ceil(current_color.g * y);
     int8_t b = ceil(current_color.b * y);
-    
+
     it.all() = Color(r, g, b);
-    
+
     x += 1;
     if (x == 400)
     {

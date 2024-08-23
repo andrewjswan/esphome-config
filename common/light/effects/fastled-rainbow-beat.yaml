@@ -15,7 +15,7 @@ addressable_lambda:
 
     fill_rainbow(leds, it.size(), (beatA + beatB) / 2, 8);
 
-    for (int i = 0; i < it.size(); i++) 
+    for (int i = 0; i < it.size(); i++)
     {
       it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

@@ -9,10 +9,10 @@ addressable_lambda:
     #define MAX_BRIGHT 255  // макс. яркость огня
     #define MIN_SAT 245     // мин. насыщенность
     #define MAX_SAT 255     // макс. насыщенность
-    
+
     static byte zoneValues[${num_leds}];
     static byte zoneRndValues[${num_leds}];
-    
+
     static byte rndTime = 0;
 
     if (initial_run)
@@ -25,13 +25,13 @@ addressable_lambda:
     if (rndTime > 5) // 100ms
     {
       rndTime = 0;
-      for (int i = 0; i < it.size(); i++) 
+      for (int i = 0; i < it.size(); i++)
       {
         zoneRndValues[i] = random(0, 10);
       }
     }
-  
-    for (int i = 0; i < it.size(); i++) 
+
+    for (int i = 0; i < it.size(); i++)
     {
       zoneValues[i] = (float)zoneValues[i] * (1 - SMOOTH_K) + (float)zoneRndValues[i] * 10 * SMOOTH_K;
       it[i] = ESPHSVColor(

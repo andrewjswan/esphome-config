@@ -6,5 +6,5 @@ then:
         char str[20];
         time_t currTime = id(esp_time).now().timestamp;
         strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
-        return  { str }; 
+        return  { str };
       retain: true

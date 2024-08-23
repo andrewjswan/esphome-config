@@ -31,7 +31,7 @@ addressable_lambda:
       }
       it[z] = color;
     }
-    
+
     step++;
     if (step >= 2 * width)
     {

@@ -17,10 +17,10 @@ logger:
     component: ERROR
 
 uart:
-- id: cm1106_uart
-  rx_pin: 16
-  tx_pin: 17
-  baud_rate: 9600
+  - id: cm1106_uart
+    rx_pin: 16
+    tx_pin: 17
+    baud_rate: 9600
 
 i2c:
   - id: pm25_bus
@@ -85,11 +85,11 @@ sensor:
 #        - throttle: ${update_interval}
         - throttle_average: ${update_interval}
         - lambda: |-
-            if (x * id(tvocmultiply).state > id(tvocmax).state) 
+            if (x * id(tvocmultiply).state > id(tvocmax).state)
             {
               return id(tvocmax).state;
-            } 
-            else 
+            }
+            else
             {
               return x * id(tvocmultiply).state;
             }
@@ -239,12 +239,12 @@ binary_sensor:
         if (id(tvocsensor).state > id(tvocthreshold).state)
         {
           return true;
-        } 
-        else 
+        }
+        else
         {
           return false;
         }
-      } 
+      }
       else
       {
         return false;
@@ -291,7 +291,7 @@ binary_sensor:
         if (id(pm25sensor).state > id(pm25threshold).state)
         {
           return true;
-        } 
+        }
         else
         {
           return false;

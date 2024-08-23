@@ -13,7 +13,7 @@ lambda: |-
   int days = uptime / 86400;
 
   String result = F("");
-  if (days > 0) 
+  if (days > 0)
   {
     // return { (String(days) + " д. " + String(hours) + " ч. " + String(minutes) + " мин.").c_str() };
     result = String(days);
@@ -23,15 +23,15 @@ lambda: |-
     result += String(minutes);
     result += " мин.";
   }
-  else if (hours > 0) 
+  else if (hours > 0)
   {
     // return { (String(hours) + " ч. " + String(minutes) + " мин.").c_str() };
     result = String(hours);
     result += " ч. ";
     result += String(minutes);
     result += " мин.";
-  } 
-  else 
+  }
+  else
   {
     // return { (String(minutes) + " мин.").c_str() };
     result = String(minutes);

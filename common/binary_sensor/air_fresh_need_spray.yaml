@@ -4,7 +4,7 @@ name: ${name} Air Fresh Action
 id: need_spray
 lambda: |-
   #define NIGHT_SILENT
-  
+
   if (id(someone_home).state != "ON")
   {
     // ESP_LOGD("home", "There's no one at home, we're sleeping...");
@@ -29,10 +29,10 @@ lambda: |-
     return false;
   }
 
-  if ((id(on_flag).state) == 1) 
+  if ((id(on_flag).state) == 1)
   {
     return true;
-  } 
+  }
 
   auto time = id(esp_time).now();
   if (!time.is_valid())
@@ -42,7 +42,7 @@ lambda: |-
   }
 
   #ifdef NIGHT_SILENT
-  
+
   if (time.hour >= id(night_start) && time.hour < id(night_end))
   {
     // ESP_LOGD("time", "Night, skip it...");
@@ -70,7 +70,7 @@ lambda: |-
   time_t startTime = mktime(&stime);
   time_t currTime = mktime(&ctime);
   time_t uptime = difftime(currTime, startTime);
-  
+
   int minutes = uptime / 60;
 
   int step = (int)(id(air_fresh_interval).state);

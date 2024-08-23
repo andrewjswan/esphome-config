@@ -9,7 +9,7 @@ lambda: |-
     // ESP_LOGD("time", "Did not get the current time, skip it...");
     return false;
   }
-  
+
   if (std::string(id(sleep_heartbeat)) == "")
   {
     // ESP_LOGD("heartbeat", "Did not get the heartbeat time, skip it...");
