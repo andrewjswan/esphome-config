@@ -1,0 +1,203 @@
+effects:
+  - addressable_lambda:
+      name: Clouds
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Clouds");
+        }
+        matrix_lamp.ShowFrame(EFF_CLOUDS, current_color, &it);
+
+  - addressable_lambda:
+      name: Lava
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Lava");
+        }
+        matrix_lamp.ShowFrame(EFF_LAVA, current_color, &it);
+
+  - addressable_lambda:
+      name: Plasma
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Plasma");
+        }
+        matrix_lamp.ShowFrame(EFF_PLASMA, current_color, &it);
+
+#      case EFF_RAINBOW:             rainbowNoiseRoutine();              break;  // ( 7U) Paдyгa 3D
+
+  - addressable_lambda:
+      name: Rainbow Stripe
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Rainbow Stripe");
+        }
+        matrix_lamp.ShowFrame(EFF_RAINBOW_STRIPE, current_color, &it);
+
+#      case EFF_ZEBRA:               zebraNoiseRoutine();                break;  // ( 9U) 3eбpa
+#      case EFF_FOREST:              forestNoiseRoutine();               break;  // (10U) Лec
+#      case EFF_OCEAN:               oceanNoiseRoutine();                break;  // (11U) Oкeaн
+
+  - addressable_lambda:
+      name: Balls
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Balls");
+        }
+        matrix_lamp.ShowFrame(EFF_BBALLS, current_color, &it);
+
+  - addressable_lambda:
+      name: Balls Bounce
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Balls Bounce");
+        }
+        matrix_lamp.ShowFrame(EFF_BALLS_BOUNCE, current_color, &it);
+
+#      case EFF_POPCORN:             popcornRoutine();                   break;  // (14U) Пoпкopн
+#      case EFF_SPIRO:               spiroRoutine();                     break;  // (15U) Cпиpaли
+
+  - addressable_lambda:
+      name: Prismata
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Prismata");
+        }
+        matrix_lamp.ShowFrame(EFF_PRISMATA, current_color, &it);
+
+#      case EFF_SMOKEBALLS:          smokeballsRoutine();                break;  // (17U) Дымoвыe шaшки
+
+  - addressable_lambda:
+      name: Flame
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Flame");
+        }
+        matrix_lamp.ShowFrame(EFF_FLAME, current_color, &it);
+
+  - addressable_lambda:
+      name: Fire 2021
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Fire 2021");
+        }
+        matrix_lamp.ShowFrame(EFF_FIRE_2021, current_color, &it);
+
+#      case EFF_PACIFIC:             pacificRoutine();                   break;  // (20U) Tиxий oкeaн
+#      case EFF_SHADOWS:             shadowsRoutine();                   break;  // (21U) Teни
+
+  - addressable_lambda:
+      name: DNA
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "DNA");
+        }
+        matrix_lamp.ShowFrame(EFF_DNA, current_color, &it);
+
+  - addressable_lambda:
+      name: Flock
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Flock");
+        }
+        matrix_lamp.ShowFrame(EFF_FLOCK, current_color, &it);
+
+#      case EFF_FLOCK_N_PR:          flockRoutine(true);                 break;  // (24U) Cтaя и xищник
+
+  - addressable_lambda:
+      name: Butterflys
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Butterflys");
+        }
+        matrix_lamp.ShowFrame(EFF_BUTTERFLYS, current_color, &it);
+
+#      case EFF_BUTTERFLYS_LAMP:     butterflysRoutine(false);           break;  // (26U) Лaмпa c мoтылькaми
+#      case EFF_SNAKES:              snakesRoutine();                    break;  // (27U) 3мeйки
+#      case EFF_NEXUS:               nexusRoutine();                     break;  // (28U) Nexus
+#      case EFF_SPHERES:             spheresRoutine();                   break;  // (29U) Шapы
+
+  - addressable_lambda:
+      name: Sinusoid
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Sinusoid");
+        }
+        matrix_lamp.ShowFrame(EFF_SINUSOID3, current_color, &it);
+
+  - addressable_lambda:
+      name: Metaballs
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Metaballs");
+        }
+        matrix_lamp.ShowFrame(EFF_METABALLS, current_color, &it);
+
+#      case EFF_AURORA:              polarRoutine();                     break;  // (32U) Ceвepнoe cияниe
+
+  - addressable_lambda:
+      name: Spider
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Spider");
+        }
+        matrix_lamp.ShowFrame(EFF_SPIDER, current_color, &it);
+
+  - addressable_lambda:
+      name: Fire
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Fire");
+        }
+        matrix_lamp.ShowFrame(EFF_FIRE, current_color, &it);
+
+  - addressable_lambda:
+      name: Lava Lamp
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Lava Lamp");
+        }
+        matrix_lamp.ShowFrame(EFF_LAVALAMP, current_color, &it);
+
+  - addressable_lambda:
+      name: Lighters
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Lighters");
+        }
+        matrix_lamp.ShowFrame(EFF_LIGHTERS, current_color, &it);
