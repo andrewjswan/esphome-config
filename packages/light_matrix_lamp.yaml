@@ -14,6 +14,14 @@ esphome:
     - includes/matrix_lamp/noise_effects.h
     - includes/matrix_lamp/matrix_lamp.h
 
+external_components:
+  - source:
+      type: git
+      url: https://github.com/KaufHA/common
+    components: [ddp]
+
+ddp:
+
 # Over The Air Update Component
 ota:
   on_begin:
