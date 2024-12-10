@@ -4,7 +4,7 @@ substitutions:
 
 esphome:
   libraries:
-     - fastled/FastLED @ 3.6.0
+    - fastled/FastLED @ 3.6.0
   includes:
     - includes/light/light.h
     - includes/light/palettes.h
