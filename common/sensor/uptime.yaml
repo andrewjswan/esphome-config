@@ -2,5 +2,7 @@
 platform: uptime
 name: ${name} Uptime
 unit_of_measurement: s
+icon: mdi:clock-start
 id: device_uptime
 update_interval: ${update_interval}
+entity_category: diagnostic

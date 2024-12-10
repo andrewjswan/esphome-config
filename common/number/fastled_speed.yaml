@@ -1,5 +1,6 @@
 platform: template
 name: ${name} Fastled Speed
+icon: mdi:speedometer
 min_value: 0
 max_value: 255
 step: 1

@@ -3,3 +3,4 @@ platform: version
 name: ${name} ESPHome Version
 id: esphome_version
 hide_timestamp: True
+entity_category: diagnostic

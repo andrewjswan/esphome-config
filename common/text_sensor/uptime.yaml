@@ -40,3 +40,5 @@ lambda: |-
   return { result.c_str() };
 update_interval: ${update_interval}
 icon: mdi:clock-start
+web_server:
+  sorting_weight: 1000
