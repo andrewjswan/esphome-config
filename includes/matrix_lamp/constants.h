@@ -1,10 +1,5 @@
 #pragma once
 
-// --- FastLED -------------------------
-
-#undef ARDUINOJSON_SLOT_OFFSET_SIZE
-#undef ARDUINOJSON_ENABLE_STRING_DEDUPLICATION
-
 // --- МАТРИЦА -------------------------
 #define CURRENT_LIMIT         (1000U)                       // лимит по току в миллиамперах, автоматически управляет яркостью (пожалей свой блок питания!) 0 - выключить лимит
 
