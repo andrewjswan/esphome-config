@@ -7,21 +7,32 @@
 
 class MatrixLamp
 {
+  protected:
+    bool random_settings = false;
+
   public:
     MatrixLamp();
     ~MatrixLamp();
 
+    void SetRandomSettings(bool b=false);
     void ShowFrame(uint8_t CurrentMode, esphome::Color current_color, light::AddressableLight *p_it);
 };
 
 MatrixLamp::MatrixLamp()
 {
   memset(matrixValue, 0, sizeof(matrixValue)); // это массив для эффекта Огонь. странно, что его нужно залить нулями
+  restoreSettings();
 }
 
 MatrixLamp::~MatrixLamp()
 {
   FreeLeds();
+}
+
+void MatrixLamp::SetRandomSettings(bool b)
+{
+  random_settings = b;
+  selectedSettings = b;
 }
 
 void MatrixLamp::ShowFrame(uint8_t CurrentMode, esphome::Color current_color, light::AddressableLight *p_it)
@@ -31,7 +42,12 @@ void MatrixLamp::ShowFrame(uint8_t CurrentMode, esphome::Color current_color, li
   if (currentMode != CurrentMode)
   {
     loadingFlag = true;
-    selectedSettings = 1U;
+    selectedSettings = random_settings;
+    if (!selectedSettings)
+    {
+      id(fastled_speed).state == modes[CurrentMode].Speed;
+      id(fastled_variant).state == modes[CurrentMode].Scale;
+    }
   }
   currentMode = CurrentMode;
 
