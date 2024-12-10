@@ -1,9 +1,5 @@
 #pragma once
 
-#define FASTLED_INTERNAL // remove annoying pragma messages
-#define USE_GET_MILLISECOND_TIMER
-#define FASTLED_OVERCLOCK 1.2
-
 #include "FastLED.h"
 #include "constants.h"
 #include "utility.h"
