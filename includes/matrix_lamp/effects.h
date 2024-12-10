@@ -73,9 +73,9 @@ void setModeSettings(uint8_t Scale = 0U, uint8_t Speed = 0U){
   modes[currentMode].Scale = Scale ? Scale : pgm_read_byte(&defaultSettings[currentMode][2]);
   modes[currentMode].Speed = Speed ? Speed : pgm_read_byte(&defaultSettings[currentMode][1]);
   selectedSettings = 0U;
-  #ifdef USE_BLYNK
-    updateRemoteBlynkParams();
-  #endif
+
+  id(fastled_speed).state == modes[CurrentMode].Speed;
+  id(fastled_variant).state == modes[CurrentMode].Scale;
 }
 #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
 
@@ -2519,50 +2519,6 @@ void whiteColorStripeRoutine()
         }
     }
   }
-}
-
-// ------------- мигающий цвет (не эффект! используется для отображения краткосрочного предупреждения; блокирующий код!) -------------
-#define WARNING_BRIGHTNESS    (10U)                         // яркость вспышки
-void showWarning(
-  CRGB color,                                               /* цвет вспышки                                                 */
-  uint32_t duration,                                        /* продолжительность отображения предупреждения (общее время)   */
-  uint16_t blinkHalfPeriod)                                 /* продолжительность одной вспышки в миллисекундах (полупериод) */
-{
-  #if defined(MOSFET_PIN) && defined(MOSFET_LEVEL)      // установка сигнала в пин, управляющий MOSFET транзистором, матрица должна быть включена на время вывода текста
-  digitalWrite(MOSFET_PIN, MOSFET_LEVEL);
-  #endif  
-      
-  uint32_t blinkTimer = millis();
-  enum BlinkState { OFF = 0, ON = 1 } blinkState = BlinkState::OFF;
-  FastLED.setBrightness(WARNING_BRIGHTNESS);                // установка яркости для предупреждения
-  FastLED.clear();
-  esphome::delay(2);
-  FastLED.show();
-
-  //for (uint16_t i = 0U; i < NUM_LEDS; i++)                  // установка цвета всех диодов в WARNING_COLOR
-  //  leds[i] = color;
-  fillAll(color);
-
-  uint32_t startTime = millis();
-  while (millis() - startTime <= (duration + 5))            // блокировка дальнейшего выполнения циклом на время отображения предупреждения
-  {
-    if (millis() - blinkTimer >= blinkHalfPeriod)           // переключение вспышка/темнота
-    {
-      blinkTimer = millis();
-      blinkState = (BlinkState)!blinkState;
-      FastLED.setBrightness(blinkState == BlinkState::OFF ? 0 : WARNING_BRIGHTNESS);
-      esphome::delay(1);
-      FastLED.show();
-    }
-    esphome::delay(50);
-  }
-
-  FastLED.clear();
-  FastLED.setBrightness(modes[currentMode].Brightness);  // установка яркости, которая была выставлена до вызова предупреждения
-  esphome::delay(1);
-  FastLED.show();
-  
-  loadingFlag = true;                                       // принудительное отображение текущего эффекта (того, что был активен перед предупреждением)
 }
 
 // --------------------------- эффект кометы ----------------------
