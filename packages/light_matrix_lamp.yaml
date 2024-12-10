@@ -23,7 +23,6 @@ ota:
 
 number:
   # FastLed Settings
-  - !include ../common/number/fastled_brightness.yaml
   - !include ../common/number/fastled_speed.yaml
   - !include ../common/number/fastled_variant.yaml
 
