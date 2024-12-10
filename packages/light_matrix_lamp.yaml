@@ -22,12 +22,27 @@ external_components:
 
 ddp:
 
+
 # Over The Air Update Component
 ota:
   on_begin:
     then:
       - lambda: |-
           matrix_lamp.~GyverLamp();
+
+switch:
+  # Random Mode Settings
+  - platform: template
+    name: ${name} Random Mode
+    icon: mdi:shuffle
+    lambda: |-
+      return matrix_lamp.GetRandomSettings();
+    turn_on_action:
+      - lambda: |-
+          matrix_lamp.SetRandomSettings(true);
+    turn_off_action:
+      - lambda: |-
+          matrix_lamp.SetRandomSettings(false);
 
 number:
   # FastLed Settings

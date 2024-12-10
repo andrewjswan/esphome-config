@@ -1,7 +1,8 @@
 #pragma once
 
-#include "esphome.h"
 #undef delay
+
+#define FASTLED_INTERNAL // remove annoying pragma messages
 
 #include "FastLED.h"
 

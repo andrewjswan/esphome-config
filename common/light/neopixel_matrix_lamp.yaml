@@ -1,5 +1,6 @@
 platform: neopixelbus
 id: neopixel_led
+icon: mdi:lava-lamp
 type: ${type_leds}
 pin: ${pin_leds}
 num_leds: ${num_leds}

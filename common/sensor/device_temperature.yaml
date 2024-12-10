@@ -1,3 +1,6 @@
 platform: internal_temperature
 name: ${name} Device Temperature
 id: device_temperature
+icon: mdi:thermometer
+device_class: temperature
+entity_category: diagnostic

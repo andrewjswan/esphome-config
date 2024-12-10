@@ -26,5 +26,4 @@ esphome:
 
 packages:
   common: !include packages/common_32.yaml
-  # light: !include packages/light_matrix.yaml
   light: !include packages/light_matrix_lamp.yaml

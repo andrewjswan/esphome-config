@@ -430,12 +430,12 @@ effects:
         matrix_lamp.ShowFrame(EFF_MAGMA, current_color, &it);
 
   - addressable_lambda:
-      name: LLand
+      name: Boiling
       update_interval: 0s
       lambda: |-
         if (initial_run)
         {
-          ESP_LOGD("effect", "LLand");
+          ESP_LOGD("effect", "Boiling");
         }
         matrix_lamp.ShowFrame(EFF_LLAND, current_color, &it);
 

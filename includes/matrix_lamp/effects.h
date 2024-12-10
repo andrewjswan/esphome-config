@@ -1,5 +1,7 @@
 #pragma once
 
+#define FASTLED_INTERNAL // remove annoying pragma messages
+
 #include "esphome.h"
 #include "FastLED.h"
 #include "constants.h"
@@ -70,12 +72,17 @@ const uint8_t CENTER_Y_MAJOR =  HEIGHT / 2  + (HEIGHT % 2);          // цент
 
 #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
 void setModeSettings(uint8_t Scale = 0U, uint8_t Speed = 0U){
-  modes[currentMode].Scale = Scale ? Scale : pgm_read_byte(&defaultSettings[currentMode][2]);
-  modes[currentMode].Speed = Speed ? Speed : pgm_read_byte(&defaultSettings[currentMode][1]);
   selectedSettings = 0U;
 
-  id(fastled_speed).state == modes[currentMode].Speed;
-  id(fastled_variant).state == modes[currentMode].Scale;
+  modes[currentMode].Scale = Scale ? Scale : pgm_read_byte(&defaultSettings[currentMode][2]);
+  modes[currentMode].Speed = Speed ? Speed : pgm_read_byte(&defaultSettings[currentMode][1]);
+
+  auto speed = id(fastled_speed).make_call();
+  speed.set_value(modes[currentMode].Speed);
+  speed.perform();
+  auto scale = id(fastled_variant).make_call();
+  scale.set_value(modes[currentMode].Scale);
+  scale.perform();
 }
 #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
 

@@ -1,5 +1,6 @@
 platform: template
 name: ${name} Fastled Palette
+icon: mdi:palette-outline
 min_value: 0
 max_value: 56
 step: 1

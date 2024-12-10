@@ -17,6 +17,7 @@ class MatrixLamp
     ~MatrixLamp();
 
 #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    bool GetRandomSettings();
     void SetRandomSettings(bool b=false);
 #endif // #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
     void ShowFrame(uint8_t CurrentMode, esphome::Color current_color, light::AddressableLight *p_it);
@@ -34,8 +35,20 @@ MatrixLamp::~MatrixLamp()
 }
 
 #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+bool MatrixLamp::GetRandomSettings()
+{
+  return random_settings;
+}
+
 void MatrixLamp::SetRandomSettings(bool b)
 {
+  if (!b)
+  {
+    restoreSettings();
+  }
+
+  loadingFlag = true;
+
   random_settings = b;
   selectedSettings = b;
 }
@@ -47,27 +60,23 @@ void MatrixLamp::ShowFrame(uint8_t CurrentMode, esphome::Color current_color, li
 
   if (currentMode != CurrentMode)
   {
+    currentMode = CurrentMode;
     loadingFlag = true;
 #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
     selectedSettings = random_settings;
-    if (random_settings)
-    {
-      float br = (float)modes[CurrentMode].Brightness / (float)255;
-      id(neopixel_led).turn_on().set_brightness(br).perform();
-    }
-    else
+    if (!random_settings)
 #endif // #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
     {
-      id(fastled_speed).state == modes[CurrentMode].Speed;
-      id(fastled_variant).state == modes[CurrentMode].Scale;
+      auto speed = id(fastled_speed).make_call();
+      speed.set_value(modes[currentMode].Speed);
+      speed.perform();
+      auto scale = id(fastled_variant).make_call();
+      scale.set_value(modes[currentMode].Scale);
+      scale.perform();
     }
   }
-  currentMode = CurrentMode;
 
   effectsTick();
-
-  modes[CurrentMode].Speed = id(fastled_speed).state;
-  modes[CurrentMode].Scale = id(fastled_variant).state;
 
   for (int i = 0; i < p_it->size(); i++)
   {
@@ -79,6 +88,17 @@ void MatrixLamp::ShowFrame(uint8_t CurrentMode, esphome::Color current_color, li
   #else
   esphome::delay(1);
   #endif
+
+  if (modes[currentMode].Speed != (int)id(fastled_speed).state)
+  {
+    modes[currentMode].Speed = (int)id(fastled_speed).state;
+    loadingFlag = true; // без перезапуска эффекта ничего и не увидишь
+  }
+  if (modes[currentMode].Scale != (int)id(fastled_variant).state)
+  {
+    modes[currentMode].Scale = (int)id(fastled_variant).state;
+    loadingFlag = true; // без перезапуска эффекта ничего и не увидишь
+  }
 }
 
 class MatrixLamp matrix_lamp;
