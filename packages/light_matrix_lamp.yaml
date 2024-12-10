@@ -4,7 +4,7 @@
 
 esphome:
   libraries:
-    - FastLED
+    - fastled/FastLED @ 3.6.0
   includes:
     - includes/matrix_lamp/light.h
     - includes/matrix_lamp/constants.h
