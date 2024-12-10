@@ -74,8 +74,8 @@ void setModeSettings(uint8_t Scale = 0U, uint8_t Speed = 0U){
   modes[currentMode].Speed = Speed ? Speed : pgm_read_byte(&defaultSettings[currentMode][1]);
   selectedSettings = 0U;
 
-  id(fastled_speed).state == modes[CurrentMode].Speed;
-  id(fastled_variant).state == modes[CurrentMode].Scale;
+  id(fastled_speed).state == modes[currentMode].Speed;
+  id(fastled_variant).state == modes[currentMode].Scale;
 }
 #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
 
