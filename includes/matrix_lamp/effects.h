@@ -7798,7 +7798,7 @@ void fairyRoutine(){
       hue = random8();//boids[0].colorIndex = 
       #ifdef FAIRY_BEHAVIOR
         deltaHue2 = 1U;
-      #endif;
+      #endif
   }
   step = deltaValue; //счётчик количества частиц в очереди на зарождение в этом цикле
   
