@@ -4,3 +4,4 @@ web_server:
     username: admin
     password: !secret home.password
   log: false
+  version: 3
