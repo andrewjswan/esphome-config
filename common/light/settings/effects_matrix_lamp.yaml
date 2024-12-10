@@ -884,4 +884,3 @@ effects:
         }
 
   - !include ../effects/hyperion_ddp.yaml
-  
