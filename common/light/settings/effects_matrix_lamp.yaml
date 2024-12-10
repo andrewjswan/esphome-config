@@ -882,3 +882,6 @@ effects:
           int h = leds[i].current / 100;
           it[i] = ESPHSVColor(_hue + scale8_video(h, 8), 255, gamma8[qadd8(h, _ambient)]);
         }
+
+  - !include ../effects/hyperion_ddp.yaml
+  
