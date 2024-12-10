@@ -103,12 +103,14 @@ uint8_t XY (uint8_t x, uint8_t y) {
 }
 */
 
+  
 // залить все
 void fillAll(CRGB color)
 {
   for (uint16_t i = 0; i < NUM_LEDS; i++)
     leds[i] = color;
 }
+
 
 // получить номер пикселя в ленте по координатам
 // библиотека FastLED тоже использует эту функцию
@@ -119,6 +121,7 @@ uint16_t XY(uint8_t x, uint8_t y)
   else                                                  
     return (THIS_Y * _WIDTH + _WIDTH - THIS_X - 1);  // Odd rows run backwards
 }
+
 
 // функция отрисовки точки по координатам X Y
 #if (WIDTH > 127) || (HEIGHT > 127)
@@ -135,6 +138,7 @@ void drawPixelXY(int8_t x, int8_t y, CRGB color)
   //}
   leds[XY(x, y)] = color;
 }
+
 
 // функция получения цвета пикселя по его номеру
 //uint32_t getPixColor(uint32_t thisSegm)
@@ -170,3 +174,15 @@ float sqrt3(const float x)
   u.i = (1<<29) + (u.i >> 1) - (1<<22);
   return u.x;
 }
+
+
+void restoreSettings()
+{
+  for (uint8_t i = 0; i < MODE_AMOUNT; i++)
+  {
+    modes[i].Brightness = pgm_read_byte(&defaultSettings[i][0]);
+    modes[i].Speed      = pgm_read_byte(&defaultSettings[i][1]);
+    modes[i].Scale      = pgm_read_byte(&defaultSettings[i][2]);
+  }
+}
+
