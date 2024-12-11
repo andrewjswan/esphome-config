@@ -24,7 +24,6 @@ external_components:
 
 ddp:
 
-
 # Over The Air Update Component
 ota:
   on_begin:
