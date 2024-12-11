@@ -47,8 +47,10 @@ effects:
   - !include ../effects/fastled-confetti.yaml
   - !include ../effects/fastled-dynamic-smooth.yaml
   - !include ../effects/fastled-fire.yaml
+  - !include ../effects/fastled-fireplace.yaml
   - !include ../effects/fastled-gradient.yaml
   - !include ../effects/fastled-juggle.yaml
+  # - !include ../effects/fastled-lava.yaml
   - !include ../effects/fastled-matrix.yaml
   - !include ../effects/fastled-noice.yaml
   - !include ../effects/fastled-noise-wide.yaml
@@ -59,6 +61,7 @@ effects:
   - !include ../effects/fastled-rainbow-beat.yaml
   - !include ../effects/fastled-rainbow-march.yaml
   - !include ../effects/fastled-serendipitous.yaml
+  - !include ../effects/fastled-starburst.yaml
   - !include ../effects/fastled-tunnel.yaml
   - addressable_lambda:
       name: BinMap with Music

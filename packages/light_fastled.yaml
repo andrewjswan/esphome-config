@@ -7,6 +7,8 @@ esphome:
     - fastled/FastLED @ 3.6.0
   includes:
     - includes/light/light.h
+    - includes/light/stars.h
+    - includes/light/gamma.h
     - includes/light/palettes.h
 
 number:

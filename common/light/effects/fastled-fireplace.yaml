@@ -1,0 +1,44 @@
+addressable_lambda:
+  name: FastLED Fireplace
+  update_interval: 30ms
+  lambda: |-
+    struct leds_s {
+      int16_t current, delta, steps;
+    };
+    static struct leds_s *leds = (struct leds_s *)calloc(it.size(), sizeof(struct leds_s));
+
+    if (initial_run)
+    {
+      ESP_LOGD("effect", "FastLED Fireplace");
+
+      it.all() = Color::BLACK;
+    }
+
+    // TODO: tune
+    int _hue = 0;     // id(want_fireplace_hue);
+    int _ambient = 1; // id(want_fireplace_ambient);
+    int _steps = 10;  // id(want_fireplace_steps);
+
+    for (auto i = 0; i < it.size(); ++i)
+    {
+      if (!leds[i].steps)
+      {
+        int v = random8() - leds[i].current / 100;
+        if (v > 0)
+        {
+          leds[i].steps = random(60 * _steps / 100, _steps);
+        }
+        else
+        {
+          leds[i].steps = random(_steps, 140 * _steps / 100);
+        }
+        leds[i].delta = 100 * v / leds[i].steps;
+      }
+      else
+      {
+        leds[i].current += leds[i].delta;
+        leds[i].steps--;
+      }
+      int h = leds[i].current / 100;
+      it[i] = ESPHSVColor(_hue + scale8_video(h, 8), 255, gamma8[qadd8(h, _ambient)]);
+    }
