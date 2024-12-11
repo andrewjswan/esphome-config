@@ -4,6 +4,7 @@
 
 #include "esphome.h"
 #include "FastLED.h"
+#include "common.h"
 #include "constants.h"
 #include "utility.h"
 
@@ -48,6 +49,9 @@ unsigned liquidLampSC[enlargedOBJECT_MAX_COUNT];
 unsigned liquidLampTR[enlargedOBJECT_MAX_COUNT];        
 unsigned char matrixValue[8][16]; //это массив для эффекта Огонь
 
+uint8_t custom_eff = 0;
+
+CRGB& piXY(byte x, byte y);
 
 // стандартные функции библиотеки LEDraw от @Palpalych (для адаптаций его эффектов)
 void blurScreen(fract8 blur_amount, CRGB *LEDarray = leds)
@@ -273,6 +277,129 @@ uint8_t wrapY(int8_t y){
 }
 
 
+//---------------------------------------
+// Global Function
+//---------------------------------------
+void drawRec(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, uint32_t color) {
+  for (uint8_t y = startY; y < endY; y++) {
+    for (uint8_t x = startX; x < endX; x++) {
+      drawPixelXY(x, y, color);
+    }
+  }
+}
+
+//---------------------------------------
+void drawRecCHSV(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, CHSV color) {
+  for (uint8_t y = startY; y < endY; y++) {
+    for (uint8_t x = startX; x < endX; x++) {
+      drawPixelXY(x, y, color);
+    }
+  }
+}
+
+//--------------------------------------
+uint8_t validMinMax(float val, uint8_t minV, uint32_t maxV) {
+  uint8_t result;
+  if (val <= minV) {
+    result = minV;
+  } else if (val >= maxV) {
+    result = maxV;
+  } else {
+    result = ceil(val);
+  }
+  //  LOG.printf_P(PSTR( "result: %f | val: %f \n\r"), result, val);
+  return result;
+}
+
+
+// альтернативный градиент для ламп собраных из лент с вертикальной компоновкой
+// gradientHorizontal | gradientVertical менее производительный но работает на всех видах ламп
+//--------------------------------------
+void gradientHorizontal(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, uint8_t start_color, uint8_t end_color, uint8_t start_br, uint8_t end_br, uint8_t saturate) {
+  float step_color = 0;
+  float step_br = 0;
+  if (startX == endX) {
+    endX++;
+  }
+  if (startY == endY) {
+    endY++;
+  }
+  step_color = (end_color - start_color) / abs(startX - endX);
+  if (start_color >  end_color) {
+    step_color -= 1.2;
+  } else {
+    step_color += 1.2;
+  }
+
+  step_br = (end_br - start_br) / abs(startX - endX);
+  if (start_br >  end_color) {
+    step_br -= 1.2;
+  } else {
+    step_br += 1.2;
+  }
+
+  // LOG.printf_P(PSTR( "\n step_color: %f | step_br: %f \n\n\r"), step_color, step_br);
+  for (uint8_t x = startX; x < endX; x++) {
+    for (uint8_t y = startY; y < endY; y++) {
+      CHSV thisColor = CHSV((uint8_t) validMinMax((start_color + (x - startX) * step_color), 1, 254), saturate,
+                            (uint8_t) validMinMax((start_br + (x - startX) * step_br), 0, 255) );
+      drawPixelXY(x, y, thisColor);
+    }
+  }
+}
+
+//--------------------------------------
+void gradientVertical(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, uint8_t start_color, uint8_t end_color, uint8_t start_br, uint8_t end_br, uint8_t saturate) {
+  float step_color = 0;
+  float step_br = 0;
+  if (startX == endX) {
+    endX++;
+  }
+  if (startY == endY) {
+    endY++;
+  }
+  step_color = (end_color - start_color) / abs(startY - endY);
+
+  if (start_color >  end_color) {
+    step_color -= 1.2;
+  } else {
+    step_color += 1.2;
+  }
+
+  step_br = (end_br - start_br) / abs(startY - endY);
+  if (start_br >  end_color) {
+    step_br -= 1.2;
+  } else {
+    step_br += 1.2;
+  }
+  for (uint8_t y = startY; y < endY; y++) {
+    CHSV thisColor = CHSV( (uint8_t) validMinMax((start_color + (y - startY) * step_color), 0, 255), saturate,
+                           (uint8_t) validMinMax((start_br + (y - startY) * step_br), 0, 255) );
+    for (uint8_t x = startX; x < endX; x++) {
+      drawPixelXY(x, y, thisColor);
+    }
+  }
+}
+
+//---------------------------------------
+// gradientDownTop • более плавный градиент в отличие от gradientVertical
+// но может некоректно работать на лампах собранных на ленточных светодиодах
+//---------------------------------------
+void gradientDownTop( uint8_t bottom, CHSV bottom_color, uint8_t top, CHSV top_color ) {
+  //  FORWARD_HUES: hue always goes clockwise
+  //  BACKWARD_HUES: hue always goes counter-clockwise
+  //  SHORTEST_HUES: hue goes whichever way is shortest
+  //  LONGEST_HUES: hue goes whichever way is longest
+  if (ORIENTATION < 3 || ORIENTATION == 7) {    // if (STRIP_DIRECTION < 2) {
+    // STRIP_DIRECTION to UP ========
+    fill_gradient(leds, top * WIDTH, top_color, bottom * WIDTH, bottom_color, SHORTEST_HUES);
+  } else {
+    // STRIP_DIRECTION to DOWN ======
+    fill_gradient(leds, NUM_LEDS - bottom * WIDTH - 1, bottom_color, NUM_LEDS - top * WIDTH, top_color, SHORTEST_HUES);
+  }
+}
+
+
 // палитра для типа реалистичного водопада (если ползунок Масштаб выставить на 100)
 extern const TProgmemRGBPalette16 WaterfallColors_p FL_PROGMEM = {0x000000, 0x060707, 0x101110, 0x151717, 0x1C1D22, 0x242A28, 0x363B3A, 0x313634, 0x505552, 0x6B6C70, 0x98A4A1, 0xC1C2C1, 0xCACECF, 0xCDDEDD, 0xDEDFE0, 0xB2BAB9};
 
@@ -495,7 +622,7 @@ void fireRoutine(bool isColored) // <- ******* для оригинальной �
     #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
 
     loadingFlag = false;
-    //FastLED.clear();
+    //ledsClear(); // esphome: FastLED.clear();
     generateLine();
     //memset(matrixValue, 0, sizeof(matrixValue)); без очистки
     pcnt = 0;
@@ -562,13 +689,13 @@ void drawFrame(uint8_t pcnt, bool isColored) {                  // прорис�
 
   for (uint8_t x = 0U; x < WIDTH; x++) {                                          // прорисовка нижней строки (сначала делаем ее, так как потом будем пользоваться ее значением смещения)
     uint8_t newX = x % 16;                                                        // сократил формулу без доп. проверок
-    nextv =                                                               // расчет значения яркости относительно valueMask и нижерасположенной строки.
+    nextv =                                                                       // расчет значения яркости относительно valueMask и нижерасположенной строки.
       (((100.0 - pcnt) * matrixValue[0][newX] + pcnt * line[newX]) / 100.0)
       - pgm_read_byte(&valueMask[0][(x + deltaValue) % 16U]);
     CRGB color = CHSV(                                                            // вычисление цвета и яркости пикселя
                    baseHue + pgm_read_byte(&hueMask[0][(x + deltaHue) % 16U]),    // H - смещение всполохов
                    baseSat,                                                       // S - когда колесо масштаба =100 - белый огонь (экономим на 1 эффекте)
-                   (uint8_t)max(0, nextv)                                         // V
+                   (uint8_t)max((int32_t)0, nextv)                                // V
                  );
     leds[XY(x, 0)] = color;                                            // прорисовка цвета очага
   }
@@ -597,7 +724,7 @@ void drawFrame(uint8_t pcnt, bool isColored) {                  // прорис�
         CRGB color = CHSV(                                                                  // определение цвета пикселя
                        baseHue + pgm_read_byte(&hueMask[y][(x + deltaHue) % 16U ]),         // H - смещение всполохов
                        baseSat,                                                             // S - когда колесо масштаба =100 - белый огонь (экономим на 1 эффекте)
-                       (uint8_t)max(0, nextv)                                               // V
+                       (uint8_t)max((int32_t)0, nextv)                                      // V
                      );
         leds[XY(x, y)] = color;
       }
@@ -646,7 +773,7 @@ void rainbowDiagonalRoutine()
   if (loadingFlag)
   {
     loadingFlag = false;
-    //FastLED.clear();
+    //ledsClear(); // esphome: FastLED.clear();
   }
 
   hue += 8;
@@ -1811,7 +1938,7 @@ void colorRoutine()
     #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
 
     loadingFlag = false;
-    //FastLED.clear(); нафига тут это было?!
+    //ledsClear(); // esphome: FastLED.clear(); нафига тут это было?!
 
     //for (int16_t i = 0U; i < NUM_LEDS; i++)
     //  leds[i] = CHSV(modes[currentMode].Scale * 2.55, modes[currentMode].Speed, 255U);
@@ -2024,7 +2151,7 @@ void butterflysRoutine(bool isColored)
   if (isWings && isColored)
     dimAll(35U); // для крылышков
   else
-    FastLED.clear();
+    ledsClear(); // esphome: FastLED.clear();
 
   float maxspeed;
   uint8_t tmp;
@@ -2197,7 +2324,7 @@ void lightersRoutine()
       trackingObjectHue[i] = random8();
     }
   }
-  FastLED.clear();
+  ledsClear(); // esphome: FastLED.clear();
   if (++step > 20U) step = 0U;
   for (uint8_t i = 0U; i < modes[currentMode].Scale; i++)
   {
@@ -2269,7 +2396,7 @@ void ballsRoutine()
 
   if (!BALL_TRACK)                                          // режим без следов шариков
   {
-    FastLED.clear();
+    ledsClear(); // esphome: FastLED.clear();
   }
   else                                                      // режим со следами
   {
@@ -2360,7 +2487,7 @@ void ballRoutine()
     #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
 
     loadingFlag = false;
-    //FastLED.clear();
+    //ledsClear(); // esphome: FastLED.clear();
 
     for (uint8_t i = 0U; i < 2U; i++)
     {
@@ -2414,7 +2541,7 @@ void ballRoutine()
 //    dimAll(135U);
 //    dimAll(255U - (modes[currentMode].Scale - 1U) % 11U * 24U);
 //  else
-    FastLED.clear();
+    ledsClear(); // esphome: FastLED.clear();
      
   for (uint8_t i = 0U; i < deltaValue; i++)
     for (uint8_t j = 0U; j < deltaValue; j++)
@@ -2428,7 +2555,7 @@ void ballRoutine()
 //////  if (loadingFlag)
 //////  {
 //////    loadingFlag = false;
-//////    FastLED.clear();
+//////    ledsClear(); // esphome: FastLED.clear();
 //////
 //////    for (uint16_t i = 0U; i < NUM_LEDS; i++)
 //////    {
@@ -2444,7 +2571,7 @@ void ballRoutine()
   if (loadingFlag)
   {
     loadingFlag = false;
-    FastLED.clear();
+    ledsClear(); // esphome: FastLED.clear();
     //delay(1);
 
     uint8_t centerY =  (uint8_t)round(HEIGHT / 2.0F) - 1U;// max((uint8_t)round(HEIGHT / 2.0F) - 1, 0); нахрена тут максимум было вычислять? для ленты?!
@@ -2486,7 +2613,7 @@ void whiteColorStripeRoutine()
     #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
 
     loadingFlag = false;
-    FastLED.clear();
+    ledsClear(); // esphome: FastLED.clear();
 
     uint8_t thisSize = HEIGHT;
     uint8_t halfScale = modes[currentMode].Scale;
@@ -2970,7 +3097,7 @@ void BBallsRoutine() {
     #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
 
     loadingFlag = false;
-    //FastLED.clear();
+    //ledsClear(); // esphome: FastLED.clear();
     enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
     if (enlargedObjectNUM > enlargedOBJECT_MAX_COUNT) enlargedObjectNUM = enlargedOBJECT_MAX_COUNT;
     for (uint8_t i = 0 ; i < enlargedObjectNUM ; i++) {             // Initialize variables
@@ -5133,7 +5260,7 @@ void cube2dRoutine(){
 
       loadingFlag = false;
       setCurrentPalette();
-      FastLED.clear();
+      ledsClear(); // esphome: FastLED.clear();
 
       razmerX = (modes[currentMode].Scale - 1U) % 11U + 1U; // размер ячейки от 1 до 11 пикселей для каждой из 9 палитр
       razmerY = razmerX;
@@ -5472,7 +5599,7 @@ void MultipleStreamSmoke(bool isColored){
   }
 //if (modes[currentMode].Brightness & 0x01) // для проверки движения источника дыма можно включить
   dimAll(254U);//(255U - modes[currentMode].Scale * 2);
-//else     FastLED.clear();
+//else     ledsClear(); // esphome: FastLED.clear();
 
   deltaHue++;
   CRGB color;//, color2;
@@ -5558,7 +5685,7 @@ void PicassoGenerate(bool reset){
   {
     loadingFlag = false;
     //setCurrentPalette();    
-    //FastLED.clear();
+    //ledsClear(); // esphome: FastLED.clear();
 // not for 3in1
 //    enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
     //enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U / 10.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
@@ -5810,7 +5937,7 @@ void LeapersRoutine(){
 
     loadingFlag = false;
     setCurrentPalette();    
-    //FastLED.clear();
+    //ledsClear(); // esphome: FastLED.clear();
     //enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
     enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U / 10.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
     if (enlargedObjectNUM > enlargedOBJECT_MAX_COUNT) enlargedObjectNUM = enlargedOBJECT_MAX_COUNT;
@@ -5826,7 +5953,7 @@ void LeapersRoutine(){
   }
 
   //myLamp.dimAll(0); накой хрен делать затухание на 100%?
-  FastLED.clear();
+  ledsClear(); // esphome: FastLED.clear();
 
   for (uint8_t i = 0; i < enlargedObjectNUM; i++) {
     LeapersMove_leaper(i);
@@ -5904,7 +6031,7 @@ void LavaLampRoutine(){
   CRGB color = CHSV(hue, (modes[currentMode].Scale < 100U) ? 255U : 0U, 255U);
   //CRGB halfcolor = CHSV(hue, 255U, 1275U);
  
-  FastLED.clear();
+  ledsClear(); // esphome: FastLED.clear();
 
   for (uint8_t i = 0; i < enlargedObjectNUM; i++) { //двигаем по аналогии с https://jiwonk.im/lavalamp/
     //LavaLampMove_leaper(i);
@@ -6144,7 +6271,7 @@ void snakesRoutine(){
   }
   //hue++;
   //dimAll(220);
-  FastLED.clear();
+  ledsClear(); // esphome: FastLED.clear();
 
   int8_t dx, dy;
   for (uint8_t i = 0; i < enlargedObjectNUM; i++){
@@ -6779,7 +6906,7 @@ void LiquidLampRoutine(bool isColored){
     speedfactor = modes[currentMode].Speed / 64.0 + 0.1; // 127 БЫЛО
     
     //setCurrentPalette();    
-    //FastLED.clear();
+    //ledsClear(); // esphome: FastLED.clear();
     if (isColored){
       fillMyPal16((modes[currentMode].Scale - 1U) * 2.55, !(modes[currentMode].Scale & 0x01));
       enlargedObjectNUM = enlargedOBJECT_MAX_COUNT / 2U - 2U; //14U;
@@ -6907,7 +7034,7 @@ void popcornRoutine() {
   float popcornGravity = 0.1 * speedfactor;
   //if (modes[currentMode].Speed & 0x01) // теперь чётностью скорости определяется белый/цветной попкорн, а чётностью яркости больше ничего
     fadeToBlackBy(leds, NUM_LEDS, 60);
-  //else FastLED.clear();// fadeToBlackBy(leds, NUM_LEDS, 250);
+  //else ledsClear(); // esphome: FastLED.clear();// fadeToBlackBy(leds, NUM_LEDS, 250);
 
 //void popcornMove(float popcornGravity) {
   for (uint8_t r = 0; r < enlargedObjectNUM; r++) {
@@ -7068,7 +7195,7 @@ void oscillatingRoutine() {
   else
     for (uint8_t c = 0; c < 3; c++)
       currColors[c] = ColorFromPalette(*curPalette, c * 85U + hue);
-  FastLED.clear();
+  ledsClear(); // esphome: FastLED.clear();
   
   // расчёт химической реакции и отрисовка мира
   uint16_t colorCount[3] = {0U, 0U, 0U};  
@@ -7307,7 +7434,7 @@ void attractRoutine() {
       }
   } 
   dimAll(220);
-  //FastLED.clear();
+  //ledsClear(); // esphome: FastLED.clear();
 
   PVector attractLocation = PVector(WIDTH * 0.5, HEIGHT * 0.5);
   //float attractMass = 10;
@@ -7873,7 +8000,7 @@ void fairyRoutine(){
   //dimAll(255-128/.25*speedfactor); очередной эффект, к которому нужно будет "подобрать коэффициенты"
   //if (modes[currentMode].Speed & 0x01)
     dimAll(127);
-  //else FastLED.clear();    
+  //else ledsClear(); // esphome: FastLED.clear();    
 
   //go over particles and update matrix cells on the way
   for(int i = 0; i<enlargedObjectNUM; i++) {
@@ -7975,7 +8102,7 @@ void starwarsRoutine(){
   pcnt = 1U;
 if (modes[currentMode].Speed & 0x01)
   dimAll(127);
-else FastLED.clear();    
+else ledsClear(); // esphome: FastLED.clear();    
 
   //go over particles and update matrix cells on the way
   for(int i = 0; i<enlargedObjectNUM; i++) {
@@ -8483,7 +8610,7 @@ void magmaRoutine(){
       shiftHue[j] = (HEIGHT - 1 - j) * 255 / (HEIGHT - 1); // init colorfade table
     }
     
-    //FastLED.clear();
+    //ledsClear(); // esphome: FastLED.clear();
     //enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
     enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U / 10.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
     if (enlargedObjectNUM > enlargedOBJECT_MAX_COUNT) enlargedObjectNUM = enlargedOBJECT_MAX_COUNT;
@@ -8499,7 +8626,7 @@ void magmaRoutine(){
   }
 
   //myLamp.dimAll(0); накой хрен делать затухание на 100%?
-  //FastLED.clear();
+  //ledsClear(); // esphome: FastLED.clear();
   //dimAll(255U - modes[currentMode].Scale * 2);
   //dimAll(255U - 44U * 2);
   dimAll(181);
@@ -8825,4 +8952,2636 @@ void lumenjerRoutine() {
     leds[XY(hue, hue2)] += CHSV(random8(), 255U, 255U);
   else
     leds[XY(hue, hue2)] += ColorFromPalette(*curPalette, step++);
+}
+
+// =========== Christmas Tree ===========
+//             © SlingMaster
+//           EFF_CHRISTMAS_TREE
+//            Новогодняя Елка
+//---------------------------------------
+void clearNoiseArr() {
+  for (uint8_t x = 0U; x < WIDTH; x++) {
+    for (uint8_t y = 0U; y < HEIGHT; y++) {
+      noise3d[0][x][y] = 0;
+      noise3d[1][x][y] = 0;
+    }
+  }
+}
+
+//---------------------------------------
+void VirtualSnow(byte snow_type) {
+  uint8_t posX = random8(WIDTH - 1);
+  //const uint8_t maxX = WIDTH - 1;
+  static int deltaPos;
+  byte delta = (snow_type == 3) ? 0 : 1;
+  for (uint8_t x = delta; x < WIDTH - delta; x++) {
+
+    // заполняем случайно верхнюю строку
+    if ((noise3d[0][x][HEIGHT - 2] == 0U) &&  (posX == x) && (random8(0, 2) == 0U)) {
+      noise3d[0][x][HEIGHT-1] = 1;
+    } else {
+      noise3d[0][x][HEIGHT-1] = 0;
+    }
+
+    for (uint8_t y = 0U; y < HEIGHT - 1; y++) {
+      switch (snow_type) {
+        case 0:
+          noise3d[0][x][y] = noise3d[0][x][y + 1];
+          deltaPos = 0;
+          break;
+        case 1:
+        case 2:
+          noise3d[0][x][y] = noise3d[0][x][y + 1];
+          deltaPos = 1 - random8(2);
+          break;
+        default:
+          deltaPos = -1;
+          if ((x == 0 ) & (y == 0 ) & (random8(2) == 0U)) {
+            noise3d[0][WIDTH - 1][random8(CENTER_Y_MAJOR / 2, HEIGHT - CENTER_Y_MAJOR / 4)] = 1;
+          }
+          if (x > WIDTH - 2) {
+            noise3d[0][WIDTH - 1][y] = 0;
+          }
+          if (x < 1)  {
+            noise3d[0][x][y] = noise3d[0][x][y + 1];
+          } else {
+            noise3d[0][x - 1][y] = noise3d[0][x][y + 1];
+          }
+          break;
+      }
+
+      if (noise3d[0][x][y] > 0) {
+        if (snow_type < 3) {
+          if (y % 2 == 0U) {
+            leds[XY(x - ((x > 0) ? deltaPos : 0), y)] = CHSV(160, 5U, random8(200U, 240U));
+          } else {
+            leds[XY(x + deltaPos, y)] = CHSV(160, 5U,  random8(200U, 240U));
+          }
+        } else {
+          leds[XY(x, y)] = CHSV(160, 5U,  random8(200U, 240U));
+        }
+      }
+    }
+  }
+}
+
+//---------------------------------------
+void GreenTree(uint8_t tree_h) {
+  hue = floor(step / 32) * 32U;
+
+  for (uint8_t x = 0U; x < WIDTH + 1 ; x++) {
+    if (x % 8 == 0) {
+      if (modes[currentMode].Scale < 60) {
+        // nature -----
+        DrawLine(x - 1U - deltaValue, floor(tree_h * 0.70), x + 1U - deltaValue, floor(tree_h * 0.70), 0x002F00);
+        DrawLine(x - 1U - deltaValue, floor(tree_h * 0.55), x + 1U - deltaValue, floor(tree_h * 0.55), 0x004F00);
+        DrawLine(x - 2U - deltaValue, floor(tree_h * 0.35), x + 2U - deltaValue, floor(tree_h * 0.35), 0x005F00);
+        DrawLine(x - 2U - deltaValue, floor(tree_h * 0.15), x + 2U - deltaValue, floor(tree_h * 0.15), 0x007F00);
+
+        drawPixelXY(x - 3U - deltaValue, floor(tree_h * 0.15), 0x001F00);
+        drawPixelXY(x + 3U - deltaValue, floor(tree_h * 0.15), 0x001F00);
+        if ((x - deltaValue ) >= 0) {
+          gradientVertical( x - deltaValue, 0U, x - deltaValue, tree_h, 90U, 90U, 190U, 64U, 255U);
+        }
+      } else {
+        // holiday -----
+        drawPixelXY(x - 1 - deltaValue, floor(tree_h * 0.6), CHSV(step, 255U, 128 + random8(128)));
+        drawPixelXY(x + 1 - deltaValue, floor(tree_h * 0.6), CHSV(step, 255U, 128 + random8(128)));
+
+        drawPixelXY(x - deltaValue, floor(tree_h * 0.4), CHSV(step, 255U, 200U));
+
+        drawPixelXY(x - deltaValue, floor(tree_h * 0.2), CHSV(step, 255U, 190 + random8(65)));
+        drawPixelXY(x - 2 - deltaValue, floor(tree_h * 0.25), CHSV(step, 255U, 96 + random8(128)));
+        drawPixelXY(x + 2 - deltaValue, floor(tree_h * 0.25), CHSV(step, 255U, 96 + random8(128)));
+
+        drawPixelXY(x - 2 - deltaValue, 1U, CHSV(step, 255U, 200U));
+        drawPixelXY(x - deltaValue, 0U, CHSV(step, 255U, 250U));
+        drawPixelXY(x + 2 - deltaValue, 1U, CHSV(step, 255U, 200U));
+        if ((x - deltaValue) >= 0) {
+          gradientVertical( x - deltaValue, floor(tree_h * 0.75), x - deltaValue, tree_h,  hue, hue, 250U, 0U, 128U);
+        }
+      }
+    }
+  }
+}
+
+//---------------------------------------
+void ChristmasTree() {
+  static uint8_t tree_h = HEIGHT;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                     scale | speed
+      setModeSettings(random8(100U), 10U + random8(128));
+    }
+#endif
+    loadingFlag = false;
+    clearNoiseArr();
+    deltaValue = 0;
+    step = deltaValue;
+    ledsClear(); // esphome: FastLED.clear();
+
+    if (HEIGHT > 16) {
+      tree_h = 16;
+    }
+  }
+
+  if (HEIGHT > 16) {
+    if (modes[currentMode].Scale < 60) {
+      gradientVertical(0, 0, WIDTH, HEIGHT, 160, 160, 64, 128, 255U);
+    } else {
+      ledsClear(); // esphome: FastLED.clear();
+    }
+  } else {
+    ledsClear(); // esphome: FastLED.clear();
+  }
+  GreenTree(tree_h);
+
+  if (modes[currentMode].Scale < 60) {
+    VirtualSnow(1);
+  }
+  if (modes[currentMode].Scale > 30) {
+    deltaValue++;
+  }
+  if (deltaValue >= 8) {
+    deltaValue = 0;
+  }
+  step++;
+}
+
+// ============== ByEffect ==============
+//             © SlingMaster
+//             EFF_BY_EFFECT
+//            Побочный Эффект
+// --------------------------------------
+void ByEffect() {
+  uint8_t saturation;
+  uint8_t delta;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                     scale | speed 210
+      setModeSettings(random8(100U), random8(200U));
+    }
+#endif
+    loadingFlag = false;
+    deltaValue = 0;
+    step = deltaValue;
+    ledsClear(); // esphome: FastLED.clear();
+  }
+
+  hue = floor(step / 32) * 32U;
+  dimAll(180);
+  // ------
+  saturation = 255U;
+  delta = 0;
+  for (uint8_t x = 0U; x < WIDTH + 1 ; x++) {
+    if (x % 8 == 0) {
+      gradientVertical( x - deltaValue, floor(HEIGHT * 0.75), x + 1U - deltaValue, HEIGHT,  hue, hue + 2, 250U, 0U, 255U);
+      if (modes[currentMode].Scale > 50) {
+        delta = random8(200U);
+      }
+      drawPixelXY(x - 2 - deltaValue, floor(HEIGHT * 0.7), CHSV(step, saturation - delta, 128 + random8(128)));
+      drawPixelXY(x + 2 - deltaValue, floor(HEIGHT * 0.7), CHSV(step, saturation, 128 + random8(128)));
+
+      drawPixelXY(x - deltaValue, floor(HEIGHT * 0.6), CHSV(hue, 255U, 190 + random8(65)));
+      if (modes[currentMode].Scale > 50) {
+        delta = random8(200U);
+      }
+      drawPixelXY(x - 1 - deltaValue, CENTER_Y_MINOR, CHSV(step, saturation, 128 + random8(128)));
+      drawPixelXY(x + 1 - deltaValue, CENTER_Y_MINOR, CHSV(step, saturation - delta, 128 + random8(128)));
+
+      drawPixelXY(x - deltaValue, floor(HEIGHT * 0.4), CHSV(hue, 255U, 200U));
+      if (modes[currentMode].Scale > 50) {
+        delta = random8(200U);
+      }
+      drawPixelXY(x - 2 - deltaValue, floor(HEIGHT * 0.3), CHSV(step, saturation - delta, 96 + random8(128)));
+      drawPixelXY(x + 2 - deltaValue, floor(HEIGHT * 0.3), CHSV(step, saturation, 96 + random8(128)));
+
+      gradientVertical( x - deltaValue, 0U, x + 1U - deltaValue, floor(HEIGHT * 0.25),  hue + 2, hue, 0U, 250U, 255U);
+
+      if (modes[currentMode].Scale > 50) {
+        drawPixelXY(x + 3 - deltaValue, HEIGHT - 3U, CHSV(step, 255U, 255U));
+        drawPixelXY(x - 3 - deltaValue, CENTER_Y_MINOR, CHSV(step, 255U, 255U));
+        drawPixelXY(x + 3 - deltaValue, 2U, CHSV(step, 255U, 255U));
+      }
+    }
+  }
+  // ------
+  deltaValue++;
+  if (deltaValue >= 8) {
+    deltaValue = 0;
+  }
+  step++;
+}
+
+// =====================================
+//            Цветные кудри
+//           Color Frizzles
+//             © Stepko
+//       адаптация © SlingMaster
+// =====================================
+void ColorFrizzles() {
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random(10U, 90U), 128);
+    }
+    loadingFlag = false;
+    FPSdelay = 10U;
+    deltaValue = 0;
+#endif
+  }
+
+  if (modes[currentMode].Scale > 50) {
+    if (FPSdelay > 48) deltaValue = 0;
+    if (FPSdelay < 5) deltaValue = 1;
+
+    if (deltaValue == 1) {
+      FPSdelay++;
+    } else {
+      FPSdelay--;
+    }
+    blur2d(leds, WIDTH, HEIGHT, 16);
+    
+  } else {
+    FPSdelay = 20;
+    dimAll(240U);
+  }
+   //LOG.printf_P(PSTR("| deltaValue • %03d | fps %03d\n"), deltaValue, FPSdelay);
+  for (byte i = 8; i--;) {
+    leds[XY(beatsin8(12 + i, 0, WIDTH - 1), beatsin8(15 - i, 0, HEIGHT - 1))] = CHSV(beatsin8(12, 0, 255), 255, (255 - FPSdelay * 2));
+  }
+}
+
+// ============ Colored Python ============
+//      base code WavingCell from © Stepko
+//       Adaptation & modefed © alvikskor
+//            Кольоровий Пітон
+// --------------------------------------
+
+uint32_t color_timer = millis();
+
+void Colored_Python() {
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings) {
+          //                     scale | speed
+          setModeSettings(random8(100U), random8(1, 255U));
+      }
+#endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      loadingFlag = false;
+      step = 0;
+  }
+  uint16_t  t = millis() / (128 - (modes[currentMode].Speed / 2));
+  uint8_t palette_number = modes[currentMode].Scale / 10;
+  uint8_t thickness;
+  if (palette_number < 9)
+      step = palette_number;
+  else
+      if (millis()- color_timer > 30000){
+        color_timer = millis();
+        step++;
+        if(step > 8) step = 0;
+      }
+  switch (step) {
+      case 0: currentPalette = CloudColors_p; break;
+      case 1: currentPalette = AlcoholFireColors_p; break;
+      case 2: currentPalette = OceanColors_p; break;
+      case 3: currentPalette = ForestColors_p; break;
+      case 4: currentPalette = RainbowColors_p; break;
+      case 5: currentPalette = RainbowStripeColors_p; break;
+      case 6: currentPalette = HeatColors_p; break;
+      case 7: currentPalette = LavaColors_p; break;
+      case 8: currentPalette = PartyColors_p;
+    }
+  switch (modes[currentMode].Scale % 5){
+      case 0: thickness = 5; break;
+      case 1: thickness = 10; break;
+      case 2: thickness = 20; break;
+      case 3: thickness = 30; break;
+      case 4: thickness = 40; break;
+  }
+  for(byte x =0; x < WIDTH; x++){
+    for(byte y =0; y < HEIGHT; y++){
+      leds[XY(x,y)]=ColorFromPalette(currentPalette,((sin8((x*thickness)+sin8(y*5+t*5))+cos8(y*10))+1)+t*(modes[currentMode].Speed%10)); // HeatColors_p -палитра, t*scale/10 -меняет скорость движения вверх, sin8(x*20) -меняет ширину рисунка
+    }
+  }
+}
+
+// ================Contacts==============
+//             © Yaroslaw Turbin
+//        Adaptation © SlingMaster
+//          modifed © alvikskor
+//              Контакти
+// =====================================
+
+static const uint8_t exp_gamma[256] PROGMEM = {
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   1,   1,
+    1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+    1,   2,   2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,   3,
+    4,   4,   4,   4,   4,   5,   5,   5,   5,   5,   6,   6,   6,   7,   7,
+    7,   7,   8,   8,   8,   9,   9,   9,   10,  10,  10,  11,  11,  12,  12,
+    12,  13,  13,  14,  14,  14,  15,  15,  16,  16,  17,  17,  18,  18,  19,
+    19,  20,  20,  21,  21,  22,  23,  23,  24,  24,  25,  26,  26,  27,  28,
+    28,  29,  30,  30,  31,  32,  32,  33,  34,  35,  35,  36,  37,  38,  39,
+    39,  40,  41,  42,  43,  44,  44,  45,  46,  47,  48,  49,  50,  51,  52,
+    53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,
+    68,  70,  71,  72,  73,  74,  75,  77,  78,  79,  80,  82,  83,  84,  85,
+    87,  89,  91,  92,  93,  95,  96,  98,  99,  100, 101, 102, 105, 106, 108,
+    109, 111, 112, 114, 115, 117, 118, 120, 121, 123, 125, 126, 128, 130, 131,
+    133, 135, 136, 138, 140, 142, 143, 145, 147, 149, 151, 152, 154, 156, 158,
+    160, 162, 164, 165, 167, 169, 171, 173, 175, 177, 179, 181, 183, 185, 187,
+    190, 192, 194, 196, 198, 200, 202, 204, 207, 209, 211, 213, 216, 218, 220,
+    222, 225, 227, 229, 232, 234, 236, 239, 241, 244, 246, 249, 251, 253, 254,
+    255
+};
+
+void Contacts() {
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random(25U, 90U), random(5U, 250U));
+    }
+#endif
+    loadingFlag = false;
+    FPSdelay = 80U;
+    ledsClear(); // esphome: FastLED.clear();
+  }
+
+  int a = millis() / floor((255 - modes[currentMode].Speed) / 10);
+  hue = floor(modes[currentMode].Scale / 14);
+  for (int x = 0; x < WIDTH; x++) {
+    for (int y = 0; y < HEIGHT; y++) {
+      int index = XY(x, y);
+      uint8_t color1 = pgm_read_byte(&exp_gamma[sin8(cos8((x * 7 +a/5)) - cos8((y * 10) +a/3)/4+a )]);
+      uint8_t color2 = pgm_read_byte(&exp_gamma[(sin8(x * 16 + a / 3) + cos8(y * 8 + a / 2)) / 2]);
+      uint8_t color3 = pgm_read_byte(&exp_gamma[sin8(cos8(x * 8 + a / 3) + sin8(y * 8 + a / 4) + a)]);
+      if (hue == 0) {
+        leds[index].b = color3 >> 2;
+        leds[index].g = color2;
+        leds[index].r = 0;
+      } else if (hue == 1) {
+        leds[index].b = color1;
+        leds[index].g = 0;
+        leds[index].r = color3 >> 2;
+      } else if (hue == 2) {
+        leds[index].b = 0;
+        leds[index].g = color1 >> 2;
+        leds[index].r = color3;
+      } else if (hue == 3) {
+        leds[index].b = color1;
+        leds[index].g = color2;
+        leds[index].r = color3;
+      } else if (hue == 4) {
+        leds[index].b = color3;
+        leds[index].g = color1;
+        leds[index].r = color2;
+      } else if (hue == 5) {
+        leds[index].b = color2;
+        leds[index].g = color3;
+        leds[index].r = color1;
+      } else if (hue >= 6) {
+        leds[index].b = color3;
+        leds[index].g = color1;
+        leds[index].r = color2;
+      }
+    }
+  }
+}
+
+// =====================================
+//               DropInWater
+//                © Stepko
+//        Adaptation © SlingMaster
+// =====================================
+// CRGBPalette16 currentPalette(PartyColors_p);
+void DropInWater() {
+#define Sat (255)
+#define MaxRad WIDTH + HEIGHT
+  static int rad[(HEIGHT + WIDTH) / 8];
+  static byte posx[(HEIGHT + WIDTH) / 8], posy[(HEIGHT + WIDTH) / 8];
+
+  if (loadingFlag) {
+
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random(0U, 100U), random(160U, 215U));
+    }
+#endif
+    loadingFlag = false;
+    hue = modes[currentMode].Scale * 2.55;
+    for (int i = 0; i < ((HEIGHT + WIDTH) / 8) - 1; i++)  {
+      posx[i] = random(WIDTH - 1);
+      posy[i] = random(HEIGHT - 1);
+      rad[i] = random(-1, MaxRad);
+    }
+  }
+  fill_solid( currentPalette, 16, CHSV(hue, Sat, 230));
+  currentPalette[10] = CHSV(hue, Sat - 60, 255);
+  currentPalette[9] = CHSV(hue, 255 - Sat, 210);
+  currentPalette[8] = CHSV(hue, 255 - Sat, 210);
+  currentPalette[7] = CHSV(hue, Sat - 60, 255);
+  fillAll(ColorFromPalette(currentPalette, 1));
+
+  for (uint8_t i = ((HEIGHT + WIDTH) / 8 - 1); i > 0 ; i--) {
+    drawCircle(posx[i], posy[i], rad[i], ColorFromPalette(currentPalette, (256 / 16) * 8.5 - rad[i]));
+    drawCircle(posx[i], posy[i], rad[i] - 1, ColorFromPalette(currentPalette, (256 / 16) * 7.5 - rad[i]));
+    if (rad[i] >= MaxRad) {
+      rad[i] = 0; // random(-1, MaxRad);
+      posx[i] = random(WIDTH);
+      posy[i] = random(HEIGHT);
+    } else {
+      rad[i]++;
+    }
+  }
+  if (modes[currentMode].Scale == 100) {
+    hue++;
+  }
+  blur2d(leds, WIDTH, HEIGHT, 64);
+}
+
+
+// =========== FeatherCandle ============
+//         адаптация © SottNick
+//    github.com/mnemocron/FeatherCandle
+//      modify & design © SlingMaster
+//           EFF_FEATHER_CANDLE
+//                Свеча
+//---------------------------------------
+#include "data7x15flip.h"                       // FeatherCandle animation data
+const uint8_t  level = 160;
+const uint8_t  low_level = 110;
+const uint8_t *ptr  = anim;                     // Current pointer into animation data
+const uint8_t  w    = 7;                        // image width
+const uint8_t  h    = 15;                       // image height
+uint8_t        img[w * h];                      // Buffer for rendering image
+uint8_t        deltaX = CENTER_X_MAJOR - 3;     // position img
+uint8_t last_brightness;
+void FeatherCandleRoutine() {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+  if (selectedSettings) {
+    // brightness | scale | speed
+    // { 21, 220,  40}
+    setModeSettings(1U + random8(99U), 190U + random8(65U));
+  }
+#endif
+  if (loadingFlag) {
+    ledsClear(); // esphome: FastLED.clear();
+    hue = 0;
+    trackingObjectState[0] = low_level;
+    trackingObjectState[1] = low_level;
+    trackingObjectState[2] = low_level;
+    trackingObjectState[4] = CENTER_X_MAJOR;
+    loadingFlag = false;
+  }
+
+  uint8_t a = pgm_read_byte(ptr++);     // New frame X1/Y1
+  if (a >= 0x90) {                      // EOD marker? (valid X1 never exceeds 8)
+    ptr = anim;                         // Reset animation data pointer to start
+    a   = pgm_read_byte(ptr++);         // and take first value
+  }
+  uint8_t x1 = a >> 4;                  // X1 = high 4 bits
+  uint8_t y1 = a & 0x0F;                // Y1 = low 4 bits
+  a  = pgm_read_byte(ptr++);            // New frame X2/Y2
+  uint8_t x2 = a >> 4;                  // X2 = high 4 bits
+  uint8_t y2 = a & 0x0F;                // Y2 = low 4 bits
+
+  // Read rectangle of data from anim[] into portion of img[] buffer
+  for (uint8_t y = y1; y <= y2; y++)
+    for (uint8_t x = x1; x <= x2; x++) {
+      img[y * w + x] = pgm_read_byte(ptr++);
+    }
+  int i = 0;
+  uint8_t color = (modes[currentMode].Scale - 1U) * 2.57;
+
+
+
+  // draw flame -------------------
+  for (uint8_t y = 1; y < h; y++) {
+    if ((HEIGHT < 15) || (WIDTH < 9)) {
+      // for small matrix -----
+      if (y % 2 == 0) {
+        leds[XY(CENTER_X_MAJOR - 1, 7)] = CHSV(color, 255U, 55 + random8(200));
+        leds[XY(CENTER_X_MAJOR, 6)] = CHSV(color, 255U, 160 + random8(90));
+        leds[XY(CENTER_X_MAJOR + 1, 6)] = CHSV(color, 255U, 205 + random8(50));
+        leds[XY(CENTER_X_MAJOR - 1, 5)] = CHSV(color, 255U, 155 + random8(100));
+        leds[XY(CENTER_X_MAJOR, 5)] = CHSV(color - 10U , 255U, 120 + random8(130));
+        leds[XY(CENTER_X_MAJOR, 4)] = CHSV(color - 10U , 255U, 100 + random8(120));
+        DrawLine(0, 2U, WIDTH - 1, 2U, 0x000000);
+      }
+    } else {
+      for (uint8_t x = 0; x < w; x++) {
+        uint8_t brightness = img[i];
+        leds[XY(deltaX + x, y)] = CHSV(brightness > 240 ? color : color - 10U , 255U, brightness);
+        i++;
+      }
+    }
+
+    // draw body FeatherCandle ------
+    if (y <= 3) {
+      if (y % 2 == 0) {
+        gradientVertical(0, 0, WIDTH, 2, color, color, 48, 128, 20U);
+      }
+    }
+
+    // drops of wax move -------------
+    switch (hue ) {
+      case 0:
+        if (trackingObjectState[0] < level) {
+          trackingObjectState[0]++;
+        }
+        break;
+      case 1:
+        if (trackingObjectState[0] > low_level) {
+          trackingObjectState[0] --;
+        }
+        if (trackingObjectState[1] < level) {
+          trackingObjectState[1] ++;
+        }
+        break;
+      case 2:
+        if (trackingObjectState[1] > low_level) {
+          trackingObjectState[1] --;
+        }
+        if (trackingObjectState[2] < level) {
+          trackingObjectState[2] ++;
+        }
+        break;
+      case 3:
+        if (trackingObjectState[2] > low_level) {
+          trackingObjectState[2] --;
+        } else {
+          hue++;
+          // set random position drop of wax
+          trackingObjectState[4] = CENTER_X_MAJOR - 3 + random8(6);
+        }
+        break;
+    }
+
+    if (hue > 3) {
+      hue++;
+    } else {
+      // LOG.printf_P(PSTR("[0] = %03d | [1] = %03d | [2] = %03d \n\r"), trackingObjectState[0], trackingObjectState[1], trackingObjectState[2]);
+      if (hue < 2) {
+        leds[XY(trackingObjectState[4], 2)] = CHSV(50U, 20U, trackingObjectState[0]);
+      }
+      if ((hue == 1) || (hue == 2)) {
+        leds[XY(trackingObjectState[4], 1)] = CHSV(50U, 15U, trackingObjectState[1]); // - 10;
+      }
+      if (hue > 1) {
+        leds[XY(trackingObjectState[4], 0)] = CHSV(50U, 5U, trackingObjectState[2]); // - 20;
+      }
+    }
+  }
+
+  // next -----------------
+  if ((trackingObjectState[0] == level) || (trackingObjectState[1] == level) || (trackingObjectState[2] == level)) {
+    hue++;
+  }
+}
+
+// =====================================
+//               Фейерверк
+//                Firework
+//             © SlingMaster
+// =====================================
+void VirtualExplosion(uint8_t f_type, int8_t timeline) {
+  const uint8_t DELAY_SECOND_EXPLOSION = HEIGHT * 0.25;
+  uint8_t horizont = 1U; // HEIGHT * 0.2;
+  const int8_t STEP = 255 / HEIGHT;
+  uint8_t firstColor = random8(255);
+  uint8_t secondColor = 0;
+  uint8_t saturation = 255U;
+  switch (f_type) {
+    case 0:
+      secondColor =  random(50U, 255U);
+      saturation = random(245U, 255U);
+      break;
+    case 1: /* сакура */
+      firstColor = random(210U, 230U);
+      secondColor = random(65U, 85U);
+      saturation = 255U;
+      break;
+    case 2: /* день Независимости */
+      firstColor = random(160U, 170U);
+      secondColor = random(25U, 50U);
+      saturation = 255U;
+      break;
+    default: /* фризантемы */
+      firstColor = random(30U, 40U);
+      secondColor = random(25U, 50U);
+      saturation = random(128U, 255U);
+      break;
+  }
+  if ((timeline > HEIGHT - 1 ) & (timeline < HEIGHT * 1.75)) {
+    for (uint8_t x = 0U; x < WIDTH; x++) {
+      for (uint8_t y =  horizont; y < HEIGHT - 1; y++) {
+        noise3d[0][x][y] = noise3d[0][x][y + 1];
+        uint8_t bri = y * STEP;
+        if (noise3d[0][x][y] > 0) {
+          if (timeline > (HEIGHT + DELAY_SECOND_EXPLOSION) ) {
+            /* second explosion */
+            drawPixelXY((x - 2 + random8(4)), y - 1, CHSV(secondColor + random8(16), saturation, bri));
+          }
+          if (timeline < ((HEIGHT - DELAY_SECOND_EXPLOSION) * 1.75) ) {
+            /* first explosion */
+            drawPixelXY(x, y, CHSV(firstColor, 255U, bri));
+          }
+        } else {
+          // drawPixelXY(x, y, CHSV(175, 255U, floor((255 - bri) / 4)));
+        }
+      }
+    }
+    uint8_t posX = random8(WIDTH);
+    for (uint8_t x = 0U; x < WIDTH; x++) {
+      // заполняем случайно верхнюю строку
+      if (posX == x) {
+        if (step % 2 == 0) {
+          noise3d[0][x][HEIGHT - 1U] = 1;
+        } else {
+          noise3d[0][x][HEIGHT - 1U]  = 0;
+        }
+      } else {
+        noise3d[0][x][HEIGHT - 1U]  = 0;
+      }
+    }
+  }
+}
+
+// --------------------------------------
+void Firework() {
+  const uint8_t MAX_BRIGHTNESS = 40U;            /* sky brightness */
+  const uint8_t DOT_EXPLOSION = HEIGHT * 0.95;
+  const uint8_t HORIZONT = HEIGHT * 0.25;
+  const uint8_t DELTA = 1U;                      /* центровка по вертикали */
+  const float stepH = HEIGHT / 128.0;
+  const uint8_t FPS_DELAY = 20U;
+  //const uint8_t STEP = 3U;
+  const uint8_t skyColor = 156U;
+  uint8_t sizeH;
+
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(1U + random8(100U), 1U + random8(250U));
+    }
+#endif
+    loadingFlag = false;
+    deltaHue2 = 0;
+    FPSdelay = 255U;
+    ledsClear(); // esphome: FastLED.clear();
+    step = 0U;
+    deltaHue2 = floor(modes[currentMode].Scale / 26);
+    hue = 48U;            // skyBright
+    if (modes[currentMode].Speed > 85U) {
+      sizeH = HORIZONT;
+      FPSdelay = FPS_DELAY;
+    }
+  }
+
+  if (FPSdelay > 128U) {
+    /* вечерело */
+    FPSdelay--;
+    sizeH = (FPSdelay - 128U) * stepH;
+    // LOG.printf_P(PSTR("• [%03d] | %03d | %0.2f | \n"), FPSdelay, stepH, sizeH);
+    dimAll(200);
+
+    if (ORIENTATION % 2 == 0) {    // if (STRIP_DIRECTION % 2 == 0) {
+      gradientDownTop( 0, CHSV(skyColor, 255U, floor(FPSdelay / 2.2)), sizeH, CHSV(skyColor, 255U, 2U));
+    } else {
+      gradientVertical(0, 0, WIDTH, sizeH, skyColor, skyColor, floor(FPSdelay / 2.2), 2U, 255U);
+    }
+
+    if (sizeH > HORIZONT) return;
+    if (sizeH == HORIZONT )  FPSdelay = FPS_DELAY;
+  }
+
+  if (step > DOT_EXPLOSION ) {
+    blurScreen(beatsin8(3, 64, 80));
+  }
+  if (step == DOT_EXPLOSION - 1) {
+    /* включаем фазу затухания */
+    FPSdelay = 70;
+  }
+  if (step > CENTER_Y_MAJOR) {
+    dimAll(140);
+  } else {
+    dimAll(100);
+  }
+
+
+  /* ============ draw sky =========== */
+  if (modes[currentMode].Speed < 180U) {
+    if (ORIENTATION % 2 == 0) {     // if (STRIP_DIRECTION % 2 == 0) {
+      gradientDownTop( 0, CHSV(skyColor, 255U, hue ), HORIZONT, CHSV(skyColor, 255U, 0U ));
+    } else {
+      gradientVertical(0, 0, WIDTH, HORIZONT, skyColor, skyColor, hue + 1, 0U, 255U);
+    }
+  }
+
+  /* deltaHue2 - Firework type */
+  VirtualExplosion(deltaHue2, step);
+
+  if ((step > DOT_EXPLOSION ) & (step < HEIGHT * 1.5)) {
+    /* фаза взрыва */
+    FPSdelay += 5U;
+  }
+  const uint8_t rows = (HEIGHT + 1) / 3U;
+  deltaHue = floor(modes[currentMode].Speed / 64) * 64;
+  if (step > CENTER_Y_MAJOR) {
+    bool dir = false;
+    for (uint8_t y = 0; y < rows; y++) {
+      /* сдвигаем слои / эмитация разлета */
+      for (uint8_t x = 0U ; x < WIDTH; x++) {
+        if (dir) {  // <==
+          drawPixelXY(x - 1, y * 3 + DELTA, getPixColorXY(x, y * 3 + DELTA));
+        } else {    // ==>
+          drawPixelXY(WIDTH - x, y * 3 + DELTA, getPixColorXY(WIDTH - x - 1, y * 3 + DELTA));
+        }
+      }
+      dir = !dir;
+      /* --------------------------------- */
+    }
+  }
+
+  /* ========== фаза полета ========== */
+  if (step < DOT_EXPLOSION ) {
+    FPSdelay ++;
+    if (HEIGHT < 20) {
+      FPSdelay ++;
+    }
+    /* закоментируйте следующие две строки если плоская лампа
+      подсветка заднего фона */
+    if (custom_eff == 1) {
+      DrawLine(0U, 0U, 0U, HEIGHT - step, CHSV(skyColor, 255U, 32U));
+      DrawLine(WIDTH - 1, 0U, WIDTH - 1U, HEIGHT - step, CHSV(skyColor, 255U, 32U));
+    }
+    /* ------------------------------------------------------ */
+
+    uint8_t saturation = (step > (DOT_EXPLOSION - 2U)) ? 192U : 20U;
+    //uint8_t rndPos = deltaHue2;  //uint8_t rndPos = 3U * deltaHue2 * 0.5;
+    drawPixelXY(CENTER_X_MINOR + deltaHue2, step,  CHSV(50U, saturation, 80U));                 // first
+    drawPixelXY(CENTER_X_MAJOR - deltaHue2, step - HORIZONT,  CHSV(50U, saturation, 80U));  // second
+    /* sky brightness */
+    if (hue > 2U) {
+      hue -= 1U;
+    }
+  }
+  if (step > HEIGHT * 1.25) {
+    /* sky brightness */
+    if (hue < MAX_BRIGHTNESS) {
+      hue += 2U;
+    }
+  }
+
+  if (step >= (HEIGHT * 2.5)) {
+    step = 0U;
+    FPSdelay = FPS_DELAY;
+    if (modes[currentMode].Scale <= 1) {
+      deltaHue2++;
+    }
+    if (deltaHue2 >= 4U) deltaHue2 = 0U;  // next Firework type
+  }
+  //  LOG.printf_P(PSTR("• [%03d] | %03d | sky Bright • [%03d]\n"), step, FPSdelay, hue);
+  step ++;
+}
+
+//---------- Эффект "Фейерверк" Салют ---
+//адаптация и переписал - kostyamat
+//https://gist.github.com/jasoncoon/0cccc5ba7ab108c0a373
+//https://github.com/marcmerlin/FastLED_NeoMatrix_SmartMatrix_LEDMatrix_GFX_Demos/blob/master/FastLED/FireWorks2/FireWorks2.ino
+
+  #define MODEL_BORDER (HEIGHT - 4U)  // как далеко за экран может вылетить снаряд, если снаряд вылетает за экран, то всышка белого света (не особо логично)
+  #define MODEL_WIDTH  (MODEL_BORDER + WIDTH  + MODEL_BORDER) // не трогать, - матиматика
+  #define MODEL_HEIGHT (MODEL_BORDER + HEIGHT + MODEL_BORDER) // -//-
+  #define PIXEL_X_OFFSET ((MODEL_WIDTH  - WIDTH ) / 2) // -//-
+  #define PIXEL_Y_OFFSET ((MODEL_HEIGHT - HEIGHT) / 2) // -//-
+
+  #define SPARK 8U // максимальное количество снарядов
+  #define NUM_SPARKS WIDTH // количество разлетающихся петард (частей снаряда)
+  const saccum78 gGravity = 10;
+  const fract8  gBounce = 127;
+  const fract8  gDrag = 255;
+
+  typedef struct _DOTS_STORE {
+    accum88 gBurstx;
+    accum88 gBursty;
+    saccum78 gBurstxv;
+    saccum78 gBurstyv;
+    CRGB gBurstcolor;
+    bool gSkyburst = false;
+  } DOTS_STORE;
+  DOTS_STORE store[SPARK];
+
+  class Dot {    // класс для создания снарядов и питард
+  public:
+  byte    show;
+  byte    theType;
+  accum88 x;
+  accum88 y;
+  saccum78 xv;
+  saccum78 yv;
+  accum88 r;
+  CRGB color;
+
+  Dot() {
+    show = 0;
+    theType = 0;
+    x =  0;
+    y =  0;
+    xv = 0;
+    yv = 0;
+    r  = 0;
+    color.setRGB( 0, 0, 0);
+  }
+
+  void Draw()
+  {
+    if( !show) return;
+    byte ix, xe, xc;
+    byte iy, ye, yc;
+    screenscale( x, MODEL_WIDTH, ix, xe);
+    screenscale( y, MODEL_HEIGHT, iy, ye);
+    yc = 255 - ye;
+    xc = 255 - xe;
+
+    CRGB c00 = CRGB( dim8_video( scale8( scale8( color.r, yc), xc)),
+                     dim8_video( scale8( scale8( color.g, yc), xc)),
+                     dim8_video( scale8( scale8( color.b, yc), xc))
+                     );
+    CRGB c01 = CRGB( dim8_video( scale8( scale8( color.r, ye), xc)),
+                     dim8_video( scale8( scale8( color.g, ye), xc)),
+                     dim8_video( scale8( scale8( color.b, ye), xc))
+                     );
+
+    CRGB c10 = CRGB( dim8_video( scale8( scale8( color.r, yc), xe)),
+                     dim8_video( scale8( scale8( color.g, yc), xe)),
+                     dim8_video( scale8( scale8( color.b, yc), xe))
+                     );
+    CRGB c11 = CRGB( dim8_video( scale8( scale8( color.r, ye), xe)),
+                     dim8_video( scale8( scale8( color.g, ye), xe)),
+                     dim8_video( scale8( scale8( color.b, ye), xe))
+                     );
+
+    piXY(ix, iy) += c00;
+    piXY(ix, iy + 1) += c01;
+    piXY(ix + 1, iy) += c10;
+    piXY(ix + 1, iy + 1) += c11;
+  }
+
+  void Move(byte num, bool Flashing)
+  {
+    if( !show) return;
+    yv -= gGravity;
+    xv = scale15by8_local( xv, gDrag);
+    yv = scale15by8_local( yv, gDrag);
+
+    if( theType == 2) {
+      xv = scale15by8_local( xv, gDrag);
+      yv = scale15by8_local( yv, gDrag);
+      color.nscale8( 255);
+      if( !color) {
+        show = 0;
+      }
+    }
+    // if we'd hit the ground, bounce
+    if( yv < 0 && (y < (-yv)) ) {
+      if( theType == 2 ) {
+        show = 0;
+      } else {
+        yv = -yv;
+        yv = scale15by8_local( yv, gBounce);
+        if( yv < 500 ) {
+          show = 0;
+        }
+      }
+    }
+    if (yv < -300) { // && (!(oyv < 0)) ) {
+      // pinnacle
+      if( theType == 1 ) {
+
+        if( (y > (uint16_t)(0x8000)) && (random8() < 32) && Flashing) {
+          // boom
+          LEDS.showColor( CRGB::Gray);
+          LEDS.showColor( CRGB::Black);
+        }
+
+        show = 0;
+
+        store[num].gSkyburst = true;
+        store[num].gBurstx = x;
+        store[num].gBursty = y;
+        store[num].gBurstxv = xv;
+        store[num].gBurstyv = yv;
+        store[num].gBurstcolor = CRGB(random8(), random8(), random8());
+      }
+    }
+    if( theType == 2) {
+      if( ((xv >  0) && (x > xv)) ||
+          ((xv < 0 ) && (x < (0xFFFF + xv))) )  {
+        x += xv;
+      } else {
+        show = 0;
+      }
+    } else {
+      x += xv;
+    }
+    y += yv;
+
+  }
+
+  void GroundLaunch()
+  {
+    yv = 600 + random16(400 + (25 * HEIGHT));
+    if(yv > 1200) yv = 1200;
+    xv = (int16_t)random16(600) - (int16_t)300;
+    y = 0;
+    x = 0x8000;
+    color = CHSV(0, 0, 130); // цвет запускаемого снаряда
+    show = 1;
+  }
+
+  void Skyburst( accum88 basex, accum88 basey, saccum78 basedv, CRGB& basecolor, uint8_t dim)
+  {
+    yv = (int16_t)0 + (int16_t)random16(1500) - (int16_t)500;
+    xv = basedv + (int16_t)random16(2000) - (int16_t)1000;
+    y = basey;
+    x = basex;
+    color = basecolor;
+    //EffectMath::makeBrighter(color, 50);
+    color *= dim; //50;
+    theType = 2;
+    show = 1;
+  }
+
+  //  CRGB &piXY(byte x, byte y);
+
+  int16_t scale15by8_local( int16_t i, fract8 _scale )
+  {
+    int16_t result;
+    result = (int32_t)((int32_t)i * _scale) / 256;
+    return result;
+  };
+
+  void screenscale(accum88 a, byte N, byte &screen, byte &screenerr)
+  {
+    byte ia = a >> 8;
+    screen = scale8(ia, N);
+    byte m = screen * (256 / N);
+    screenerr = (ia - m) * scale8(255, N);
+    return;
+  };
+  };
+
+
+  uint16_t launchcountdown[SPARK];
+  //bool flashing = true; // нахрен эти вспышки прямо в коде false напишу
+  Dot gDot[SPARK];
+  Dot gSparks[NUM_SPARKS];
+
+  CRGB overrun;
+  CRGB& piXY(byte x, byte y) {
+  x -= PIXEL_X_OFFSET;
+  //x = (x - PIXEL_X_OFFSET) % WIDTH; // зацикливаем поле по иксу
+  y -= PIXEL_Y_OFFSET;
+  if( x < WIDTH && y < HEIGHT) {
+    return leds[XY(x, y)];
+  } else
+    //return empty; // fixed //  CRGB empty = CRGB(0,0,0);
+    return overrun;//CRGB(0,0,0);
+  }
+
+
+  void sparkGen() {
+  for (byte c = 0; c < enlargedObjectNUM; c++) { // modes[currentMode].Scale / хз
+    if( gDot[c].show == 0 ) {
+      if( launchcountdown[c] == 0) {
+        gDot[c].GroundLaunch();
+        gDot[c].theType = 1;
+        launchcountdown[c] = random16(1200 - modes[currentMode].Speed*4) + 1;
+      } else {
+        launchcountdown[c] --;
+      }
+    }
+   if( store[c].gSkyburst) {
+     store[c].gBurstcolor = CHSV(random8(), 200, 100);
+     store[c].gSkyburst = false;
+     byte nsparks = random8( NUM_SPARKS / 2, NUM_SPARKS + 1);
+     for( byte b = 0; b < nsparks; b++) {
+       gSparks[b].Skyburst( store[c].gBurstx, store[c].gBursty, store[c].gBurstyv, store[c].gBurstcolor, pcnt);
+     }
+   }
+
+  }
+
+  //myLamp.blur2d(20);
+  }
+
+  void fireworksRoutine()
+  {
+  if (loadingFlag)
+  {
+    loadingFlag = false;
+    enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (SPARK - 1U) + 1U;
+    if (enlargedObjectNUM > SPARK) enlargedObjectNUM = SPARK;
+
+    for (byte c = 0; c < SPARK; c++)
+      launchcountdown[c] = 0;
+  }
+
+  //random16_add_entropy(analogRead(A0));
+  pcnt = beatsin8(100, 20, 100);
+  if (hue++ % 10 == 0U){//  EVERY_N_MILLIS(EFFECTS_RUN_TIMER * 10) {
+    deltaValue = random8(25, 50);
+  }
+  //  EVERY_N_MILLIS(10) {//странный интервал
+    fadeToBlackBy(leds, NUM_LEDS, deltaValue);
+    sparkGen();
+    //memset8( leds, 0, NUM_LEDS * 3);
+
+    for (byte a = 0; a < enlargedObjectNUM; a++) { //modes[currentMode].Scale / хз
+      gDot[a].Move(a, false);//flashing);
+      gDot[a].Draw();
+    }
+    for( byte b = 0; b < NUM_SPARKS; b++) {
+      gSparks[b].Move(0, false);//flashing);
+      gSparks[b].Draw();
+    }
+  }
+
+// ============= Hourglass ==============
+//             © SlingMaster
+//             EFF_HOURGLASS
+//             Песочные Часы
+//---------------------------------------
+
+void Hourglass() {
+  const float SIZE = 0.4;
+  const uint8_t h = floor(SIZE * HEIGHT);
+  uint8_t posX = 0;
+  //const uint8_t topPos  = HEIGHT - h;
+  const uint8_t route = HEIGHT - h - 1;
+  const uint8_t STEP = 18U;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                          scale | speed 210
+      setModeSettings(15U + random8(225U), random8(255U));
+    }
+#endif
+    loadingFlag = false;
+    pcnt = 0;
+    deltaHue2 = 0;
+    hue2 = 0;
+
+    ledsClear(); // esphome: FastLED.clear();
+    hue = modes[currentMode].Scale * 2.55;
+    for (uint8_t x = 0U; x < ((WIDTH / 2)); x++) {
+      for (uint8_t y = 0U; y < h; y++) {
+        drawPixelXY(CENTER_X_MINOR - x, HEIGHT - y - 1, CHSV(hue, 255, 255 - x * STEP));
+        drawPixelXY(CENTER_X_MAJOR + x, HEIGHT - y - 1, CHSV(hue, 255, 255 - x * STEP));
+      }
+    }
+  }
+
+  if (hue2 == 0) {
+    posX = floor(pcnt / 2);
+    uint8_t posY = HEIGHT - h - pcnt;
+    // LOG.printf_P(PSTR("• [%03d] | posX %03d | deltaHue2 %03d | \n"), step, posX, deltaHue2);
+
+    /* move sand -------- */
+    if ((posY < (HEIGHT - h - 2)) && (posY > deltaHue2)) {
+      drawPixelXY(CENTER_X_MAJOR, posY, CHSV(hue, 255, 255));
+      drawPixelXY(CENTER_X_MAJOR, posY - 2, CHSV(hue, 255, 255));
+      drawPixelXY(CENTER_X_MAJOR, posY - 4, CHSV(hue, 255, 255));
+
+      if (posY < (HEIGHT - h - 3)) {
+        drawPixelXY(CENTER_X_MAJOR, posY + 1, CHSV(hue, 255, 0 ));
+      }
+    }
+
+    /* draw body hourglass */
+    if (pcnt % 2 == 0) {
+      drawPixelXY(CENTER_X_MAJOR - posX, HEIGHT - deltaHue2 - 1, CHSV(hue, 255, 0));
+      drawPixelXY(CENTER_X_MAJOR - posX, deltaHue2, CHSV(hue, 255, 255 - posX * STEP));
+    } else {
+      drawPixelXY(CENTER_X_MAJOR + posX, HEIGHT - deltaHue2 - 1, CHSV(hue, 255, 0));
+      drawPixelXY(CENTER_X_MAJOR + posX, deltaHue2, CHSV(hue, 255, 255 - posX * STEP));
+    }
+
+    if (pcnt > WIDTH - 1) {
+      deltaHue2++;
+      pcnt = 0;
+      if (modes[currentMode].Scale > 95) {
+        hue += 4U;
+      }
+    }
+
+    pcnt++;
+    if (deltaHue2 > h) {
+      deltaHue2 = 0;
+      hue2 = 1;
+    }
+  }
+  // имитация переворота песочных часов
+  if (hue2 > 0) {
+    for (uint8_t x = 0U; x < WIDTH; x++) {
+      for (uint8_t y = HEIGHT; y > 0U; y--) {
+        drawPixelXY(x, y, getPixColorXY(x, y - 1U));
+        drawPixelXY(x, y - 1, 0x000000);
+      }
+    }
+    hue2++;
+    if (hue2 > route) {
+      hue2 = 0;
+    }
+  }
+}
+
+// =====================================
+//            Flower Ruta
+//    © Stepko and © Sutaburosu
+//     Adaptation © SlingMaster
+//       Modifed © alvikskor
+// =====================================
+
+void FlowerRuta() {
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random8(11U, 69U), random8(150U, 255U));
+    }
+#endif
+    loadingFlag = false;
+    ledsClear(); // esphome: FastLED.clear();
+    for (int8_t x = -CENTER_X_MAJOR; x < CENTER_X_MAJOR; x++) {
+      for (int8_t y = -CENTER_Y_MAJOR; y < CENTER_Y_MAJOR; y++) {
+        noise3d[0][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = (atan2(x, y) / PI) * 128 + 127; // thanks ldirko
+        noise3d[1][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = hypot(x, y);                    // thanks Sutaburosu
+      }
+    }
+  }
+
+  uint8_t Petals = modes[currentMode].Scale / 10;
+  uint16_t color_speed;
+  step = modes[currentMode].Scale % 10;
+  if (step < 5) color_speed = scale / (3 - step/2);
+  else color_speed = scale * (step/2 - 1);
+  scale ++;
+  for (uint8_t x = 0; x < WIDTH; x++) {
+    for (uint8_t y = 0; y < HEIGHT; y++) {
+      byte angle = noise3d[0][x][y];
+      byte radius = noise3d[1][x][y];
+      leds[XY(x, y)] = CHSV(color_speed + radius * (255 / WIDTH), 255, sin8(sin8(scale + angle * Petals + ( radius * (255 / WIDTH))) + scale * 4 + sin8(scale * 4 - radius * (255 / WIDTH)) + angle * Petals));
+    }
+  }
+}
+
+// ============ Magic Lantern ===========
+//             © SlingMaster
+//            Чарівний Ліхтар
+// --------------------------------------
+void MagicLantern() {
+  static uint8_t saturation;
+  static uint8_t brightness;
+  static uint8_t low_br;
+  //uint8_t delta;
+  const uint8_t PADDING = HEIGHT * 0.25;
+  const uint8_t WARM_LIGHT = 55U;
+  const uint8_t STEP = 4U;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                     scale | speed 210
+      setModeSettings(random8(100U), random8(40, 200U));
+    }
+#endif
+    loadingFlag = false;
+    deltaValue = 0;
+    step = deltaValue;
+    if (modes[currentMode].Speed > 52) {
+      // brightness = 50 + modes[currentMode].Speed;
+      brightness = map(modes[currentMode].Speed, 1, 255, 50U, 250U);
+      low_br = 50U;
+    } else {
+      brightness = 0U;
+      low_br = 0U;
+    }
+    saturation = (modes[currentMode].Scale > 50U) ? 64U : 0U;
+    if (abs (70 - modes[currentMode].Scale) <= 5) saturation = 170U;
+    ledsClear(); // esphome: FastLED.clear();
+
+  }
+  dimAll(170);
+  hue = (modes[currentMode].Scale > 95) ? floor(step / 32) * 32U : modes[currentMode].Scale * 2.55;
+
+  // ------
+  for (uint8_t x = 0U; x < WIDTH + 1 ; x++) {
+
+    // light ---
+    if (low_br > 0) {
+      gradientVertical( x - deltaValue, CENTER_Y_MAJOR, x + 1U - deltaValue, HEIGHT - PADDING - 1,  WARM_LIGHT, WARM_LIGHT, brightness, low_br, saturation);
+      gradientVertical( WIDTH - x + deltaValue, CENTER_Y_MAJOR, WIDTH - x + 1U + deltaValue, HEIGHT - PADDING - 1,  WARM_LIGHT, WARM_LIGHT, brightness, low_br, saturation);
+      gradientVertical( x - deltaValue, PADDING + 1, x + 1U - deltaValue, CENTER_Y_MAJOR, WARM_LIGHT, WARM_LIGHT, low_br + 10, brightness, saturation);
+      gradientVertical( WIDTH - x + deltaValue, PADDING + 1, WIDTH - x + 1U + deltaValue, CENTER_Y_MAJOR, WARM_LIGHT, WARM_LIGHT, low_br + 10, brightness, saturation);
+    } else {
+      if (x % (STEP + 1) == 0) {
+        leds[XY(random8(WIDTH), random8(PADDING + 2, HEIGHT - PADDING - 2))] = CHSV(step - 32U, random8(128U, 255U), 255U);
+      }
+      if ((modes[currentMode].Speed < 25) & (low_br == 0)) {
+        deltaValue = 0;
+        if (x % 2 != 0) {
+          gradientVertical( x - deltaValue, HEIGHT - PADDING, x + 1U - deltaValue, HEIGHT,  hue, hue + 2, 64U, 20U, 255U);
+          gradientVertical( (WIDTH - x + deltaValue), 0U,  (WIDTH - x + 1U + deltaValue), PADDING,  hue, hue, 42U, 64U, 255U);
+        }
+        //        deltaValue = 0;
+      }
+    }
+    if (x % STEP == 0) {
+      // body --
+      gradientVertical( x - deltaValue, HEIGHT - PADDING, x + 1U - deltaValue, HEIGHT,  hue, hue + 2, 255U, 20U, 255U);
+      gradientVertical( (WIDTH - x + deltaValue), 0U,  (WIDTH - x + 1U + deltaValue), PADDING,  hue, hue, 42U, 255U, 255U);
+    }
+  }
+  // ------
+
+  deltaValue++;
+  if (deltaValue >= STEP) {
+    deltaValue = 0;
+  }
+
+  step++;
+}
+
+// ----------------------------- Эффект Мозайка / Кафель ------------------------------
+// (c) SottNick
+// на основе идеи Idir
+// https://editor.soulmatelights.com/gallery/843-squares-and-dots
+
+void squaresNdotsRoutine() {
+  if (loadingFlag) {
+    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+      if (selectedSettings) {
+        // scale | speed
+        setModeSettings(1U + random8(100U), 1U + random8(255U));
+      }
+    #endif
+    loadingFlag = false;
+    shtukX = WIDTH / 3U + 1U;
+    shtukY = HEIGHT / 3U + 1U;
+    poleX = modes[currentMode].Speed % 3U;
+    poleY = modes[currentMode].Speed / 3U % 3U;
+
+    for (uint8_t i = 0; i < shtukX; i++)
+      line[i] = random8(3U);
+    for (uint8_t i = 0; i < shtukY; i++)
+      shiftValue[i] = random8(3U);
+  }
+
+  bool type = random8(2U);
+  CRGB color = CHSV(random8(), 255U - random8(modes[currentMode].Scale * 2.55), 255U);
+
+  uint8_t i = random8(shtukX);
+  uint8_t j = random8(shtukY);
+  int16_t x0 = i * 3 + (poleX + ((modes[currentMode].Scale & 0x01) ? line[j] : 0)) % 3 - 2;
+  int16_t y0 = j * 3 + (poleY + ((modes[currentMode].Scale & 0x01) ? 0 : shiftValue[i])) % 3 - 2;
+  uint8_t hole = 0U;
+
+  for (int16_t x = x0; x < x0 + 3; x++) {
+    for (int16_t y = y0; y < y0 + 3; y++) {
+      drawPixelXY(x, y, ((hole == 4U) ^ type) ? CRGB::Black : color);
+      hole++;
+    }
+  }
+}
+
+// ============ Octopus ===========
+//        © Stepko and Sutaburosu
+//    Adapted and modifed © alvikskor
+//             Восьминіг
+// --------------------------------------
+//Idea from https://www.youtube.com/watch?v=HsA-6KIbgto&ab_channel=GreatScott%21
+
+void Octopus() {
+    
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random(10U, 101U), random(150U, 255U));
+    }
+#endif
+    loadingFlag = false;
+    for (int8_t x = -CENTER_X_MAJOR; x < CENTER_X_MAJOR + (WIDTH % 2); x++) {
+      for (int8_t y = -CENTER_Y_MAJOR; y < CENTER_Y_MAJOR + (HEIGHT % 2); y++) {
+        noise3d[0][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = (atan2(x, y) / PI) * 128 + 127; // thanks ldirko
+        noise3d[1][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = hypot(x, y); // thanks Sutaburosu
+      }
+    }
+  }
+  
+  uint8_t legs = modes[currentMode].Scale / 10;
+  uint16_t color_speed;
+  step = modes[currentMode].Scale % 10;
+  if (step < 5) color_speed = scale / (3 - step/2);
+  else color_speed = scale * (step/2 - 1);
+  scale ++;
+  for (uint8_t x = 0; x < WIDTH; x++) {
+    for (uint8_t y = 0; y < HEIGHT; y++) {
+      byte angle = noise3d[0][x][y];
+      byte radius = noise3d[1][x][y];
+      leds[XY(x, y)] = CHSV(color_speed - radius * (255 / WIDTH), 255,sin8(sin8((angle*4-(radius * (255 / WIDTH)))/4+scale) + radius * (255 / WIDTH) - scale*2 + angle * legs));
+    }
+  }
+}
+
+
+// ============ Oil Paints ==============
+//      © SlingMaster | by Alex Dovby
+//              EFF_PAINT
+//           Масляные Краски
+//---------------------------------------
+void OilPaints() {
+
+  uint8_t divider;
+  uint8_t entry_point;
+  uint16_t value;
+  uint16_t max_val;
+  if (loadingFlag) {
+
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                          scale | speed 210
+      setModeSettings(1U + random8(252U), 1 + random8(219U));
+    }
+#endif
+    loadingFlag = false;
+    ledsClear(); // esphome: FastLED.clear();
+    // blurScreen(beatsin8(5U, 50U, 5U));
+    deltaValue = 255U - modes[currentMode].Speed + 1U;
+    step = deltaValue;                    // чтообы при старте эффекта сразу покрасить лампу
+    hue = floor(21.25 * (random8(11) + 1)); // next color
+    deltaHue = hue - 22;                  // last color
+    deltaHue2 = 80;                       // min bright
+    max_val = constrain(pow(2, WIDTH), 1U, 65535U);
+    //    for ( int i = WIDTH; i < (NUM_LEDS - WIDTH); i++) {
+    //      leds[i] = CHSV(120U, 24U, 64U);
+    //    }
+  }
+
+  if (step >= deltaValue) {
+    step = 0U;
+    // LOG.printf_P(PSTR("%03d | log: %f | val: %03d\n\r"), modes[currentMode].Brightness, log(modes[currentMode].Brightness), deltaHue2);
+  }
+
+  // Create Oil Paints --------------
+  // выбираем краски  ---------------
+  if (step % CENTER_Y_MINOR == 0) {
+    divider = floor((modes[currentMode].Scale - 1) / 10);             // маштаб задает диапазон изменения цвета
+    deltaHue = hue;                                                   // set last color
+    hue += 6 * divider;                                               // new color
+    hue2 = 255;                                                       // restore brightness
+    deltaHue2 = 80 - floor(log(modes[currentMode].Brightness) * 6);   // min bright
+    entry_point = random8(WIDTH);                                     // start X position
+    trackingObjectHue[entry_point] = hue;                             // set start position
+    drawPixelXY(entry_point,  HEIGHT - 2, CHSV(hue, 255U, 255U));
+    // !!! ********
+    if (custom_eff == 1) {
+      drawPixelXY(entry_point + 1,  HEIGHT - 3, CHSV(hue + 30, 255U, 255U));
+    }
+    // ************
+    // LOG.printf_P(PSTR("BR %03d | SP %03d | SC %03d | hue %03d\n\r"), modes[currentMode].Brightness, modes[currentMode].Speed, modes[currentMode].Scale, hue);
+  }
+
+  // формируем форму краски, плавно расширяя струю ----
+  if (random8(3) == 1) {
+    // LOG.println("<--");
+    for (uint8_t x = 1U; x < WIDTH; x++) {
+      if (trackingObjectHue[x] == hue) {
+        trackingObjectHue[x - 1] = hue;
+        break;
+      }
+    }
+  } else {
+    // LOG.println("-->");
+    for (uint8_t x = WIDTH - 1; x > 0U ; x--) {
+      if (trackingObjectHue[x] == hue) {
+        trackingObjectHue[x + 1] = hue;
+        break;
+      }
+      // LOG.printf_P(PSTR("x = %02d | value = %03d | hue = %03d \n\r"), x, trackingObjectHue[x], hue);
+    }
+  }
+  // LOG.println("------------------------------------");
+
+  // выводим сформированную строку --------------------- максимально яркую в момент смены цвета
+  for (uint8_t x = 0U; x < WIDTH; x++) {
+    //                                                                                set color  next |    last  |
+    drawPixelXY(x,  HEIGHT - 1, CHSV(trackingObjectHue[x], 255U, (trackingObjectHue[x] == hue) ? hue2 : deltaHue2));
+  }
+  //  LOG.println("");
+  // уменьшаем яркость для следующих строк
+  if ( hue2 > (deltaHue2 + 16)) {
+    hue2 -= 16U;
+  }
+  // сдвигаем неравномерно поток вниз ---
+  value = random16(max_val);
+  //LOG.printf_P(PSTR("value = %06d | "), value);
+  for (uint8_t x = 0U; x < WIDTH; x++) {
+    if ( bitRead(value, x ) == 0) {
+      //LOG.print (" X");
+      for (uint8_t y = 0U; y < HEIGHT - 1; y++) {
+        drawPixelXY(x, y, getPixColorXY(x, y + 1U));
+      }
+    }
+  }
+  // LOG.printf_P(PSTR("%02d | hue2 = %03d | min = %03d \n\r"), step, hue2, deltaHue2);
+  // -------------------------------------
+
+  step++;
+}
+
+
+// ============ Plasma Waves ============
+//              © Stepko
+//        Adaptation © alvikskor
+//             Плазмові Хвилі
+// --------------------------------------
+
+void Plasma_Waves() {
+  static int64_t frameCount = 0;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                     scale | speed
+      setModeSettings(random8(100U), random8(40, 200U));
+    }
+#endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    loadingFlag = false;
+    hue = modes[currentMode].Scale / 10;
+  }
+  FPSdelay = 1;//64 - modes[currentMode].Speed / 4;
+
+  frameCount++;
+  uint8_t t1 = cos8((42 * frameCount) / (132 - modes[currentMode].Speed / 2));
+  uint8_t t2 = cos8((35 * frameCount) / (132 - modes[currentMode].Speed / 2));
+  uint8_t t3 = cos8((38 * frameCount) / (132 - modes[currentMode].Speed / 2));
+
+  for (uint16_t y = 0; y < HEIGHT; y++) {
+    for (uint16_t x = 0; x < WIDTH; x++) {
+      // Calculate 3 seperate plasma waves, one for each color channel
+      uint8_t r = cos8((x << 3) + (t1 >> 1) + cos8(t2 + (y << 3) + modes[currentMode].Scale));
+      uint8_t g = cos8((y << 3) + t1 + cos8((t3 >> 2) + (x << 3)) +modes[currentMode].Scale);
+      uint8_t b = cos8((y << 3) + t2 + cos8(t1 + x + (g >> 2) + modes[currentMode].Scale));
+
+      switch (hue) {
+          case 0:
+              r = pgm_read_byte(&exp_gamma[r]);
+              g = pgm_read_byte(&exp_gamma[g]);
+              b = pgm_read_byte(&exp_gamma[b]);
+              break;
+          case 1:
+              r = pgm_read_byte(&exp_gamma[r]);
+              b = pgm_read_byte(&exp_gamma[g]);
+              g = pgm_read_byte(&exp_gamma[b]);
+              break;
+          case 2:
+              g = pgm_read_byte(&exp_gamma[r]);
+              r = pgm_read_byte(&exp_gamma[g]);
+              b = pgm_read_byte(&exp_gamma[b]);
+              break;
+          case 3:
+              r = pgm_read_byte(&exp_gamma[r])/2;
+              g = pgm_read_byte(&exp_gamma[g]);
+              b = pgm_read_byte(&exp_gamma[b]);
+              break;
+          case 4:
+              r = pgm_read_byte(&exp_gamma[r]);
+              g = pgm_read_byte(&exp_gamma[g])/2;
+              b = pgm_read_byte(&exp_gamma[b]);
+              break;
+          case 5:
+              r = pgm_read_byte(&exp_gamma[r]);
+              g = pgm_read_byte(&exp_gamma[g]);
+              b = pgm_read_byte(&exp_gamma[b])/2;
+              break;
+          case 6:
+              r = pgm_read_byte(&exp_gamma[r])*3;
+              g = pgm_read_byte(&exp_gamma[g]);
+              b = pgm_read_byte(&exp_gamma[b]);
+              break;
+          case 7:
+              r = pgm_read_byte(&exp_gamma[r]);
+              g = pgm_read_byte(&exp_gamma[g])*3;
+              b = pgm_read_byte(&exp_gamma[b]);
+              break;
+          case 8:
+              r = pgm_read_byte(&exp_gamma[r]);
+              g = pgm_read_byte(&exp_gamma[g]);
+              b = pgm_read_byte(&exp_gamma[b])*3;
+              break;
+
+      }
+      leds[XY(x, y)] = CRGB(r, g, b);
+    }
+  }
+}
+
+
+// =====================================
+//              RadialWave
+//            Радіальна хвиля
+//               © Stepko
+// =====================================
+
+void RadialWave() {
+
+  //ledsClear(); // esphome: FastLED.clear();
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random(10U, 101U), random(150U, 255U));
+    }
+#endif
+    loadingFlag = false;
+    for (int8_t x = -CENTER_X_MAJOR; x < CENTER_X_MAJOR + (WIDTH % 2); x++) {
+      for (int8_t y = -CENTER_Y_MAJOR; y < CENTER_Y_MAJOR + (HEIGHT % 2); y++) {
+        noise3d[0][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = (atan2(x, y) / PI) * 128 + 127; // thanks ldirko
+        noise3d[1][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = hypot(x, y); // thanks Sutaburosu
+      }
+    }
+  }
+
+  uint8_t legs = modes[currentMode].Scale / 10;
+  uint16_t color_speed;
+  step = modes[currentMode].Scale % 10;
+  if (step < 5) color_speed = scale / (3 - step/2);
+  else color_speed = scale * (step/2 - 1);
+  scale++;
+  for (uint8_t x = 0; x < WIDTH; x++) {
+    for (uint8_t y = 0; y < HEIGHT; y++) {
+      byte angle = noise3d[0][x][y];
+      byte radius = noise3d[1][x][y];
+      leds[XY(x, y)] = CHSV(color_speed + radius * (255 / WIDTH), 255, sin8(scale * 4 + sin8(scale * 4 - radius * (255 / WIDTH)) + angle * legs));
+    }
+  }
+}
+
+// ========== Botswana Rivers ===========
+//      © SlingMaster | by Alex Dovby
+//              EFF_RIVERS
+//            Реки Ботсваны
+
+//---------------------------------------
+void flora() {
+  uint32_t  FLORA_COLOR = 0x2F1F00;
+  uint8_t posX =  floor(CENTER_X_MINOR - WIDTH * 0.3);
+  uint8_t h =  random8(HEIGHT - 6U) + 4U;
+  DrawLine(posX + 1, 1U, posX + 1, h - 1, 0x000000);
+  DrawLine(posX + 2, 1U, posX + 2, h, FLORA_COLOR );
+  drawPixelXY(posX + 2, h - random8(floor(h * 0.5)), random8(2U) == 1 ? 0xFF00E0 :  random8(2U) == 1 ? 0xFFFF00 : 0x00FF00);
+  drawPixelXY(posX + 1, h - random8(floor(h * 0.25)), random8(2U) == 1 ? 0xFF00E0 : 0xFFFF00);
+  if (random8(2U) == 1) {
+    drawPixelXY(posX + 1, floor(h * 0.5), random8(2U) == 1 ? 0xEF001F :  0x9FFF00);
+  }
+  h =  floor(h * 0.65);
+  if (WIDTH > 8) {
+    DrawLine(posX - 1, 1U, posX - 1, h - 1, 0x000000);
+  }
+  DrawLine(posX, 1U, posX, h, FLORA_COLOR);
+  drawPixelXY(posX, h - random8(floor(h * 0.5)), random8(2U) == 1 ? 0xFF00E0 : 0xFFFF00);
+}
+
+//---------------------------------------
+void animeBobbles() {
+  // сдвигаем всё вверх ----
+  for (uint8_t x = CENTER_X_MAJOR; x < WIDTH; x++) {
+    for (uint8_t y = HEIGHT; y > 0U; y--) {
+      if (getPixColorXY(x, y - 1) == 0xFFFFF7) {
+        drawPixelXY(x, y, 0xFFFFF7);
+        drawPixelXY(x, y - 1, getPixColorXY(0, y - 1));
+      }
+    }
+  }
+  // ----------------------
+  if ( step % 4 == 0) {
+    drawPixelXY(CENTER_X_MAJOR + random8(5), 0U, 0xFFFFF7);
+    if ( step % 12 == 0) {
+      drawPixelXY(CENTER_X_MAJOR + 2 + random8(3), 0U, 0xFFFFF7);
+    }
+  }
+}
+
+//---------------------------------------
+void createScene(uint8_t idx) {
+  switch (idx) {
+    case 0:     // blue green ------
+      gradientDownTop(floor((HEIGHT - 1) * 0.5), CHSV(96, 255, 100), HEIGHT, CHSV(160, 255, 255));
+      gradientDownTop(0, CHSV(96, 255, 255), CENTER_Y_MINOR, CHSV(96, 255, 100));
+      break;
+    case 1:     // aquamarine green
+      gradientDownTop(floor((HEIGHT - 1) * 0.3), CHSV(96, 255, 100), HEIGHT, CHSV(130, 255, 220));
+      gradientDownTop(0, CHSV(96, 255, 255), floor(HEIGHT * 0.3), CHSV(96, 255, 100));
+      break;
+    case 2:     // blue aquamarine -
+      gradientDownTop(floor((HEIGHT - 1) * 0.5), CHSV(170, 255, 100), HEIGHT, CHSV(160, 255, 200));
+      gradientDownTop(0, CHSV(100, 255, 255), CENTER_Y_MINOR, CHSV(170, 255, 100));
+      break;
+    case 3:     // yellow green ----
+      gradientDownTop(floor((HEIGHT - 1) * 0.5), CHSV(95, 255, 55), HEIGHT, CHSV(70, 255, 200));
+      gradientDownTop(0, CHSV(95, 255, 255), CENTER_Y_MINOR, CHSV(100, 255, 55));
+      break;
+    case 4:     // sea green -------
+      gradientDownTop(floor((HEIGHT - 1) * 0.3), CHSV(120, 255, 55), HEIGHT, CHSV(175, 255, 200));
+      gradientDownTop(0, CHSV(120, 255, 255), floor(HEIGHT * 0.3), CHSV(120, 255, 55));
+      break;
+    default:
+      gradientDownTop(floor((HEIGHT - 1) * 0.25), CHSV(180, 255, 85), HEIGHT, CHSV(160, 255, 200));
+      gradientDownTop(0, CHSV(80, 255, 255), floor(HEIGHT * 0.25), CHSV(180, 255, 85));
+      break;
+  }
+  flora();
+}
+
+//---------------------------------------
+void createSceneM(uint8_t idx) {
+  switch (idx) {
+    case 0:     // blue green ------
+      gradientVertical(0, CENTER_Y_MINOR, WIDTH, HEIGHT, 96, 150, 100, 255, 255U);
+      gradientVertical(0, 0, WIDTH, CENTER_Y_MINOR, 96, 96, 255, 100, 255U);
+      break;
+    case 1:     // aquamarine green
+      gradientVertical(0, floor(HEIGHT  * 0.3), WIDTH, HEIGHT, 96, 120, 100, 220, 255U);
+      gradientVertical(0, 0, WIDTH, floor(HEIGHT  * 0.3), 96, 96, 255, 100, 255U);
+      break;
+    case 2:     // blue aquamarine -
+      gradientVertical(0, CENTER_Y_MINOR, WIDTH, HEIGHT, 170, 160, 100, 200, 255U);
+      gradientVertical(0, 0, WIDTH, CENTER_Y_MINOR, 100, 170, 255, 100, 255U);
+      break;
+    case 3:     // yellow green ----
+      gradientVertical(0, CENTER_Y_MINOR, WIDTH, HEIGHT, 95, 65, 55, 200, 255U);
+      gradientVertical(0, 0, WIDTH, CENTER_Y_MINOR, 95, 100, 255, 55, 255U);
+      break;
+    case 4:     // sea green -------
+      gradientVertical(0, floor(HEIGHT  * 0.3), WIDTH, HEIGHT, 120, 160, 55, 200, 255U);
+      gradientVertical(0, 0, WIDTH, floor(HEIGHT  * 0.3), 120, 120, 255, 55, 255U);
+      break;
+    default:
+      drawRec(0, 0, WIDTH, HEIGHT, 0x000050);
+      break;
+  }
+  flora();
+}
+
+//---------------------------------------
+void BotswanaRivers() {
+  // альтернативный градиент для ламп собраных из лент с вертикальной компоновкой
+  // для корректной работы ALT_GRADIENT = true
+  // для ламп из лент с горизонтальной компоновкой и матриц ALT_GRADIENT = false
+  // ALT_GRADIENT = false более производительный и более плавная растяжка
+  //------------------------------------------------------------------------------
+  static const bool ALT_GRADIENT = true;
+
+  uint8_t divider = 0;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                          scale | speed 210
+      setModeSettings(1U + random8(252U), 20 + random8(180U));
+    }
+#endif
+    loadingFlag = false;
+    deltaValue = 255U - modes[currentMode].Speed + 1U;
+    step = deltaValue;                                          // чтообы при старте эффекта сразу покрасить лампу
+    divider = floor((modes[currentMode].Scale - 1) / 20);       // маштаб задает смену палитры воды
+    if (ALT_GRADIENT) {
+      createSceneM(divider);
+    } else {
+      createScene(divider);
+    }
+  }
+
+  if (step >= deltaValue) {
+    step = 0U;
+  }
+
+  // restore scene after power on ---------
+  if (getPixColorXY(0U, HEIGHT - 2) == CRGB::Black) {
+    if (ALT_GRADIENT) {
+      createSceneM(divider);
+    } else {
+      createScene(divider);
+    }
+  }
+
+  // light at the bottom ------------------
+  if (!ALT_GRADIENT) {
+    if (step % 2 == 0) {
+      if (random8(6) == 1) {
+        //fill_gradient(leds, NUM_LEDS - WIDTH, CHSV(96U, 255U, 200U), NUM_LEDS, CHSV(50U, 255U, 255U), SHORTEST_HUES);
+        if (ORIENTATION < 3 || ORIENTATION == 7) {    // if (STRIP_DIRECTION < 2) {
+          fill_gradient(leds, 0, CHSV(96U, 255U, 190U), random8(WIDTH + random8(6)), CHSV(90U, 200U, 255U), SHORTEST_HUES);
+        } else {
+          fill_gradient(leds, NUM_LEDS - random8(WIDTH + random8(6)), CHSV(96U, 255U, 190U), NUM_LEDS, CHSV(90U, 200U, 255U), SHORTEST_HUES);
+        }
+      } else {
+        //fill_gradient(leds, NUM_LEDS - WIDTH, CHSV(50U, 128U, 255U), NUM_LEDS, CHSV(90U, 255U, 180U), SHORTEST_HUES);
+        if (ORIENTATION < 3 || ORIENTATION == 7) {    // if (STRIP_DIRECTION < 2) {
+          fill_gradient(leds, 0, CHSV(85U, 128U, 255U), random8(WIDTH), CHSV(90U, 255U, 180U), SHORTEST_HUES);
+        } else {
+          fill_gradient(leds, NUM_LEDS - random8(WIDTH), CHSV(85U, 128U, 255U), NUM_LEDS, CHSV(90U, 255U, 180U), SHORTEST_HUES);
+        }
+      }
+    }
+  }
+
+  // LOG.printf_P(PSTR("%02d | hue2 = %03d | min = %03d \n\r"), step, hue2, deltaHue2);
+  // -------------------------------------
+  animeBobbles();
+  if (custom_eff == 1) {
+    blurRows(leds, WIDTH, 3U, 10U);
+    // blurScreen(beatsin8(0U, 5U, 0U));
+  }
+  step++;
+}
+
+// ============ Spectrum New ==============
+//             © SlingMaster
+//         source code © kostyamat
+//                Spectrum
+//---------------------------------------
+void  Spectrum() {
+  //static const byte COLOR_RANGE = 32;
+  static uint8_t customHue;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random8(1, 100U), random8(215, 255U) );
+    }
+#endif // #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
+    loadingFlag = false;
+    ff_y = map(WIDTH, 8, 64, 310, 63);
+    ff_z = ff_y;
+    speedfactor = map(modes[currentMode].Speed, 1, 255, 32, 4); // _speed = map(speed, 1, 255, 128, 16);
+    customHue = floor( modes[currentMode].Scale - 1U) * 2.55;
+    ledsClear(); // esphome: FastLED.clear();
+  }
+  uint8_t color = customHue + hue;
+  if (modes[currentMode].Scale >= 99) {
+    if (hue2++ & 0x01 && deltaHue++ & 0x01 && deltaHue2++ & 0x01) hue += 8;
+    fillMyPal16_2(customHue + hue, modes[currentMode].Scale & 0x01);
+  } else {
+    color = customHue;
+    fillMyPal16_2(customHue + AURORA_COLOR_RANGE - beatsin8(AURORA_COLOR_PERIOD, 0U, AURORA_COLOR_RANGE * 2), modes[currentMode].Scale & 0x01);
+  }
+
+  for (byte x = 0; x < WIDTH; x++) {
+    if (x % 2 == 0) {
+      leds[XY(x, 0)] = CHSV( color, 255U, 128U);
+    }
+
+    emitterX = ((random8(2) == 0U) ? 545. : 390.) / HEIGHT;
+    for (byte y = 2; y < HEIGHT - 1; y++) {
+      polarTimer++;
+      leds[XY(x, y)] =
+        ColorFromPalette(myPal,
+                         qsub8(
+                           inoise8(polarTimer % 2 + x * ff_z,
+                                   y * 16 + polarTimer % 16,
+                                   polarTimer / speedfactor
+                                  ),
+                           fabs((float)HEIGHT / 2 - (float)y) * emitterX
+                         )
+                        ) ;
+    }
+  }
+}
+
+
+// =====================================
+//            Строб Хаос Дифузия
+//          Strobe Haos Diffusion
+//             © SlingMaster
+// =====================================
+/*должен быть перед эффектом Матрицf бегунок Скорость не регулирует задержку между кадрами,
+  но меняет частоту строба*/
+void StrobeAndDiffusion() {
+  //const uint8_t SIZE = 3U;
+  const uint8_t DELTA = 1U;         // центровка по вертикали
+  uint8_t STEP = 2U;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(1U + random8(100U), 1U + random8(150U));
+    }
+#endif
+    loadingFlag = false;
+    FPSdelay = 25U; // LOW_DELAY;
+    hue2 = 1;
+    ledsClear(); // esphome: FastLED.clear();
+  }
+
+  STEP = floor((255 - modes[currentMode].Speed) / 64) + 1U; // for strob
+  if (modes[currentMode].Scale > 50) {
+    // diffusion ---
+    blurScreen(beatsin8(3, 64, 80));
+    FPSdelay = LOW_DELAY;
+    STEP = 1U;
+    if (modes[currentMode].Scale < 75) {
+      // chaos ---
+      FPSdelay = 30;
+      VirtualSnow(1);
+    }
+
+  } else {
+    // strob -------
+    if (modes[currentMode].Scale > 25) {
+      dimAll(200);
+      FPSdelay = 30;
+    } else {
+      dimAll(240);
+      FPSdelay = 40;
+    }
+  }
+
+  const uint8_t rows = (HEIGHT + 1) / 3U;
+  deltaHue = floor(modes[currentMode].Speed / 64) * 64;
+  bool dir = false;
+  for (uint8_t y = 0; y < rows; y++) {
+    if (dir) {
+      if ((step % STEP) == 0) {   // small layers
+        drawPixelXY(WIDTH - 1, y * 3 + DELTA, CHSV(step, 255U, 255U ));
+      } else {
+        drawPixelXY(WIDTH - 1, y * 3 + DELTA, CHSV(170U, 255U, 1U));
+      }
+    } else {
+      if ((step % STEP) == 0) {   // big layers
+        drawPixelXY(0, y * 3 + DELTA, CHSV((step + deltaHue), 255U, 255U));
+      } else {
+        drawPixelXY(0, y * 3 + DELTA, CHSV(0U, 255U, 0U));
+      }
+    }
+
+    // сдвигаем слои  ------------------
+    for (uint8_t x = 1U ; x < WIDTH; x++) {
+      if (dir) {  // <==
+        drawPixelXY(x - 1, y * 3 + DELTA, getPixColorXY(x, y * 3 + DELTA));
+      } else {    // ==>
+        drawPixelXY(WIDTH - x, y * 3 + DELTA, getPixColorXY(WIDTH - x - 1, y * 3 + DELTA));
+      }
+    }
+    dir = !dir;
+  }
+
+  if (hue2 == 1) {
+    step ++;
+    if (step >= 254) hue2 = 0;
+  } else {
+    step --;
+    if (step < 1) hue2 = 1;
+  }
+}
+
+
+// ============== Spindle ==============
+//             © SlingMaster
+//          adapted © alvikskor
+//               Веретено
+// =====================================
+void Spindle() {
+  static bool dark;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random8(1U, 100U), random8(100U, 255U));
+    }
+#endif
+    loadingFlag = false;
+    hue = random8(8) * 32; // modes[currentMode].Scale;
+    hue2 = 255U;
+    dark = modes[currentMode].Scale < 76U;
+  }
+
+  if  (modes[currentMode].Scale < 81) {
+    blurScreen(128U);
+  } else 
+   if  (modes[currentMode].Scale < 86) {
+    blurScreen(96U);
+  } else 
+  if  (modes[currentMode].Scale < 91) {
+    blurScreen(64U);
+  } else 
+   if  (modes[currentMode].Scale < 96) {
+    blurScreen(32U);
+   }
+
+  // <==== scroll ===== 
+  for (uint8_t y = 0U ; y < HEIGHT; y++) {
+    for (uint8_t x = 0U ; x < WIDTH - 1; x++) {
+      hue2--;
+      if (dark) {   // black delimiter -----
+        drawPixelXY(WIDTH - 1, y, CHSV(hue, 255, hue2));
+      } else {      // white delimiter -----
+        drawPixelXY(WIDTH - 1, y, CHSV(hue, 64 + hue2 / 2, 255 - hue2 / 4));
+      }
+      drawPixelXY(x, y,  getPixColorXY(x + 1,  y));
+    }
+  }
+  if (modes[currentMode].Scale < 56) {
+
+    return;
+  }
+  if (modes[currentMode].Scale < 61) {
+    hue += 1;
+  } else 
+  if (modes[currentMode].Scale < 66) {
+    hue += 2;
+  } else 
+  if (modes[currentMode].Scale < 71) {
+    hue += 3;
+  } else 
+    if (modes[currentMode].Scale < 76) {
+      hue += 4;
+  } else {
+      hue += 3;
+    }
+}
+
+// ============== Swirl ================
+//    © SlingMaster | by Alex Dovby
+//              EFF_SWIRL
+//--------------------------------------
+void Swirl() {
+    
+  if (modes[currentMode].Scale > 50) Spindle(); // Якщо масштаб/колір більше 50 - тоді єфект "Веретено"
+  else {
+    
+  uint8_t divider = 0;
+  uint8_t lastHue = 0;
+  static const uint32_t colors[5][6] PROGMEM = {
+    {CRGB::Blue, CRGB::DarkRed, CRGB::Aqua, CRGB::Magenta, CRGB::Gold, CRGB::Green },
+    {CRGB::Yellow, CRGB::LemonChiffon, CRGB::LightYellow, CRGB::Gold, CRGB::Chocolate, CRGB::Goldenrod},
+    {CRGB::Green, CRGB::DarkGreen, CRGB::LawnGreen, CRGB::SpringGreen, CRGB::Cyan, CRGB::Black },
+    {CRGB::Blue, CRGB::DarkBlue, CRGB::MidnightBlue, CRGB::MediumSeaGreen, CRGB::MediumBlue, CRGB:: DeepSkyBlue },
+    {CRGB::Magenta, CRGB::Red, CRGB::DarkMagenta, CRGB::IndianRed, CRGB::Gold, CRGB::MediumVioletRed }
+  };
+  uint32_t color;
+
+  if (loadingFlag) {
+
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(50U + random8(190U), 250U);
+    }
+#endif
+    loadingFlag = false;
+    ledsClear(); // esphome: FastLED.clear();
+    deltaValue = 255U - modes[currentMode].Speed + 1U;
+    step = deltaValue;                      // чтообы при старте эффекта сразу покрасить лампу
+    deltaHue2 = 0U;                         // count для замедления смены цвета
+    deltaHue = 0U;                          // direction | 0 hue-- | 1 hue++ |
+    hue2 = 0U;                              // x
+  }
+
+  if (step >= deltaValue) {
+    step = 0U;
+  }
+  divider = floor((modes[currentMode].Scale - 1) / 20); // маштаб задает смену палитры
+  //  if (deltaValue > 50U && deltaHue2 == 0U) {
+  //    hue = random8(6);                       // если низкая скорость меняем цвет после каждого витка
+  //  }
+  // задаем цвет и рисуем завиток --------
+  color = colors[divider][hue];
+  // drawPixelXY((hue2 + 1), (deltaHue2 - 1), 0x000000); // aded shadow
+  drawPixelXY(hue2, deltaHue2, color);
+  // LOG.printf_P(PSTR("Swirl | hue = %03d | x= %03d | y= %03d | divider %d | %d\n"), hue, hue2, deltaHue2, divider, step);
+  // -------------------------------------
+
+  hue2++;                     // x
+  // два варианта custom_eff задается в сетапе лампы ----
+  if (custom_eff == 1) {
+    // blurScreen(beatsin8(5U, 20U, 5U));
+    deltaHue2++;              // y
+  } else {
+    // blurScreen(10U);
+    if (hue2 % 2 == 0) {
+      deltaHue2++;            // y
+    }
+  }
+  // -------------------------------------
+
+  if  (hue2 > WIDTH) {
+    hue2 = 0U;
+  }
+
+  if (deltaHue2 >= HEIGHT) {
+    deltaHue2 = 0U;
+    // new swirl ------------
+    hue2 = random8(WIDTH - 2);
+    // hue2 = hue2 + 2;
+    // select new color -----
+    hue = random8(6);
+
+    if (lastHue == hue) {
+      hue = hue + 1;
+      if (hue >= 6) {
+        hue = 0;
+      }
+    }
+    lastHue = hue;
+  }
+  // blurScreen(beatsin8(5U, 20U, 5U));
+  blurScreen(4U + random8(8));
+  step++;
+  } // else у пачатку функції
+}
+
+
+// =====================================
+//           Rainbow Tornado
+//  base code © Stepko, © Sutaburosu
+//        and © SlingMaster
+//   adapted and modifed © alvikskor
+//              Торнадо
+// =====================================
+
+  const byte OFFSET = 1U;
+  const uint8_t H = HEIGHT - OFFSET;
+  
+void Tornado() {
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random8(100U, 255U), random8(20U, 100U));
+    }
+#endif
+    //scale = 1;
+    loadingFlag = 0;
+
+    //ledsClear(); // esphome: FastLED.clear();
+    for (int8_t x = -CENTER_X_MAJOR; x < CENTER_X_MAJOR; x++) {
+      for (int8_t y = -OFFSET; y < H; y++) {
+        noise3d[0][x + CENTER_X_MAJOR][y + OFFSET] = 128 * (atan2(y, x) / PI);
+        noise3d[1][x + CENTER_X_MAJOR][y + OFFSET] = hypot(x, y);                    // thanks Sutaburosu
+      }
+    }
+  }
+  scale += modes[currentMode].Speed / 10;
+  for (uint8_t x = 0; x < WIDTH; x++) {
+    for (uint8_t y = 0; y < HEIGHT; y++) {
+      byte angle = noise3d[0][x][y];
+      byte radius = noise3d[1][x][y];
+      leds[XY(x, y)] = CHSV((angle * modes[currentMode].Scale / 10) - scale + (radius * modes[currentMode].Scale / 10), min(((uint16_t)y*512U/(uint16_t)HEIGHT),255U), (y < (HEIGHT/8) ? 255 - (((HEIGHT/8) - y) * 16) : 255));
+    }
+  }
+}
+
+
+// ============ Watercolor ==============
+//      © SlingMaster | by Alex Dovby
+//            EFF_WATERCOLOR
+//               Акварель
+//---------------------------------------
+void SmearPaint(uint8_t obj[trackingOBJECT_MAX_COUNT]) {
+  uint8_t divider;
+  int temp;
+  static const uint32_t colors[6][8] PROGMEM = {
+    {0x2F0000,  0xFF4040, 0x6F0000, 0xAF0000, 0xff5f00, CRGB::Red, 0x480000, 0xFF0030},
+    {0x002F00, CRGB::LawnGreen, 0x006F00, 0x00AF00, CRGB::DarkMagenta, 0x00FF00, 0x004800, 0x00FF30},
+    {0x002F1F, CRGB::DarkCyan, 0x00FF7F, 0x007FFF, 0x20FF5F, CRGB::Cyan, 0x004848, 0x7FCFCF },
+    {0x00002F, 0x5030FF, 0x00006F, 0x0000AF, CRGB::DarkCyan, 0x0000FF, 0x000048, 0x5F5FFF},
+    {0x2F002F, 0xFF4040, 0x6F004A, 0xFF0030, CRGB::DarkMagenta, CRGB::Magenta, 0x480048, 0x3F00FF},
+    {CRGB::Blue, CRGB::Red, CRGB::Gold, CRGB::Green, CRGB::DarkCyan, CRGB::DarkMagenta, 0x000000, 0xFF7F00 }
+  };
+  if (trackingObjectHue[5] == 1) {  // direction >>>
+    obj[1]++;
+    if (obj[1] >= obj[2]) {
+      trackingObjectHue[5] = 0;     // swap direction
+      obj[3]--;                     // new line
+      if (step % 2 == 0) {
+        obj[1]++;
+      } else {
+        obj[1]--;
+      }
+
+      obj[0]--;
+    }
+  } else {                          // direction <<<
+    obj[1]--;
+    if (obj[1] <= (obj[2] - obj[0])) {
+      trackingObjectHue[5] = 1;     // swap direction
+      obj[3]--;                     // new line
+      if (obj[0] >= 1) {
+        temp = obj[0] - 1;
+        if (temp < 0) {
+          temp = 0;
+        }
+        obj[0] = temp;
+        obj[1]++;
+      }
+    }
+  }
+
+  if (obj[3] == 255) {
+    deltaHue = 255;
+  }
+
+  divider = floor((modes[currentMode].Scale - 1) / 16.7);
+  if ( (obj[1] >= WIDTH) || (obj[3] == obj[4]) ) {
+    // deltaHue value == 255 activate -------
+    // set new parameter for new smear ------
+    deltaHue = 255;
+  }
+  drawPixelXY(obj[1], obj[3], colors[divider][hue]);
+
+  // alternative variant without dimmer effect
+  // uint8_t h = obj[3] - obj[4];
+  // uint8_t br = 266 - 12 * h;
+  // if (h > 0) {
+  // drawPixelXY(obj[1], obj[3], makeDarker(colors[divider][hue], br));
+  // } else {
+  // drawPixelXY(obj[1], obj[3], makeDarker(colors[divider][hue], 240));
+  // }
+}
+
+
+
+//---------------------------------------
+void Watercolor() {
+  // #define DIMSPEED (254U - 500U / WIDTH / HEIGHT)
+  //uint8_t divider;
+  if (loadingFlag) {
+
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                          scale | speed 250
+      setModeSettings(1U + random8(252U), 1 + random8(250U));
+    }
+#endif
+    loadingFlag = false;
+    ledsClear(); // esphome: FastLED.clear();
+    deltaValue = 255U - modes[currentMode].Speed + 1U;
+    step = deltaValue;                    // чтообы при старте эффекта сразу покрасить лампу
+    hue = 0;
+    deltaHue = 255;                       // last color
+    trackingObjectHue[1] = floor(WIDTH * 0.25);
+    trackingObjectHue[3] = floor(HEIGHT * 0.25);
+  }
+
+  if (step >= deltaValue) {
+    step = 0U;
+    // LOG.printf_P(PSTR("%03d | log: %f | val: %03d | divider: %d \n\r"), modes[currentMode].Brightness, log(modes[currentMode].Brightness), deltaHue2, divider);
+  }
+
+  // ******************************
+  // set random parameter for smear
+  // ******************************
+  if (deltaHue == 255) {
+
+    trackingObjectHue[0] = 4 + random8(floor(WIDTH * 0.25));                // width
+    trackingObjectHue[1] = random8(WIDTH - trackingObjectHue[0]);           // x
+    int temp =  trackingObjectHue[1] + trackingObjectHue[0];
+    if (temp >= (WIDTH - 1)) {
+      temp = WIDTH - 1;
+      if (trackingObjectHue[1] > 1) {
+        trackingObjectHue[1]--;
+      } else {
+        trackingObjectHue[1]++;
+      }
+    }
+    trackingObjectHue[2] = temp;                                            // x end
+    trackingObjectHue[3] = 3 + random8(HEIGHT - 4);                         // y
+    temp = trackingObjectHue[3] - random8(3) - 3;
+    if (temp <= 0) {
+      temp = 0;
+    }
+    trackingObjectHue[4] = temp;                                            // y end
+    trackingObjectHue[5] = 1;
+    //divider = floor((modes[currentMode].Scale - 1) / 16.7);                 // маштаб задает смену палитры
+    hue = random8(8);
+    //    if (step % 127 == 0) {
+    //      LOG.printf_P(PSTR("BR %03d | SP %03d | SC %03d | divider %d | [ %d ]\n\r"), modes[currentMode].Brightness, modes[currentMode].Speed, modes[currentMode].Scale, divider, hue);
+    //    }
+    hue2 = 255;
+    deltaHue = 0;
+  }
+  // ******************************
+  SmearPaint(trackingObjectHue);
+
+  // LOG.printf_P(PSTR("%02d | hue2 = %03d | min = %03d \n\r"), step, hue2, deltaHue2);
+  // -------------------------------------
+  //  if (custom_eff == 1) {
+  // dimAll(DIMSPEED);
+  if (step % 2 == 0) {
+    blurScreen(beatsin8(1U, 1U, 6U));
+    // blurRows(leds, WIDTH, 3U, 10U);
+  }
+  //  }
+  step++;
+}
+
+
+// =====================================
+//             Мечта Дизайнера
+//                WebTools
+//             © SlingMaster
+// =====================================
+/* --------------------------------- */
+int getRandomPos(uint8_t STEP) {
+  uint8_t val = floor(random(0, (STEP * 16 - WIDTH - 1)) / STEP) * STEP;
+  return -val;
+}
+
+/* --------------------------------- */
+int getHue(uint8_t x, uint8_t y) {
+  return ( x * 32 +  y * 24U );
+}
+
+/* --------------------------------- */
+uint8_t getSaturationStep() {
+  return (modes[currentMode].Speed > 170U) ? ((HEIGHT > 24) ? 12 : 24) : 0;
+}
+
+/* --------------------------------- */
+uint8_t getBrightnessStep() {
+  return (modes[currentMode].Speed < 85U) ? ((HEIGHT > 24) ? 16 : 24) : 0;
+}
+
+/* --------------------------------- */
+void drawPalette(int posX, int posY, uint8_t STEP) {
+  int PX, PY;
+  const uint8_t SZ = STEP - 1;
+  const uint8_t maxY = floor(HEIGHT / SZ);
+  uint8_t sat = getSaturationStep();
+  uint8_t br  = getBrightnessStep();
+
+  ledsClear(); // esphome: FastLED.clear();
+  for (uint8_t y = 0; y < maxY; y++) {
+    for (uint8_t x = 0; x < 16; x++) {
+      PY = y * STEP;
+      PX = posX + x * STEP;
+      if ((PX >= - STEP ) && (PY >= - STEP) && (PX < WIDTH) && (PY < HEIGHT)) {
+        // LOG.printf_P(PSTR("y: %03d | br • %03d | sat • %03d\n"), y, (240U - br * y), sat);
+        drawRecCHSV(PX, PY, PX + SZ, PY + SZ, CHSV( getHue(x, y), (255U - sat * y), (240U - br * y)));
+      }
+    }
+  }
+}
+
+/* --------------------------------- */
+void selectColor(uint8_t sc) {
+  uint8_t offset = (WIDTH >= 16) ? WIDTH * 0.25 : 0;
+  hue = getHue(random(offset, WIDTH - offset), random(HEIGHT));
+  uint8_t sat = getSaturationStep();
+  uint8_t br  = getBrightnessStep();
+
+  for (uint8_t y = 0; y < HEIGHT; y++) {
+    for (uint8_t x = offset; x < (WIDTH - offset); x++) {
+      CHSV curColor = CHSV(hue, (255U - sat * y), (240U - br * y));
+      if (curColor == getPixColorXY(x, y)) {
+        /* show srlect color */
+        drawRecCHSV(x, y, x + sc, y + sc, CHSV( hue, 64U, 255U));
+        // ajs: FastLED.show();
+        // ajs: delay(400);
+        drawRecCHSV(x, y, x + sc, y + sc, CHSV( hue, 255U, 255U));
+        y = HEIGHT;
+        x = WIDTH;
+      }
+    }
+  }
+}
+
+/* --------------------------------- */
+void WebTools() {
+  const uint8_t FPS_D = 24U;
+  static uint8_t STEP = 3U;
+  static int posX = -STEP;
+  static int posY = 0;
+  static int nextX = -STEP * 2;
+  static bool stop_moving = true;
+  uint8_t speed =modes[currentMode].Speed > 65U ? modes[currentMode].Speed : 65U;   //constrain (modes[currentMode].Speed, 65, 255);
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+       setModeSettings(random(10U, 90U), random(10U, 255U));
+    }
+#endif
+    loadingFlag = false;
+    FPSdelay = 1U;
+    step = 0;
+    STEP = 2U + floor(modes[currentMode].Scale / 35);
+    posX = 0;
+    posY = 0;
+    drawPalette(posX, posY, STEP);
+  }
+  /* auto scenario */
+  //switch (step) {
+    if (step == 0){     /* restart ----------- */
+      nextX = 0;
+      FPSdelay = FPS_D;
+    }
+    else 
+    if (step == speed/16+1){    /* start move -------- 16*/
+      nextX = getRandomPos(STEP);
+      FPSdelay = FPS_D;
+    }
+    else
+    if (step == speed/10+1){    /* find --------------100 */
+      nextX = getRandomPos(STEP);
+      FPSdelay = FPS_D;
+    }
+    else
+    if (step == speed/7+1){    /* find 2 ----------- 150*/
+      nextX = getRandomPos(STEP);
+      FPSdelay = FPS_D;
+    }
+    else
+    if (step == speed/6+1){    /* find 3 -----------200 */
+      nextX = - STEP * random(4, 8);
+      // nextX = getRandomPos(STEP);
+      FPSdelay = FPS_D;
+    }
+    else
+    if (step == speed/5+1){   /* select color ------220 */
+      FPSdelay = 200U;
+      selectColor(STEP - 1);
+    }
+    else
+    if (step == speed/4+1){   /* show color -------- 222*/
+      FPSdelay = FPS_D;
+      nextX = WIDTH;
+    }
+    else
+    if (step == speed/4+3){
+      step = 252;
+    }
+    
+  //}
+  if (posX < nextX) posX++;
+  if (posX > nextX) posX--;
+
+  if (stop_moving)   {
+    FPSdelay = 80U;
+    step++;
+  } else {
+    drawPalette(posX, posY, STEP);
+    if ((nextX == WIDTH) || (nextX == 0)) {
+      /* show select color bar gradient */
+      // LOG.printf_P(PSTR("step: %03d | Next x: %03d • %03d | fps %03d\n"), step, nextX, posX, FPSdelay);
+      if (posX > 1) {
+        gradientHorizontal(0, 0, (posX - 1), HEIGHT, hue, hue, 255U, 96U, 255U);
+      }
+      if (posX > 3) DrawLine(posX - 3, CENTER_Y_MINOR, posX - 3, CENTER_Y_MAJOR, CHSV( hue, 192U, 255U));
+    }
+  }
+
+  stop_moving = (posX == nextX); 
+}
+
+// =============== Wine ================
+//    © SlingMaster | by Alex Dovby
+//               EFF_WINE
+//--------------------------------------
+
+void colorsWine() {
+  uint8_t divider;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(20U + random8(200U), 200U);
+    }
+#endif
+    loadingFlag = false;
+    fillAll(CHSV(55U, 255U, 65U));
+    deltaValue = 255U - modes[currentMode].Speed + 1U;
+    // minspeed 230 maxspeed 250 ============
+    // minscale  40 maxscale  75 ============
+    // красное вино hue > 0 & <=10
+    // розовое вино hue > 10 & <=20
+    // белое вино   hue > 20U & <= 40
+    // шампанское   hue > 40U & <= 60
+
+    deltaHue2 = 0U;                         // count для замедления смены цвета
+    step = deltaValue;                      // чтообы при старте эффекта сразу покрасить лампу
+    deltaHue = 1U;                          // direction | 0 hue-- | 1 hue++ |
+    hue = 55U;                              // Start Color
+    hue2 = 65U;                             // Brightness
+    pcnt = 0;
+  }
+
+  deltaHue2++;
+  // маштаб задает скорость изменения цвета 5 уровней
+  divider = 5 - floor((modes[currentMode].Scale - 1) / 20);
+
+  // возвращаем яркость для перехода к белому
+  if (hue >= 10 && hue2 < 100U) {
+    hue2++;
+  }
+  // уменьшаем яркость для красного вина
+  if (hue < 10 && hue2 > 40U) {
+    hue2--;
+  }
+
+  // изменение цвета вина -----
+  if (deltaHue == 1U) {
+    if (deltaHue2 % divider == 0) {
+      hue++;
+    }
+  } else {
+    if (deltaHue2 % divider == 0) {
+      hue--;
+    }
+  }
+  // --------
+
+  // LOG.printf_P(PSTR("Wine | hue = %03d | Dir = %d | Brightness %03d | deltaHue2 %03d | divider %d | %d\n"), hue, deltaHue, hue2, deltaHue2, divider, step);
+
+  // сдвигаем всё вверх -----------
+  for (uint8_t x = 0U; x < WIDTH; x++) {
+    for (uint8_t y = HEIGHT; y > 0U; y--) {
+      drawPixelXY(x, y, getPixColorXY(x, y - 1U));
+    }
+  }
+
+  if (hue > 40U) {
+    // добавляем перляж для шампанского
+    pcnt = random(0, WIDTH);
+  } else {
+    pcnt = 0;
+  }
+
+  // заполняем нижнюю строку с учетом перляжа
+  for (uint8_t x = 0U; x < WIDTH; x++) {
+    if ((x == pcnt) && (pcnt > 0)) {
+      // с перляжем ------
+      drawPixelXY(x, 0U, CHSV(hue, 150U, hue2 + 20U + random(0, 50U)));
+    } else {
+      drawPixelXY(x, 0U, CHSV(hue, 255U, hue2));
+    }
+  }
+
+  // меняем направление изменения цвета вина от красного к шампанскому и обратно
+  // в диапазоне шкалы HUE |0-60|
+  if  (hue == 0U) {
+    deltaHue = 1U;
+  }
+  if (hue == 60U) {
+    deltaHue = 0U;
+  }
+  step++;
+}
+
+// ============== Ukraine ==============
+//      © SlingMaster | by Alex Dovby
+//              EFF_UKRAINE
+//--------------------------------------
+
+// -------------------------------------------
+// for effect Ukraine
+// -------------------------------------------
+void drawCrest() {
+  static const uint32_t data[9][5] PROGMEM = {
+    {0x000000, 0x000000, 0xFFD700, 0x000000, 0x000000 },
+    {0xFFD700, 0x000000, 0xFFD700, 0x000000, 0xFFD700 },
+    {0xFFD700, 0x000000, 0xFFD700, 0x000000, 0xFFD700 },
+    {0xFFD700, 0x000000, 0xFFD700, 0x000000, 0xFFD700 },
+    {0xFFD700, 0x000000, 0xFFD700, 0x000000, 0xFFD700 },
+    {0xFFD700, 0xFFD700, 0xFFD700, 0xFFD700, 0xFFD700 },
+    {0xFFD700, 0x000000, 0xFFD700, 0x000000, 0xFFD700 },
+    {0x000000, 0xFFD700, 0xFFD700, 0xFFD700, 0x000000 },
+    {0x000000, 0x000000, 0xFFD700, 0x000000, 0x000000 }
+  };
+
+  uint8_t posX = CENTER_X_MAJOR - 3;
+  uint8_t posY = 9;
+  uint32_t color;
+  if (HEIGHT > 16) {
+    posY = CENTER_Y_MINOR - 1;
+  }
+  ledsClear(); // esphome: FastLED.clear();
+  for (uint8_t y = 0U; y < 9; y++) {
+    for (uint8_t x = 0U; x < 5; x++) {
+      color = data[y][x];
+      drawPixelXY(posX + x, posY - y, color);
+    }
+  }
+}
+
+void Ukraine() {
+  uint8_t divider;
+  uint32_t color;
+  //static const uint16_t MAX_TIME = 500;
+  uint16_t tMAX = 100;
+  static const uint8_t timeout = 100;
+  static const uint32_t colors[2][5] = {
+    {CRGB::Blue, CRGB::MediumBlue, 0x0F004F, 0x02002F, 0x1F2FFF },
+    {CRGB::Yellow, CRGB::Gold, 0x4E4000, 0xFF6F00, 0xFFFF2F }
+  };
+
+  // Initialization =========================
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                     scale | speed
+      setModeSettings(random8(250U), 200U + random8(50U));
+    }
+#endif
+    loadingFlag = false;
+    drawCrest();
+    // minspeed 200 maxspeed 250 ============
+    // minscale   0 maxscale 100 ============
+    deltaValue = 255U - modes[currentMode].Speed + 1U;
+    step = deltaValue;                        // чтообы при старте эффекта сразу покрасить лампу
+    deltaHue2 = 0U;                           // count для замедления смены цвета
+    deltaHue = 0U;                            // direction | 0 hue-- | 1 hue++ |
+    hue2 = 0U;                                // Brightness
+    ff_x = 1U;                                // counter
+    tMAX = 100U;                              // timeout
+  }
+  divider = floor((modes[currentMode].Scale - 1) / 10); // маштаб задает режим рестарта
+  tMAX = timeout + 100 * divider;
+
+  if ((ff_x > timeout - 10) && (ff_x < timeout)) { // таймаут блокировки отрисовки флага
+    if (ff_x < timeout - 5) {                  // размытие тризуба
+      blurScreen(beatsin8(5U, 60U, 5U));
+    } else {
+      blurScreen(210U - ff_x);
+    }
+  }
+
+  if (ff_x > tMAX) {
+    if (divider == 0U) {                       // отрисовка тризуба только раз
+      ff_x = 0U;
+      tMAX += 20;
+    } else {
+      if (ff_x > tMAX + 100U * divider) {      // рестар эффект
+        drawCrest();
+        ff_x = 1U;
+      }
+    }
+  }
+  if ((ff_x != 0U) || (divider > 0)) {
+    ff_x++;
+  }
+
+  // Flag Draw =============================
+  if ((ff_x > timeout) || (ff_x == 0U))  {     // отрисовка флага
+    if (step >= deltaValue) {
+      step = 0U;
+      hue2 = random8(WIDTH - 2);               // случайное смещение мазка по оси Y
+      hue = random8(5);                        // flag color
+      // blurScreen(dim8_raw(beatsin8(3, 64, 100)));
+      // blurScreen(beatsin8(5U, 60U, 5U));
+      // dimAll(200U);
+    }
+    if (step % 8 == 0 && modes[currentMode].Speed > 230) {
+      blurScreen(beatsin8(5U, 5U, 72U));
+    }
+    hue2++;                                    // x
+    deltaHue2++;                               // y
+
+    if (hue2 >= WIDTH) {
+      if (deltaHue2 > HEIGHT - 2 ) {           // если матрица высокая дорисовываем остальные мазки
+        deltaHue2 = random8(5);                // изменяем положение по Y только отрисовав весь флаг
+      }
+      if (step % 2 == 0) {
+        hue2 = 0U;
+      } else {
+        hue2 = random8(WIDTH);                 // смещение первого мазка по оси X
+      }
+    }
+
+    if (deltaHue2 >= HEIGHT) {
+      deltaHue2 = 0U;
+      if (deltaValue > 200U) {
+        hue = random8(5);                      // если низкая скорость меняем цвет после каждого витка
+      }
+    }
+
+    if (deltaHue2 > floor(HEIGHT / 2) - 1) {    // меняем цвет для разных частей флага
+      color = colors[0][hue];
+    } else {
+      color = colors[1][hue];
+    }
+
+    // LOG.printf_P(PSTR("color = %08d | hue2 = %d | speed = %03d | custom_eff = %d\n"), color, hue2, deltaValue, custom_eff);
+    drawPixelXY(hue2, deltaHue2, color);
+    // ----------------------------------
+    step++;
+  }
 }

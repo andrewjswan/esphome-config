@@ -820,6 +820,256 @@ effects:
         matrix_lamp.ShowFrame(EFF_RAINBOW_VER, current_color, &it);
 
   - addressable_lambda:
+      name: Christmas Tree
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Christmas Tree");
+        }
+        matrix_lamp.ShowFrame(EFF_CHRISTMAS_TREE, current_color, &it);
+
+  - addressable_lambda:
+      name: By Effect
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "By Effect");
+        }
+        matrix_lamp.ShowFrame(EFF_BY_EFFECT, current_color, &it);
+
+  - addressable_lambda:
+      name: Color Frizzles
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Color Frizzles");
+        }
+        matrix_lamp.ShowFrame(EFF_COLOR_FRIZZLES, current_color, &it);
+
+  - addressable_lambda:
+      name: Colored Python
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Colored Python");
+        }
+        matrix_lamp.ShowFrame(EFF_COLORED_PYTHON, current_color, &it);
+
+  - addressable_lambda:
+      name: Contacts
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Contacts");
+        }
+        matrix_lamp.ShowFrame(EFF_CONTACTS, current_color, &it);
+
+  - addressable_lambda:
+      name: Drop in Water
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Drop in Water");
+        }
+        matrix_lamp.ShowFrame(EFF_DROP_IN_WATER, current_color, &it);
+
+  - addressable_lambda:
+      name: Firework
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Firework");
+        }
+        matrix_lamp.ShowFrame(EFF_FIREWORK, current_color, &it);
+
+  - addressable_lambda:
+      name: Firework II
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Firework II");
+        }
+        matrix_lamp.ShowFrame(EFF_FIREWORK_2, current_color, &it);
+
+  - addressable_lambda:
+      name: Hourglass
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Hourglass");
+        }
+        matrix_lamp.ShowFrame(EFF_HOURGLASS, current_color, &it);
+
+  - addressable_lambda:
+      name: Lotus
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Lotus");
+        }
+        matrix_lamp.ShowFrame(EFF_LOTUS, current_color, &it);
+
+  - addressable_lambda:
+      name: Magic Lantern
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Magic Lantern");
+        }
+        matrix_lamp.ShowFrame(EFF_MAGIC_LANTERN, current_color, &it);
+
+  - addressable_lambda:
+      name: Mosaic
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Mosaic");
+        }
+        matrix_lamp.ShowFrame(EFF_MOSAIC, current_color, &it);
+
+  - addressable_lambda:
+      name: Octopus
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Octopus");
+        }
+        matrix_lamp.ShowFrame(EFF_OCTOPUS, current_color, &it);
+
+  - addressable_lambda:
+      name: Paints
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Paints");
+        }
+        matrix_lamp.ShowFrame(EFF_PAINTS, current_color, &it);
+
+  - addressable_lambda:
+      name: Plasma Waves
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Plasma Waves");
+        }
+        matrix_lamp.ShowFrame(EFF_PLASMA_WAVES, current_color, &it);
+
+  - addressable_lambda:
+      name: Radial Wave
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Radial Wave");
+        }
+        matrix_lamp.ShowFrame(EFF_RADIAL_WAVE, current_color, &it);
+
+  - addressable_lambda:
+      name: Rivers
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Rivers");
+        }
+        matrix_lamp.ShowFrame(EFF_RIVERS, current_color, &it);
+
+  - addressable_lambda:
+      name: Spectrum
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Spectrum");
+        }
+        matrix_lamp.ShowFrame(EFF_SPECTRUM, current_color, &it);
+
+  - addressable_lambda:
+      name: Strobe / Chaos / Diffusion
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Strobe | Chaos | Diffusion");
+        }
+        matrix_lamp.ShowFrame(EFF_STROBE, current_color, &it);
+
+  - addressable_lambda:
+      name: Swirl
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Swirl");
+        }
+        matrix_lamp.ShowFrame(EFF_SWIRL, current_color, &it);
+
+  - addressable_lambda:
+      name: Tornado
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Tornado");
+        }
+        matrix_lamp.ShowFrame(EFF_TORNADO, current_color, &it);
+
+  - addressable_lambda:
+      name: Watercolor
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Watercolor");
+        }
+        matrix_lamp.ShowFrame(EFF_WATERCOLOR, current_color, &it);
+
+  - addressable_lambda:
+      name: Web Tools
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Web Tools");
+        }
+        matrix_lamp.ShowFrame(EFF_WEB_TOOLS, current_color, &it);
+
+  - addressable_lambda:
+      name: Wine
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Wine");
+        }
+        matrix_lamp.ShowFrame(EFF_WINE, current_color, &it);
+
+  - addressable_lambda:
+      name: Ukraine
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Ukraine");
+        }
+        matrix_lamp.ShowFrame(EFF_UKRAINE, current_color, &it);
+
+  - addressable_lambda:
       name: Fireplace
       update_interval: 30ms
       lambda: |-
