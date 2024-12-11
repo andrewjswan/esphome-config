@@ -8,6 +8,8 @@ esphome:
     - arduinoFFT=https://github.com/kosme/arduinoFFT.git
   includes:
     - includes/light/light.h
+    - includes/light/stars.h
+    - includes/light/gamma.h
     - includes/light/palettes.h
     - includes/sound/music_leds_esphome.h
     - includes/sound/VisualEffect.h

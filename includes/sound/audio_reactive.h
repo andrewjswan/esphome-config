@@ -479,7 +479,8 @@ void FFTcode( void * parameter) {
   //constexpr TickType_t xFrequency = FFT_MIN_CYCLE * portTICK_PERIOD_MS;  
   constexpr TickType_t xFrequency_2 = (FFT_MIN_CYCLE * portTICK_PERIOD_MS) / 2;
 
-  for(;;) {
+  for(;;)
+  {
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     // ::delay(1);              // DO NOT DELETE THIS LINE! It is needed to give the IDLE(0) task enough time and to keep the watchdog happy.
@@ -488,14 +489,14 @@ void FFTcode( void * parameter) {
     // Only run the FFT computing code if we're not in "realime mode" or in Receive mode
     if (disableSoundProcessing) 
     {
-      vTaskDelayUntil( &xLastWakeTime, xFrequency_2);        // release CPU
+      vTaskDelayUntil(&xLastWakeTime, xFrequency_2);        // release CPU
       continue;
     }
 
     #if !defined(I2S_GRAB_ADC1_COMPLETELY)    
     if (dmType > 0)  // the "delay trick" does not help for analog, because I2S ADC is disabled outside of getSamples()
     #endif
-      vTaskDelayUntil( &xLastWakeTime, xFrequency_2);        // release CPU, and give I2S some time to fill its buffers. Might not work well with ADC analog sources.
+    vTaskDelayUntil( &xLastWakeTime, xFrequency_2);        // release CPU, and give I2S some time to fill its buffers. Might not work well with ADC analog sources.
 
     audioSource->getSamples(vReal, samplesFFT);
 
@@ -627,7 +628,7 @@ void FFTcode( void * parameter) {
     #if !defined(I2S_GRAB_ADC1_COMPLETELY)    
     if (dmType > 0)  // the "delay trick" does not help for analog
     #endif
-      vTaskDelayUntil( &xLastWakeTime, xFrequency_2);        // release CPU, by waiting until FFT_MIN_CYCLE is over
+    vTaskDelayUntil(&xLastWakeTime, xFrequency_2);        // release CPU, by waiting until FFT_MIN_CYCLE is over
 
     // release second sample to volume reactive effects. 
 	  // Releasing a second sample now effectively doubles the "sample rate" 

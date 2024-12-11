@@ -1,5 +1,7 @@
 #pragma once
 
+#define FASTLED_INTERNAL // remove annoying pragma messages
+
 #include <FastLED.h>
 
 DEFINE_GRADIENT_PALETTE( Fire_gp ) {

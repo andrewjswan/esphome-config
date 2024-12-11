@@ -1,8 +1,12 @@
 #pragma once
 
-#include "esphome.h"
+#include <cmath>
+
 #undef delay
 
+#define FASTLED_INTERNAL // remove annoying pragma messages
+
+#include "esphome.h"
 #include "FastLED.h"
 #include "palettes.h"
 
@@ -22,6 +26,10 @@ void InitLeds(int size)
   {
     leds = new CRGB[size];
   }
+
+  #ifdef STARS
+  FreeStars();
+  #endif
 }
 
 // *****************************************************************************************************************************************************************
@@ -32,10 +40,83 @@ void FreeLeds()
 }
 
 // *****************************************************************************************************************************************************************
+double mapd(double x, double in_min, double in_max, double out_min, double out_max)
+{
+  if (in_max == in_min) return (out_min);                                       // to avoid division by zero
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+// *****************************************************************************************************************************************************************
+float mapf(float x, float in_min, float in_max, float out_min, float out_max)
+{
+  if (fabs(in_max - in_min) < 0.000001 ) return (out_min);                      // to avoid division by zero
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+// *****************************************************************************************************************************************************************
+CRGB IRAM_ATTR color_blend(CRGB color1, CRGB color2, uint16_t blend, bool b16 = false)
+{
+  if(blend == 0)
+  {
+    return color1;
+  }
+
+  uint16_t blendmax = b16 ? 0xFFFF : 0xFF;
+
+  if(blend == blendmax)
+    return color2;
+
+  uint8_t shift = b16 ? 16 : 8;
+
+  uint32_t r1 = color1.r;
+  uint32_t g1 = color1.g;
+  uint32_t b1 = color1.b;
+
+  uint32_t r2 = color2.r;
+  uint32_t g2 = color2.g;
+  uint32_t b2 = color2.b;
+
+  uint32_t r3 = ((r2 * blend) + (r1 * (blendmax - blend))) >> shift;
+  uint32_t g3 = ((g2 * blend) + (g1 * (blendmax - blend))) >> shift;
+  uint32_t b3 = ((b2 * blend) + (b1 * (blendmax - blend))) >> shift;
+
+  return CRGB(r3, g3, b3);
+}
+
+// *****************************************************************************************************************************************************************
+void fade_out(CRGB * physic_leds, uint16_t _leds_num, uint8_t rate, CRGB back_color)
+{
+  rate = (255-rate) >> 1;
+  float mappedRate = float(rate) + 1.1;
+
+  // uint32_t color = SEGCOLOR(1); // target color (SEGCOLOR(1) - Second Color in WLED (Background))
+  int r2 = back_color.r;
+  int g2 = back_color.g;
+  int b2 = back_color.b;
+
+  for(uint_fast16_t i = 0; i < _leds_num; i++)
+  {
+    int r1 = physic_leds[i].r;
+    int g1 = physic_leds[i].g;
+    int b1 = physic_leds[i].b;
+
+    int rdelta = (r2 - r1) / mappedRate;
+    int gdelta = (g2 - g1) / mappedRate;
+    int bdelta = (b2 - b1) / mappedRate;
+
+    // if fade isn't complete, make sure delta is at least 1 (fixes rounding issues)
+    rdelta += (r2 == r1) ? 0 : (r2 > r1) ? 1 : -1;
+    gdelta += (g2 == g1) ? 0 : (g2 > g1) ? 1 : -1;
+    bdelta += (b2 == b1) ? 0 : (b2 > b1) ? 1 : -1;
+
+    physic_leds[i] = CRGB(r1 + rdelta, g1 + gdelta, b1 + bdelta);
+  }
+}
+
+// *****************************************************************************************************************************************************************
 CRGB color_from_palette(int index, esphome::Color current_color, uint8_t brightness = 255)
 {
-  CRGB color = CRGB(current_color.r, current_color.g, current_color.b);
-  return color_from_palette(index, color, brightness);
+  return color_from_palette(index, CRGB(current_color.r, current_color.g, current_color.b), brightness);
 }
 
 // *****************************************************************************************************************************************************************
