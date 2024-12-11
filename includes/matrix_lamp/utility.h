@@ -103,8 +103,39 @@ uint8_t XY (uint8_t x, uint8_t y) {
 }
 */
 
-  
+#if CONNECTION_ANGLE == 0 && STRIP_DIRECTION == 0
+  #define ORIENTATION      (0U)
+#endif
+#if CONNECTION_ANGLE == 0 && STRIP_DIRECTION == 1
+  #define ORIENTATION      (1U)
+#endif
+#if CONNECTION_ANGLE == 1 && STRIP_DIRECTION == 0
+  #define ORIENTATION      (2U)
+#endif
+#if CONNECTION_ANGLE == 1 && STRIP_DIRECTION == 3
+  #define ORIENTATION      (3U)
+#endif
+#if CONNECTION_ANGLE == 2 && STRIP_DIRECTION == 2
+  #define ORIENTATION      (4U)
+#endif
+#if CONNECTION_ANGLE == 2 && STRIP_DIRECTION == 3
+  #define ORIENTATION      (5U)
+#endif
+#if CONNECTION_ANGLE == 3 && STRIP_DIRECTION == 2
+  #define ORIENTATION      (6U)
+#endif
+#if CONNECTION_ANGLE == 3 && STRIP_DIRECTION == 1
+  #define ORIENTATION      (7U)
+#endif
+
+ 
 // залить все
+void ledsClear()
+{
+  for (uint16_t i = 0; i < NUM_LEDS; i++)
+    leds[i] = CRGB(0,0,0);
+}
+
 void fillAll(CRGB color)
 {
   for (uint16_t i = 0; i < NUM_LEDS; i++)

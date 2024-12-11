@@ -6,8 +6,10 @@ esphome:
   libraries:
     - fastled/FastLED @ 3.6.0
   includes:
+    - includes/matrix_lamp/common.h
     - includes/matrix_lamp/light.h
     - includes/matrix_lamp/constants.h
+    - includes/matrix_lamp/data7x15flip.h
     - includes/matrix_lamp/utility.h
     - includes/matrix_lamp/effect_ticker.h
     - includes/matrix_lamp/effects.h
@@ -21,6 +23,7 @@ external_components:
     components: [ddp]
 
 ddp:
+
 
 # Over The Air Update Component
 ota:

@@ -21,6 +21,16 @@
                                                             // настройки подбирались для лампы с матрицей 16х16 со стеклянным плафоном и калькой под ним. на других - не гарантируется
                                                             // этот режим можно включать/выключать секретной командой. чтобы после первой загрузки прошивки в плату он был выключен, поменяйте (1U) на (0U).
 
+#define DYNAMIC                (0U)                         // динамическая задержка для кадров ( будет использоваться бегунок Скорость )
+#define SOFT_DELAY             (1U)                         // задержка для смены кадров FPSdelay задается програмно прямо в теле эффекта
+#define LOW_DELAY             (15U)                         // низкая фиксированная задержка для смены кадров
+#define HIGH_DELAY            (50U)                         // высокая фиксированная задержка для смены кадров
+#define DYNAMIC_DELAY_TICK    if (millis() - effTimer >= (256U - modes[currentMode].Speed))
+#define HIGH_DELAY_TICK       if (millis() - effTimer >= 50)
+#define LOW_DELAY_TICK        if (millis() - effTimer >= 15)
+#define MICRO_DELAY_TICK      if (millis() - effTimer >= 2)
+#define SOFT_DELAY_TICK       if (millis() - effTimer >= FPSdelay)
+
 // --- ЭФФЕКТЫ -------------------------
 // == названия и номера эффектов ниже в списке используются на вкладке effectTricker ==
 // == если меняете, меняйте и там, и ещё здесь ниже в РЕЕСТРЕ ДОСТУПНЫХ ЭФФЕКТОВ ==
@@ -57,8 +67,6 @@
 #define EFF_SINUSOID3           (30U)    // Cинycoид
 #define EFF_METABALLS           (31U)    // Meтaбoлз
 #define EFF_AURORA              (32U)    // Ceвepнoe cияниe
-
-
 #define EFF_SPIDER              (33U)    // Плaзмeннaя лaмпa
 #define EFF_LAVALAMP            (34U)    // Лaвoвaя лaмпa
 #define EFF_LIQUIDLAMP          (35U)    // Жидкaя лaмпa
@@ -87,8 +95,6 @@
 #define EFF_COMET_TWO           (58U)    // Двe кoмeты
 #define EFF_COMET_THREE         (59U)    // Тpи кoмeты
 #define EFF_ATTRACT             (60U)    // Пpитяжeниe
-
-
 #define EFF_FIREFLY             (61U)    // Пapящий oгoнь
 #define EFF_FIREFLY_TOP         (62U)    // Bepxoвoй oгoнь
 #define EFF_SNAKE               (63U)    // Paдyжный змeй
@@ -114,8 +120,34 @@
 #define EFF_PAINTBALL           (83U)    // Пeйнтбoл
 #define EFF_RAINBOW_VER         (84U)    // Paдyгa
 
+#define EFF_CHRISTMAS_TREE      (85U)    // Новорічна ялинка
+#define EFF_BY_EFFECT           (86U)    // Побічний ефект
+#define EFF_COLOR_FRIZZLES      (87U)    // Кольорові кучері
+#define EFF_COLORED_PYTHON      (88U)    // Кольоровий Пітон
+#define EFF_CONTACTS            (89U)    // Контакти
+#define EFF_DROP_IN_WATER       (90U)    // Краплі на воді
+#define EFF_FEATHER_CANDLE      (91U)    // Свічка
+#define EFF_FIREWORK            (92U)    // Феєрверк
+#define EFF_FIREWORK_2          (93U)    // Феєрверк 2
+#define EFF_HOURGLASS           (94U)    // Пісочний годинник
+#define EFF_LOTUS               (95U)    // Квітка лотоса
+#define EFF_MAGIC_LANTERN       (96U)    // Чарівний ліхтарик
+#define EFF_MOSAIC              (97U)    // Мозайка
+#define EFF_OCTOPUS             (98U)    // Восьминіг
+#define EFF_PAINTS              (99U)    // Олійні фарби
+#define EFF_PLASMA_WAVES        (100U)   // Плазмові хвілі
+#define EFF_RADIAL_WAVE         (101U)   // Радіальна хвиля
+#define EFF_RIVERS              (102U)   // Річки Ботсвани
+#define EFF_SPECTRUM            (103U)   // Спектрум
+#define EFF_STROBE              (104U)   // Строб.Хаос.Дифузія
+#define EFF_SWIRL               (105U)   // Завиток
+#define EFF_TORNADO             (106U)   // Торнадо
+#define EFF_WATERCOLOR          (107U)   // Акварель
+#define EFF_WEB_TOOLS           (108U)   // Мрія дизайнера
+#define EFF_WINE                (109U)   // Вино
+#define EFF_UKRAINE             (110U)   // Україна
 
-#define MODE_AMOUNT             (85U)    // количество режимов
+#define MODE_AMOUNT             (111U)   // количество режимов
 
 // ============= МАССИВ НАСТРОЕК ЭФФЕКТОВ ПО УМОЛЧАНИЮ ===================
 // формат записи:
@@ -154,8 +186,6 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {   7,  89,  83}, // Cинycoид
   {   7,  85,   3}, // Meтaбoлз
   {  12,  73,  38}, // Ceвepнoe cияниe
-
-
   {   8,  59,  18}, // Плaзмeннaя лaмпa
   {  23, 203,   1}, // Лaвoвaя лaмпa
   {  11,  63,   1}, // Жидкaя лaмпa
@@ -184,8 +214,6 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  27, 186,  19}, // Двe кoмeты
   {  24, 186,   9}, // Тpи кoмeты
   {  21, 203,  65}, // Пpитяжeниe
-
-
   {  26, 206,  15}, // Пapящий oгoнь
   {  26, 190,  15}, // Bepxoвoй oгoнь
   {  12, 178,   1}, // Paдyжный змeй
@@ -209,23 +237,34 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  21, 198,  93}, // Cвeтлячки co шлeйфoм
   {  14, 223,  40}, // Люмeньep
   {  11, 236,   7}, // Пeйнтбoл
-  {   8, 196,  56}  // Paдyгa
+  {   8, 196,  56}, // Paдyгa
+
+  {  50,  90,  50}, // Новорічна ялинка
+  {  45, 150,  30}, // Побічний ефект
+  {  20, 128,  25}, // Кольорові кучері
+  {  15, 127,  92}, // Кольоровий Пітон
+  {  10, 200,  60}, // Контакти
+  {  15, 200,  55}, // Краплі на воді
+  {  50, 220,   5}, // Свічка
+  {  80,  50,   0}, // Феєрверк
+  {  40, 240,  75}, // Феєрверк 2
+  {  30, 250, 100}, // Пісочний годинник
+  {  20, 210,  33}, // Квітка лотоса
+  {  20, 200,  96}, // Чарівний ліхтарик
+  {  10, 220,  50}, // Мозайка
+  {  15, 230,  51}, // Восьминіг
+  {  25, 195,  50}, // Олійні фарби
+  {  15, 150,  50}, // Плазмові хвілі
+  {  10, 205,  50}, // Радіальна хвиля
+  {  15,  50,  50}, // Річки Ботсвани
+  {  11, 255,   1}, // Спектрум
+  {  25,  70,  51}, // Строб.Хаос.Дифузія
+  {  30, 230,  50}, // Завиток
+  {  15, 127,  50}, // Торнадо
+  {  25, 240,  65}, // Акварель
+  {  15, 128,  50}, // Мрія дизайнера
+  {  50, 230,  63}, // Вино
+  {  15, 240,  50}, // Україна
 }; //             ^-- проверьте, чтобы у предыдущей строки не было запятой после скобки
 
 // ============= КОНЕЦ МАССИВА =====
-
-uint8_t currentMode = 0;
-bool loadingFlag = true;
-
-struct ModeType
-{
-  uint8_t Brightness = 50U;
-  uint8_t Speed = 225U;
-  uint8_t Scale = 40U;
-};
-
-ModeType modes[MODE_AMOUNT];
-
-#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-uint8_t selectedSettings = 0U;
-#endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)

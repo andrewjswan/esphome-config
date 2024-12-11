@@ -5,6 +5,7 @@ on_boot:
         id: neopixel_led
     - delay: 5s
     - logger.log:
-        format: "${name} started, LED: ${type_leds}:${num_leds}:${pin_leds}, Reboot: ${reboot_timeout}"
+        format: "${name} started, LED: ${type_leds}:${num_leds}:${pin_leds}, Effects: %d Reboot: ${reboot_timeout}"
+        args: [ 'id(neopixel_led)->get_effects().size()' ]
         level: INFO
         tag: start
