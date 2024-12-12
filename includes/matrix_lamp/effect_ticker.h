@@ -137,6 +137,6 @@ void effectsTick()
     case EFF_SERPENTINE:          HIGH_DELAY_TICK    { effTimer = millis(); Serpentine();                      }  break;  // (116U) Серпантин
     case EFF_ARROWS:              DYNAMIC_DELAY_TICK { effTimer = millis(); arrowsRoutine();                   }  break;  // (117U) Стрелки
     case EFF_TURBULENCE:          DYNAMIC_DELAY_TICK { effTimer = millis(); Turbulence();                      }  break;  // (118U) Цифровая турбулентность
-     case EFF_UKRAINE:             DYNAMIC_DELAY_TICK { effTimer = millis(); Ukraine();                        }  break;  // (119U) Україна
+    case EFF_UKRAINE:             DYNAMIC_DELAY_TICK { effTimer = millis(); Ukraine();                         }  break;  // (119U) Україна
   }
 }
