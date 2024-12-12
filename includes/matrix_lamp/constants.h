@@ -148,20 +148,19 @@
 // https://github.com/SlingMaster/WiFiLampJavelin/blob/main/Firmware/effectTicker.ino
 // https://github.com/terrorsl/FieryLedLamp/blob/main/FieryLedLamp_New_WEB/FieryLedLamp2/src/Constants.h
 
-#define EFF_FLOWERRUTA          (110U)    // Червона Рута
-#define EFF_BAMBOO              (111U)    // Бамбук
-#define EFF_BALLROUTINE         (112U)    // Блуждающий кубик
-#define EFF_STARS               (113U)    // Звезды
-#define EFF_TIXYLAND            (114U)    // Земля Тикси
-#define EFF_FIRESPARKS          (115U)    // Огонь с искрами
-#define EFF_DANDELIONS          (116U)    // Разноцветные одуванчики
-#define EFF_SERPENTINE          (117U)    // Серпантин
-#define EFF_ARROWS              (118U)    // Стрелки
-#define EFF_TURBULENCE          (119U)    // Цифровая турбулентность
+#define EFF_BAMBOO              (110U)    // Бамбук
+#define EFF_BALLROUTINE         (111U)    // Блуждающий кубик
+#define EFF_STARS               (112U)    // Звезды
+#define EFF_TIXYLAND            (113U)    // Земля Тикси
+#define EFF_FIRESPARKS          (114U)    // Огонь с искрами
+#define EFF_DANDELIONS          (115U)    // Разноцветные одуванчики
+#define EFF_SERPENTINE          (116U)    // Серпантин
+#define EFF_ARROWS              (117U)    // Стрелки
+#define EFF_TURBULENCE          (118U)    // Цифровая турбулентность
 
-#define EFF_UKRAINE             (120U)   // Україна
+#define EFF_UKRAINE             (119U)   // Україна
 
-#define MODE_AMOUNT             (121U)   // количество режимов
+#define MODE_AMOUNT             (120U)   // количество режимов
 
 // ============= МАССИВ НАСТРОЕК ЭФФЕКТОВ ПО УМОЛЧАНИЮ ===================
 // формат записи:
@@ -278,7 +277,6 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  15, 128,  50}, // Мрія дизайнера
   {  50, 230,  63}, // Вино
   
-  {  20, 215,  60}, // Червона Рута
   {  20, 215,  90}, // Бамбук
   {  20, 150,  50}, // Блуждающий кубик
   {  25, 215,  99}, // Звезды
