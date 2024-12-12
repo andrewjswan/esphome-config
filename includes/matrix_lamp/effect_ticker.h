@@ -128,16 +128,15 @@ void effectsTick()
     case EFF_WATERCOLOR:          DYNAMIC_DELAY_TICK { effTimer = millis(); Watercolor();                      }  break;  // (107U) Акварель
     case EFF_WEB_TOOLS:           SOFT_DELAY_TICK    { effTimer = millis(); WebTools();                        }  break;  // (108U) Мрія дизайнера
     case EFF_WINE:                DYNAMIC_DELAY_TICK { effTimer = millis(); colorsWine();                      }  break;  // (109U) Вино
-    case EFF_FLOWERRUTA:          DYNAMIC_DELAY_TICK { effTimer = millis(); FlowerRuta();                      }  break;  // (110U) Червона Рута
-    case EFF_BAMBOO:              DYNAMIC_DELAY_TICK { effTimer = millis(); Bamboo();                          }  break;  // (111U) Бамбук
-    case EFF_BALLROUTINE:         DYNAMIC_DELAY_TICK { effTimer = millis(); ballRoutine();                     }  break;  // (112U) Блуждающий кубик
-    case EFF_STARS:               DYNAMIC_DELAY_TICK { effTimer = millis(); EffectStars();                     }  break;  // (113U) Звезды
-    case EFF_TIXYLAND:            DYNAMIC_DELAY_TICK { effTimer = millis(); TixyLand();                        }  break;  // (114U) Земля Тикси
-    case EFF_FIRESPARKS:          DYNAMIC_DELAY_TICK { effTimer = millis(); FireSparks();                      }  break;  // (115U) Огонь с искрами
-    case EFF_DANDELIONS:          SOFT_DELAY_TICK    { effTimer = millis(); Dandelions();                      }  break;  // (116U) Разноцветные одуванчики
-    case EFF_SERPENTINE:          HIGH_DELAY_TICK    { effTimer = millis(); Serpentine();                      }  break;  // (117U) Серпантин
-    case EFF_ARROWS:              DYNAMIC_DELAY_TICK { effTimer = millis(); arrowsRoutine();                   }  break;  // (118U) Стрелки
-    case EFF_TURBULENCE:          DYNAMIC_DELAY_TICK { effTimer = millis(); Turbulence();                      }  break;  // (119U) Цифровая турбулентность
-     case EFF_UKRAINE:             DYNAMIC_DELAY_TICK { effTimer = millis(); Ukraine();                         }  break;  // (120U) Україна
+    case EFF_BAMBOO:              DYNAMIC_DELAY_TICK { effTimer = millis(); Bamboo();                          }  break;  // (110U) Бамбук
+    case EFF_BALLROUTINE:         DYNAMIC_DELAY_TICK { effTimer = millis(); ballRoutine();                     }  break;  // (111U) Блуждающий кубик
+    case EFF_STARS:               DYNAMIC_DELAY_TICK { effTimer = millis(); EffectStars();                     }  break;  // (112U) Звезды
+    case EFF_TIXYLAND:            DYNAMIC_DELAY_TICK { effTimer = millis(); TixyLand();                        }  break;  // (113U) Земля Тикси
+    case EFF_FIRESPARKS:          DYNAMIC_DELAY_TICK { effTimer = millis(); FireSparks();                      }  break;  // (114U) Огонь с искрами
+    case EFF_DANDELIONS:          SOFT_DELAY_TICK    { effTimer = millis(); Dandelions();                      }  break;  // (115U) Разноцветные одуванчики
+    case EFF_SERPENTINE:          HIGH_DELAY_TICK    { effTimer = millis(); Serpentine();                      }  break;  // (116U) Серпантин
+    case EFF_ARROWS:              DYNAMIC_DELAY_TICK { effTimer = millis(); arrowsRoutine();                   }  break;  // (117U) Стрелки
+    case EFF_TURBULENCE:          DYNAMIC_DELAY_TICK { effTimer = millis(); Turbulence();                      }  break;  // (118U) Цифровая турбулентность
+     case EFF_UKRAINE:             DYNAMIC_DELAY_TICK { effTimer = millis(); Ukraine();                        }  break;  // (119U) Україна
   }
 }
