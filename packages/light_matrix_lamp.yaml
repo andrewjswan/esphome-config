@@ -9,7 +9,7 @@ esphome:
     - includes/matrix_lamp/common.h
     - includes/matrix_lamp/light.h
     - includes/matrix_lamp/constants.h
-    - includes/matrix_lamp/data7x15flip.h
+    - includes/matrix_lamp/effect_data.h
     - includes/matrix_lamp/utility.h
     - includes/matrix_lamp/effect_ticker.h
     - includes/matrix_lamp/effects.h
