@@ -7458,7 +7458,6 @@ void spiderRoutine() {
 
 // генератор палитр для Северного сияния (c) SottNick
 // static const uint8_t MBAuroraColors_arr[5][4] PROGMEM = // палитра в формате CHSV
-*/
 //CRGBPalette16 myPal; уже есть эта переменная в эффекте Жидкая лампа
 
 void fillMyPal16_2(uint8_t hue, bool isInvert = false){ 
