@@ -11586,44 +11586,6 @@ void Ukraine() {
   }
 }
 
-// =====================================
-//            Flower Ruta
-//    © Stepko and © Sutaburosu
-//     Adaptation © SlingMaster
-//             22/05/22
-// =====================================
-/* --------------------------------- */
-void FlowerRuta() {
-  static uint8_t PETALS;
-  static uint32_t t;
-  if (loadingFlag) {
-#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-    if (selectedSettings) {
-      // scale | speed
-      setModeSettings(random8(1U, 255U), random8(150U, 255U));
-    }
-#endif
-    loadingFlag = false;
-    PETALS = map(modes[currentMode].Scale, 1, 100, 2U, 5U);
-    // LOG.printf_P(PSTR("Scale: %03d | PETALS : %02d | Speed %03d\n"), modes[currentMode].Scale, PETALS, modes[currentMode].Speed);
-    ledsClear(); // esphome: FastLED.clear();
-    for (int8_t x = -CENTER_X_MAJOR; x < CENTER_X_MAJOR; x++) {
-      for (int8_t y = -CENTER_Y_MAJOR; y < CENTER_Y_MAJOR; y++) {
-        noise3d[0][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = (atan2(x, y) / PI) * 128 + 127; // thanks ldirko
-        noise3d[1][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = hypot(x, y);                    // thanks Sutaburosu
-      }
-    }
-  }
-
-  t++;
-  for (uint8_t x = 0; x < WIDTH; x++) {
-    for (uint8_t y = 0; y < HEIGHT; y++) {
-      byte angle = noise3d[0][x][y];
-      byte radius = noise3d[1][x][y];
-      leds[XY(x, y)] = CHSV(t + radius * (255 / WIDTH), 255, sin8(sin8(t + angle * PETALS + ( radius * (255 / WIDTH))) + t * 4 + sin8(t * 4 - radius * (255 / WIDTH)) + angle * PETALS));
-    }
-  }
-}
 
 // =============== Bamboo ===============
 //             © SlingMaster
