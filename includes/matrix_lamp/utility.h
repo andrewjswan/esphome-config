@@ -192,6 +192,16 @@ uint32_t getPixColorXY(uint8_t x, uint8_t y)
 }
 
 
+// =====================================
+uint8_t SpeedFactor(uint8_t spd) {
+  uint8_t result = spd * NUM_LEDS / 1024.0;
+#ifdef GENERAL_DEBUG
+  LOG.printf_P(PSTR("Speed Factor • %03d\n\r"), result);
+#endif
+  return result;
+}
+
+
 // неточный, зато более быстрый квадратный корень
 float sqrt3(const float x)
 {
