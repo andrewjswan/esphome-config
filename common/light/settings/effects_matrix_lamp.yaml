@@ -1049,7 +1049,6 @@ effects:
         }
         matrix_lamp.ShowFrame(EFF_WINE, current_color, &it);
 
-
   - addressable_lambda:
       name: Bamboo
       update_interval: 0s
