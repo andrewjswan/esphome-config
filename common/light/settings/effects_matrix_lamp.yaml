@@ -730,16 +730,6 @@ effects:
         matrix_lamp.ShowFrame(EFF_COLOR_RAIN, current_color, &it);
 
   - addressable_lambda:
-      name: Rain
-      update_interval: 0s
-      lambda: |-
-        if (initial_run)
-        {
-          ESP_LOGD("effect", "Rain");
-        }
-        matrix_lamp.ShowFrame(EFF_RAIN, current_color, &it);
-
-  - addressable_lambda:
       name: Snow
       update_interval: 0s
       lambda: |-
@@ -1129,16 +1119,6 @@ effects:
           ESP_LOGD("effect", "Serpentine");
         }
         matrix_lamp.ShowFrame(EFF_SERPENTINE, current_color, &it);
-
-  - addressable_lambda:
-      name: Arrows
-      update_interval: 0s
-      lambda: |-
-        if (initial_run)
-        {
-          ESP_LOGD("effect", "Arrows");
-        }
-        matrix_lamp.ShowFrame(EFF_ARROWS, current_color, &it);
 
   - addressable_lambda:
       name: Turbulence

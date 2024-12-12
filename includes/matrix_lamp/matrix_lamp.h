@@ -26,7 +26,9 @@ class MatrixLamp
 MatrixLamp::MatrixLamp()
 {
   memset(matrixValue, 0, sizeof(matrixValue)); // это массив для эффекта Огонь. странно, что его нужно залить нулями
+  randomSeed(micros());
   restoreSettings();
+  loadingFlag = true;
 }
 
 MatrixLamp::~MatrixLamp()
