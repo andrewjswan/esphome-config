@@ -11585,3 +11585,1357 @@ void Ukraine() {
     step++;
   }
 }
+
+// =====================================
+//            Flower Ruta
+//    © Stepko and © Sutaburosu
+//     Adaptation © SlingMaster
+//             22/05/22
+// =====================================
+/* --------------------------------- */
+void FlowerRuta() {
+  static uint8_t PETALS;
+  static uint32_t t;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random8(1U, 255U), random8(150U, 255U));
+    }
+#endif
+    loadingFlag = false;
+    PETALS = map(modes[currentMode].Scale, 1, 100, 2U, 5U);
+    // LOG.printf_P(PSTR("Scale: %03d | PETALS : %02d | Speed %03d\n"), modes[currentMode].Scale, PETALS, modes[currentMode].Speed);
+    ledsClear(); // esphome: FastLED.clear();
+    for (int8_t x = -CENTER_X_MAJOR; x < CENTER_X_MAJOR; x++) {
+      for (int8_t y = -CENTER_Y_MAJOR; y < CENTER_Y_MAJOR; y++) {
+        noise3d[0][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = (atan2(x, y) / PI) * 128 + 127; // thanks ldirko
+        noise3d[1][x + CENTER_X_MAJOR][y + CENTER_Y_MAJOR] = hypot(x, y);                    // thanks Sutaburosu
+      }
+    }
+  }
+
+  t++;
+  for (uint8_t x = 0; x < WIDTH; x++) {
+    for (uint8_t y = 0; y < HEIGHT; y++) {
+      byte angle = noise3d[0][x][y];
+      byte radius = noise3d[1][x][y];
+      leds[XY(x, y)] = CHSV(t + radius * (255 / WIDTH), 255, sin8(sin8(t + angle * PETALS + ( radius * (255 / WIDTH))) + t * 4 + sin8(t * 4 - radius * (255 / WIDTH)) + angle * PETALS));
+    }
+  }
+}
+
+// =============== Bamboo ===============
+//             © SlingMaster
+//                 Бамбук
+// --------------------------------------
+uint8_t nextColor(uint8_t posY, uint8_t base, uint8_t next ) {
+  const byte posLine = (HEIGHT > 16) ? 4 : 3;
+  if ((posY + 1 == posLine) | (posY == posLine)) {
+    return next;
+  } else {
+    return base;
+  }
+}
+
+// --------------------------------------
+void Bamboo() {
+  const uint8_t gamma[7] = {0, 32, 144, 160, 196, 208, 230};
+  static float index;
+  const byte DELTA = 4U;
+  const uint8_t VG_STEP = 64U;
+  const uint8_t V_STEP = 32U;
+  const byte posLine = (HEIGHT > 16) ? 4 : 3;
+  const uint8_t SX = 5;
+  const uint8_t SY = 10;
+  static float deltaX = 0;
+  static bool direct = false;
+  uint8_t posY;
+  static uint8_t colLine;
+  const float STP = 0.2;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                     scale | speed
+      setModeSettings(random8(100U), random8(128, 255U));
+    }
+#endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    loadingFlag = false;
+    index = STP;
+    uint8_t idx = map(modes[currentMode].Scale, 5, 95, 0U, 6U);;
+    colLine = gamma[idx];
+    step = 0U;
+  }
+
+  // *** ---
+  for (int y = 0; y < HEIGHT + SY; y++) {
+    if (modes[currentMode].Scale < 50U) {
+      if (step % 128 == 0U) {
+        deltaX += STP * ((direct) ? -1 : 1);
+        if ((deltaX > 1) | (deltaX < -1)) direct = !direct;
+      }
+    } else {
+      deltaX = 0;
+    }
+    posY = y;
+    for (int x = 0; x < WIDTH + SX; x++) {
+      if (y == posLine) {
+        drawPixelXYF(x , y - 1, CHSV(colLine, 255U, 128U));
+        drawPixelXYF(x, y, CHSV(colLine, 255U, 96U));
+        if (HEIGHT > 16) {
+          drawPixelXYF(x, y - 2, CHSV(colLine, 10U, 64U));
+        }
+      }
+      if ((x % SX == 0U) & (y % SY == 0U)) {
+        for (int i = 1; i < (SY - 3); i++) {
+          if (i < 3) {
+            posY = y - i + 1 - DELTA + index;
+            drawPixelXYF(x - 3 + deltaX, posY, CHSV(nextColor(posY, 96, colLine), 255U, 255 - V_STEP * i));
+            posY = y - i + index;
+            drawPixelXYF(x + deltaX, posY, CHSV(nextColor(posY, 96, colLine), 255U, 255 - VG_STEP * i));
+          }
+          posY = y - i - DELTA + index;
+          drawPixelXYF(x - 4 + deltaX, posY , CHSV(nextColor(posY, 96, colLine), 180U, 255 - V_STEP * i));
+          posY = y - i + 1 + index;
+          drawPixelXYF(x - 1 + deltaX, posY , CHSV(nextColor(posY, ((i == 1) ? 96 : 80), colLine), 255U, 255 - V_STEP * i));
+        }
+      }
+    }
+    step++;
+  }
+  if (index >= SY)  {
+    index = 0;
+  }
+  fadeToBlackBy(leds, NUM_LEDS, 60);
+  index += STP;
+}
+
+// =====================================
+//          Блуждающий кубик
+// =====================================
+//
+#define RANDOM_COLOR          (1U)                          // случайный цвет при отскоке
+int16_t coordB[2U];
+int8_t vectorB[2U];
+CHSV _pulse_color;
+CRGB ballColor;
+
+void ballRoutine() {
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      setModeSettings(13U + random8(88U) , 155U + random8(46U));
+    }
+#endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
+    loadingFlag = false;
+    //ledsClear(); // esphome: FastLED.clear();
+
+    for (uint8_t i = 0U; i < 2U; i++) {
+      coordB[i] = WIDTH / 2 * 10;
+      vectorB[i] = random(8, 20);
+    }
+    // ballSize;
+    deltaValue = map(modes[currentMode].Scale * 2.55, 0U, 255U, 2U, max((uint8_t)min(WIDTH, HEIGHT) / 3, 4));
+    ballColor = CHSV(random(0, 9) * 28, 255U, 255U);
+    _pulse_color = CHSV(random(0, 9) * 28, 255U, 255U);
+  }
+
+  //  if (!(modes[currentMode].Scale & 0x01))
+  //  {
+  //    hue += (modes[currentMode].Scale - 1U) % 11U * 8U + 1U;
+
+  //    ballColor = CHSV(hue, 255U, 255U);
+  //  }
+
+  if ((modes[currentMode].Scale & 0x01)) {
+    for (uint8_t i = 0U; i < deltaValue; i++) {
+      for (uint8_t j = 0U; j < deltaValue; j++) {
+        leds[XY(coordB[0U] / 10 + i, coordB[1U] / 10 + j)] = _pulse_color;
+      }
+    }
+  }
+  for (uint8_t i = 0U; i < 2U; i++) {
+    coordB[i] += vectorB[i];
+    if (coordB[i] < 0) {
+      coordB[i] = 0;
+      vectorB[i] = -vectorB[i];
+      if (RANDOM_COLOR) ballColor = CHSV(random(0, 9) * 28, 255U, 255U); // if (RANDOM_COLOR && (modes[currentMode].Scale & 0x01))
+      //vectorB[i] += random(0, 6) - 3;
+    }
+  }
+  if (coordB[0U] > (int16_t)((WIDTH - deltaValue) * 10)) {
+    coordB[0U] = (WIDTH - deltaValue) * 10;
+    vectorB[0U] = -vectorB[0U];
+    if (RANDOM_COLOR) ballColor = CHSV(random(0, 9) * 28, 255U, 255U);
+    //vectorB[0] += random(0, 6) - 3;
+  }
+  if (coordB[1U] > (int16_t)((HEIGHT - deltaValue) * 10)) {
+    coordB[1U] = (HEIGHT - deltaValue) * 10;
+    vectorB[1U] = -vectorB[1U];
+    if (RANDOM_COLOR) ballColor = CHSV(random(0, 9) * 28, 255U, 255U);
+    //vectorB[1] += random(0, 6) - 3;
+  }
+
+  //  if (modes[currentMode].Scale & 0x01)
+  //    dimAll(135U);
+  // dimAll(255U - (modes[currentMode].Scale - 1U) % 11U * 24U);
+  //  else
+  ledsClear(); // esphome: FastLED.clear();
+
+  for (uint8_t i = 0U; i < deltaValue; i++) {
+    for (uint8_t j = 0U; j < deltaValue; j++) {
+      leds[XY(coordB[0U] / 10 + i, coordB[1U] / 10 + j)] = ballColor;
+    }
+  }
+}
+
+// =====================================
+//                Stars
+//     © SottNick and  © Stepko
+//      Adaptation © SlingMaster
+//                Звезды
+// =====================================
+void drawStar(float xlocl, float ylocl, float biggy, float little, int16_t points, float dangle, uint8_t koler) { // random multipoint star
+  float radius2 = 255.0 / points;
+  for (int i = 0; i < points; i++) {
+    DrawLine(xlocl + ((little * (sin8(i * radius2 + radius2 / 2 - dangle) - 128.0)) / 128), ylocl + ((little * (cos8(i * radius2 + radius2 / 2 - dangle) - 128.0)) / 128), xlocl + ((biggy * (sin8(i * radius2 - dangle) - 128.0)) / 128), ylocl + ((biggy * (cos8(i * radius2 - dangle) - 128.0)) / 128), ColorFromPalette(*curPalette, koler));
+    DrawLine(xlocl + ((little * (sin8(i * radius2 - radius2 / 2 - dangle) - 128.0)) / 128), ylocl + ((little * (cos8(i * radius2 - radius2 / 2 - dangle) - 128.0)) / 128), xlocl + ((biggy * (sin8(i * radius2 - dangle) - 128.0)) / 128), ylocl + ((biggy * (cos8(i * radius2 - dangle) - 128.0)) / 128), ColorFromPalette(*curPalette, koler));
+
+  }
+}
+
+// --------------------------------------
+void EffectStars() {
+#define STARS_NUM (8U)
+#define STAR_BLENDER (128U)
+#define CENTER_DRIFT_SPEED (6U)
+  static uint8_t spd;
+  static uint8_t points[STARS_NUM];
+  static float color[STARS_NUM] ;
+  static int delay_arr[STARS_NUM];
+  static float counter;
+  static float driftx;
+  static float  drifty;
+  static float cangle;
+  static float  sangle;
+  static uint8_t stars_count;
+  static uint8_t blur;
+
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                     scale | speed
+      setModeSettings(random8(100U), random8(80U, 255U));
+    }
+#endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    loadingFlag = false;
+    counter = 0.0;
+    // стартуем с центра
+    driftx = (float)WIDTH / 2.0;
+    drifty = (float)HEIGHT / 2.0;
+
+    cangle = (float)(sin8(random8(25, 220)) - 128.0f) / 128.0f; //angle of movement for the center of animation gives a float value between -1 and 1
+    sangle = (float)(sin8(random8(25, 220)) - 128.0f) / 128.0f; //angle of movement for the center of animation in the y direction gives a float value between -1 and 1
+    spd = modes[currentMode].Speed;
+    blur = modes[currentMode].Scale / 2;
+    stars_count = WIDTH / 2U;
+
+    if (stars_count > STARS_NUM) stars_count = STARS_NUM;
+    for (uint8_t num = 0; num < stars_count; num++) {
+      points[num] = map(modes[currentMode].Scale, 1, 255, 3U, 7U); //5; // random8(3, 6);                              // количество углов в звезде
+      delay_arr[num] = spd / 5 + (num << 2) + 2U;               // задержка следующего пуска звезды
+      color[num] = random8();
+    }
+  }
+  // fadeToBlackBy(leds, NUM_LEDS, 245);
+  fadeToBlackBy(leds, NUM_LEDS, 165);
+  float speedFactor = ((float)spd / 380.0 + 0.05);
+  counter += speedFactor;                                                   // определяет то, с какой скоростью будет приближаться звезда
+
+  if (driftx > (WIDTH - spirocenterX / 2U)) cangle = 0 - fabs(cangle);      //change directin of drift if you get near the right 1/4 of the screen
+  if (driftx < spirocenterX / 2U) cangle = fabs(cangle);                    //change directin of drift if you get near the right 1/4 of the screen
+  if ((uint16_t)counter % CENTER_DRIFT_SPEED == 0) driftx = driftx + (cangle * speedFactor); //move the x center every so often
+  if (drifty > ( HEIGHT - spirocenterY / 2U)) sangle = 0 - fabs(sangle);    // if y gets too big, reverse
+  if (drifty < spirocenterY / 2U) sangle = fabs(sangle);                    // if y gets too small reverse
+
+  if ((uint16_t)counter % CENTER_DRIFT_SPEED == 0) drifty = drifty + (sangle * speedFactor); //move the y center every so often
+
+  for (uint8_t num = 0; num < stars_count; num++) {
+    if (counter >= delay_arr[num]) {              //(counter >= ringdelay)
+      if (counter - delay_arr[num] <= WIDTH + 5) {
+        drawStar(driftx, drifty, 2 * (counter - delay_arr[num]), (counter - delay_arr[num]), points[num], STAR_BLENDER + color[num], color[num]);
+        color[num] += speedFactor;                // в зависимости от знака - направление вращения
+      } else {
+        delay_arr[num] = counter + (stars_count << 1) + 1U; // задержка следующего пуска звезды
+      }
+    }
+  }
+  blur2d(leds, WIDTH, HEIGHT, blur);
+}
+
+
+// ============= Tixy Land ==============
+//        © Martin Kleppe @aemkei
+//github.com/owenmcateer/tixy.land-display
+//      Create Script Change Effects
+//             © SlingMaster
+// ======================================
+//   набор мат. функций и примитивов для
+//            обсчета эффектов
+//       © Dmytro Korniienko (kDn)
+// ======================================
+
+#define M_PI_2  1.57079632679489661923
+static const PROGMEM float LUT[102] = {
+  0,           0.0099996664, 0.019997334, 0.029991005, 0.039978687,
+  0.049958397, 0.059928156,  0.069885999, 0.079829983, 0.089758173,
+  0.099668652, 0.10955953,   0.11942893,  0.12927501,  0.13909595,
+  0.14888994,  0.15865526,   0.16839015,  0.17809294,  0.18776195,
+  0.19739556,  0.20699219,   0.21655031,  0.22606839,  0.23554498,
+  0.24497867,  0.25436807,   0.26371184,  0.27300870,  0.28225741,
+  0.29145679,  0.30060568,   0.30970293,  0.31874755,  0.32773849,
+  0.33667481,  0.34555557,   0.35437992,  0.36314702,  0.37185606,
+  0.38050637,  0.38909724,   0.39762798,  0.40609807,  0.41450688,
+  0.42285392,  0.43113875,   0.43936089,  0.44751999,  0.45561564,
+  0.46364760,  0.47161558,   0.47951928,  0.48735857,  0.49513325,
+  0.50284320,  0.51048833,   0.51806855,  0.52558380,  0.53303409,
+  0.54041952,  0.54774004,   0.55499572,  0.56218672,  0.56931317,
+  0.57637525,  0.58337301,   0.59030676,  0.59717667,  0.60398299,
+  0.61072594,  0.61740589,   0.62402308,  0.63057774,  0.63707036,
+  0.64350110,  0.64987046,   0.65617871,  0.66242629,  0.66861355,
+  0.67474097,  0.68080884,   0.68681765,  0.69276786,  0.69865984,
+  0.70449406,  0.71027100,   0.71599114,  0.72165483,  0.72726268,
+  0.73281509,  0.73831260,   0.74375558,  0.74914461,  0.75448018,
+  0.75976276,  0.76499283,   0.77017093,  0.77529752,  0.78037310,
+  0.78539819,  0.79037325
+};
+
+// --------------------------------------
+float atan2_fast(float y, float x) {
+  //http://pubs.opengroup.org/onlinepubs/009695399/functions/atan2.html
+  //Volkan SALMA
+
+  const float ONEQTR_PI = PI / 4.0;
+  const float THRQTR_PI = 3.0 * PI / 4.0;
+  float r, angle;
+  float abs_y = fabs(y) + 1e-10f;      // kludge to prevent 0/0 condition
+  if ( x < 0.0f ) {
+    r = (x + abs_y) / (abs_y - x);
+    angle = THRQTR_PI;
+  } else {
+    r = (x - abs_y) / (x + abs_y);
+    angle = ONEQTR_PI;
+  }
+  angle += (0.1963f * r * r - 0.9817f) * r;
+  if ( y < 0.0f ) {
+    return ( -angle );    // negate if in quad III or IV
+  } else {
+    return ( angle );
+  }
+}
+
+// --------------------------------------
+float atan_fast(float x) {
+  /* A fast look-up method with enough accuracy */
+  if (x > 0) {
+    if (x <= 1) {
+      int index = round(x * 100);
+      return LUT[index];
+    } else {
+      float re_x = 1 / x;
+      int index = round(re_x * 100);
+      return (M_PI_2 - LUT[index]);
+    }
+  } else {
+    if (x >= -1) {
+      float abs_x = -x;
+      int index = round(abs_x * 100);
+      return -(LUT[index]);
+    } else {
+      float re_x = 1 / (-x);
+      int index = round(re_x * 100);
+      return (LUT[index] - M_PI_2);
+    }
+  }
+}
+
+// --------------------------------------
+float tan2pi_fast(float x) {
+  float y = (1 - x * x);
+  return x * (((-0.000221184 * y + 0.0024971104) * y - 0.02301937096) * y + 0.3182994604 + 1.2732402998 / y);
+}
+
+
+// --------------------------------------
+float code(double t, double i, double x, double y) {
+  switch (pcnt) {
+    /** © Motus Art @motus_art */
+    case 1: /* Plasma */
+      hue = 96U; hue2 = 224U;
+      return (sin16((x + t) * 8192.0) * 0.5 + sin16((y + t) * 8192.0) * 0.5 + sin16((x + y + t) * 8192.0) * 0.3333333333333333) / 32767.0;
+      break;
+
+    case 2: /* Up&Down */
+      //return sin(cos(x) * y / 8 + t);
+      hue = 255U; hue2 = 160U;
+      return sin16((cos16(x * 8192.0) / 32767.0 * y / (HEIGHT / 2.0) + t) * 8192.0) / 32767.0;
+      break;
+
+    case 3:
+      hue = 255U; hue2 = 96U;
+      return sin16((atan_fast(y / x) + t) * 8192.0) / 32767.0;
+      break;
+
+    /** © tixy.land website */
+    case 4: /* Emitting rings */
+      hue = 255U; hue2 = 0U;
+      return sin16((t - sqrt3((x - (WIDTH / 2)) * (x - (WIDTH / 2)) + (y - (HEIGHT / 2)) * (y - (HEIGHT / 2)))) * 8192.0) / 32767.0;
+      break;
+
+    case 5: /* Rotation  */
+      hue = 136U; hue2 = 48U;
+      return sin16((PI * 2.5 * atan_fast((y - (HEIGHT / 2)) / (x - (WIDTH / 2))) + 5 * t) * 8192.0) / 32767.0;
+      break;
+
+    case 6: /* Vertical fade */
+      hue = 160U; hue2 = 0U;
+      return sin16((y / 8 + t) * 8192.0) / 32767.0;
+      break;
+
+    case 7: /* Waves */
+      //return sin(x / 2) - sin(x - t) - y + 6;
+      hue = 48U; hue2 = 160U;
+      return (sin16(x * 4096.0) - sin16((x - t) * 8192.0)) / 32767.0 - y + (HEIGHT / 2);
+      break;
+
+    case 8: /* Drop */
+      hue = 136U; hue2 = 160U;
+      return fmod(8 * t, 13) - sqrt3((x - (WIDTH / 2)) * (x - (WIDTH / 2)) + (y - (HEIGHT / 2)) * (y - (HEIGHT / 2))); //hypot(x - (WIDTH/2), y - (HEIGHT/2));
+      break;
+
+    case 9: /* Ripples @thespite */
+      hue = 96U; hue2 = 224U;
+      return sin16((t - sqrt3(x * x + y * y)) * 8192.0) / 32767.0;
+      break;
+
+    case 10: /* Bloop bloop bloop @v21 */
+      hue = 136U; hue2 = 160U;
+      return (x - (WIDTH / 2)) * (y - (HEIGHT / 2)) - sin16(t * 4096.0) / 512.0;
+      break;
+
+    case 11: /* SN0WFAKER */
+      // https://www.reddit.com/r/programming/comments/jpqbux/minimal_16x16_dots_coding_environment/gbgk7c0/
+      hue = 96U; hue2 = 160U;
+      return sin16((atan_fast((y - (HEIGHT / 2)) / (x - (WIDTH / 2))) + t) * 8192.0) / 32767.0;
+      break;
+    case 12: /* detunized */
+      // https://www.reddit.com/r/programming/comments/jpqbux/minimal_16x16_dots_coding_environment/gbgk30l/
+      hue = 136U; hue2 = 160U;
+      return sin16((y / (HEIGHT / 2) + t * 0.5) * 8192.0) / 32767.0 + x / 16 - 0.5;
+      break;
+
+    /** © @akella | https://twitter.com/akella/status/1323549082552619008 */
+    case 13:
+      hue = 255U; hue2 = 0U;
+      return sin16((6 * atan2_fast(y - (HEIGHT / 2), x) + t) * 8192.0) / 32767.0;
+      break;
+    case 14:
+      hue = 32U; hue2 = 160U;
+      return sin16((i / 5 + t) * 16384.0) / 32767.0;
+      break;
+
+    /** © Paul Malin | https://twitter.com/P_Malin/ */
+
+    // sticky blood
+    // by @joeytwiddle
+    //(t,i,x,y) => y-t*3+9+3*cos(x*3-t)-5*sin(x*7)
+
+    //      if (x < 8) {
+    //       // hue = 160U;
+    //      } else {
+    //       // hue = 96U;
+    //      }
+    //      if ((y == HEIGHT -1)&(x == 8)) {
+    //        hue = hue + 30;
+    //        if (hue >= 255U) {
+    //          hue = 0;
+    //        }
+    //      }
+    //      hue = t/128+8;
+
+    //    case 19: // !!!! paint
+    //      // Matrix Rain https://twitter.com/P_Malin/status/1323583013880553472
+    //      //return 1. - fmod((x * x - y + t * (fmod(1 + x * x, 5)) * 6), 16) / 16;
+    //      return 1. - fmod((x * x - (HEIGHT - y) + t * (1 + fmod(x * x, 5)) * 3), WIDTH) / HEIGHT;
+    //      break;
+
+    case 15: /* Burst */
+      // https://twitter.com/P_Malin/status/1323605999274594304
+      hue = 136U; hue2 = 160U;
+      return -10. / ((x - (WIDTH / 2)) * (x - (WIDTH / 2)) + (y - (HEIGHT / 2)) * (y - (HEIGHT / 2)) - fmod(t * 0.3, 0.7) * 200);
+      break;
+
+    case 16: /* Rays */
+      hue = 255U; hue2 = 0U;
+      return sin16((atan2_fast(x, y) * 5 + t * 2) * 8192.0) / 32767.0;
+      break;
+
+    case 17: /* Starfield */
+      // org | https://twitter.com/P_Malin/status/1323702220320313346
+      hue = 255U; hue2 = 160U;
+      return !((int)(x + t * 50 / (fmod(y * y, 5.9) + 1)) & 15) / (fmod(y * y, 5.9) + 1);
+      //      {
+      //        uint16_t _y = HEIGHT - y;
+      //        float d = (fmod(_y * _y + 4, 4.1) + 0.85) * 0.5; // коэффициенты тут отвечают за яркость (размер), скорость, смещение, подбираются экспериментально :)
+      //        return !((int)(x + t * 7.0 / d) & 15) / d; // 7.0 - множитель скорости
+      //      }
+      break;
+
+    case 18:
+      hue = 255U; hue2 = 0U;
+      return sin16((3.5 * atan2_fast(y - (HEIGHT / 2) + sin16(t * 8192.0) * 0.00006, x - (WIDTH / 2) + sin16(t * 8192.0) * 0.00006) + t * 1.5 + 5) * 8192.0) / 32767.0;
+      break;
+
+    case 19:
+      hue = 255U; hue2 = 224U;
+      return (y - 8) / 3 - tan2pi_fast((x / 6 + 1.87) / PI * 2) * sin16(t * 16834.0) / 32767.0;
+      break;
+
+    case 20:
+      hue = 136U; hue2 = 160U;
+      return (y - 8) / 3 - (sin16((x / 4 + t * 2) * 8192.0) / 32767.0);
+      break;
+
+    case 21:
+      hue = 72U; hue2 = 96U;
+      return cos(sin16(x * t * 819.2) / 32767.0 * PI) + cos16((sin16((y * t / 10 + (sqrt3(abs(cos16(x * t * 8192.0) / 32767.0)))) * 8192.0) / 32767.0 * PI) * 8192.0) / 32767.0;
+      break;
+
+    case 22: /* bambuk */
+      hue = 96U; hue2 = 80U;
+      return sin16(x / 3 * sin16(t * 2730.666666666667) / 2.0) / 32767.0 + cos16(y / 4 * sin16(t * 4096.0) / 2.0) / 32767.0;
+      break;
+
+    case 23:
+      hue = 0U; hue2 = 224U;
+      {
+        float _x = x - fmod(t, WIDTH);
+        float _y = y - fmod(t, HEIGHT);
+        return -.4 / (sqrt3(_x * _x + _y * _y) - fmod(t, 2) * 9);
+      }
+      break;
+
+    case 24: /* honey */
+      hue = 255U; hue2 = 40U;
+      return sin16(y * t * 2048.0) / 32767.0 * cos16(x * t * 2048.0) / 32767.0;
+      break;
+
+    case 25:
+      hue = 96U; hue2 = 160U;
+      return atan_fast((x - (WIDTH / 2)) * (y - (HEIGHT / 2))) - 2.5 * sin16(t * 8192.0) / 32767.0;
+      break;
+
+    default:
+      if (pcnt > 25) {
+        deltaHue2 += 32;
+      }
+      pcnt = 1;
+      hue = 96U; hue2 = 0U;
+      return sin16(t * 8192.0) / 32767.0;
+      break;
+  }
+}
+
+// --------------------------------------
+void processFrame(double t, double x, double y) {
+  double i = (y * WIDTH) + x;
+  double frame = constrain(code(t, i, x, y), -1, 1) * 255;
+  if (frame > 0) {
+    if ( hue == 255U) {
+      drawPixelXY(x, y, CRGB(frame, frame, frame));
+    } else {
+      drawPixelXY(x, y, CHSV(hue, frame, frame));
+    }
+  } else {
+    if (frame < 0) {
+      if (modes[currentMode].Scale < 5) deltaHue2 = 0;
+      drawPixelXY(x, y, CHSV(hue2 + deltaHue2, frame * -1, frame * -1));
+    } else {
+      drawPixelXY(x, y, CRGB::Black);
+    }
+  }
+}
+
+// --------------------------------------
+void TixyLand() {
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                     scale | speed
+      setModeSettings(random8(100U), random8(255U));
+    }
+#endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    loadingFlag = false;
+    deltaHue = 0;
+    pcnt = map(modes[currentMode].Speed, 5, 250, 1U, 25U);
+    FPSdelay = 1;
+    deltaHue2 = modes[currentMode].Scale * 2.55;
+    hue = 255U; hue2 = 0U;
+  }
+  // *****
+  unsigned long milli = millis();
+  double t = milli / 1000.0;
+
+  EVERY_N_SECONDS(eff_interval) {
+    if ((modes[currentMode].Speed < 5) || (modes[currentMode].Speed > 250)) {
+      pcnt++;
+    }
+  }
+  for ( double x = 0; x < WIDTH; x++) {
+    for ( double y = 0; y < HEIGHT; y++) {
+      processFrame(t, x, y);
+    }
+  }
+}
+
+// ============  FireSparks =============
+//               © Stepko
+//    updated with Sparks © kostyamat
+//             EFF_FIRE_SPARK
+//            Fire with Sparks
+//---------------------------------------
+uint16_t RGBweight(uint16_t idx) {
+  return (leds[idx].r + leds[idx].g + leds[idx].b);
+}
+class Spark {
+  private:
+    CRGB color;
+    uint8_t Bri;
+    uint8_t Hue;
+    float x, y, speedy = (float)random(5, 30) / 10;
+
+  public:
+    void addXY(float nx, float ny) {
+      //drawPixelXYF(x, y, 0);
+      x += nx;
+      y += ny * speedy;
+    }
+
+    float getY() {
+      return y;
+    }
+
+    void reset() {
+      uint32_t peak = 0;
+      speedy = (float)random(5, 30) / 10;
+      y = random(HEIGHT / 4, HEIGHT / 2);
+      for (uint8_t i = 0; i < WIDTH; i++) {
+        uint32_t temp = RGBweight(XY(i, y));
+        if (temp > peak) {
+          x = i;
+          peak = temp;
+        }
+      }
+
+      color = leds[XY(x, y)];
+    }
+
+    void draw() {
+      color.fadeLightBy(256 / (HEIGHT * 0.75));
+      drawPixelXYF(x, y, color);
+    }
+};
+
+const byte sparksCount = WIDTH / 4;
+Spark sparks[sparksCount];
+
+//---------------------------------------
+void  FireSparks() {
+  bool withSparks = false; // true/false
+  static uint32_t t;
+  const uint8_t spacer = HEIGHT / 4;
+  byte scale = 50;
+
+  if (loadingFlag) {
+
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random(0U, 99U), random(20U, 100U));
+    }
+#endif
+    loadingFlag = false;
+    FPSdelay = DYNAMIC;
+    for (byte i = 0; i < sparksCount; i++) sparks[i].reset();
+  }
+  withSparks = modes[currentMode].Scale >= 50;
+  t += modes[currentMode].Speed;
+
+  if (withSparks)
+    for (byte i = 0; i < sparksCount; i++) {
+      sparks[i].addXY((float)random(-1, 2) / 2, 0.75);
+      if (sparks[i].getY() > HEIGHT and !random(0, 50)) sparks[i].reset();
+      else sparks[i].draw();
+    }
+
+  for (byte x = 0; x < WIDTH; x++) {
+    for (byte y = 0; y < HEIGHT; y++) {
+      int16_t Bri = inoise8(x * scale, (y * scale) - t) - ((withSparks ? y + spacer : y) * (255 / HEIGHT));
+      byte Col = Bri;
+      if (Bri < 0) Bri = 0; if (Bri != 0) Bri = 256 - (Bri * 0.2);
+      nblend(leds[XY(x, y)], ColorFromPalette(HeatColors_p, Col, Bri), modes[currentMode].Speed);
+    }
+  }
+}
+
+
+// =====================================
+//     Multicolored Dandelions
+//      Base Code © Less Lam
+//          © SlingMaster
+//       Разноцветные одуванчики
+// https://editor.soulmatelights.com/gallery/2007-amber-rain
+// =====================================
+class Circle {
+  public:
+    float thickness = 3.0;
+    long startTime;
+    uint16_t offset;
+    int16_t centerX;
+    int16_t centerY;
+    int hue;
+    int bpm = 10;
+
+    void move() {
+      centerX = random(0, WIDTH);
+      centerY = random(0, HEIGHT);
+    }
+
+    void scroll() {
+      centerX--; // = random(0, WIDTH);
+      if (centerX < 1) {
+        centerX = WIDTH - 1;
+      }
+      centerY++;
+      if (centerY > HEIGHT) {
+        centerY = 0;
+      }
+    }
+    void reset() {
+      startTime = millis();
+      centerX = random(0, WIDTH);
+      centerY = random(0, HEIGHT);
+      hue = random(0, 255);
+      offset = random(0, 60000 / bpm);
+    }
+
+    float radius() {
+      float radius = beatsin16(modes[currentMode].Speed / 2.5, 0, 500, offset) / 100.0;
+      return radius;
+    }
+};
+
+// -----------------------------------
+namespace Circles {
+#define NUMBER_OF_CIRCLES WIDTH/2
+Circle circles[NUMBER_OF_CIRCLES] = {};
+
+void drawCircle(Circle circle) {
+  int16_t centerX = circle.centerX;
+  int16_t centerY = circle.centerY;
+  int hue = circle.hue;
+  float radius = circle.radius();
+
+  int16_t startX = centerX - ceil(radius);
+  int16_t endX = centerX + ceil(radius);
+  int16_t startY = centerY - ceil(radius);
+  int16_t endY = centerY + ceil(radius);
+
+  for (int16_t x = startX; x < endX; x++) {
+    for (int16_t y = startY; y < endY; y++) {
+      int16_t index = XY(x, y);
+      if (index < 0 || index > NUM_LEDS)
+        continue;
+      double distance = sqrt(sq(x - centerX) + sq(y - centerY));
+      if (distance > radius)
+        continue;
+
+      uint16_t brightness;
+      if (radius < 1) { // last pixel
+        // brightness = 0; //255.0 * radius;
+        deltaValue = 20;
+        brightness = 180;
+        // brightness = 0;
+      } else {
+        deltaValue = 200; // 155 + modes[currentMode].Scale;
+        double percentage = distance / radius;
+        double fraction = 1.0 - percentage;
+        brightness = 255.0 * fraction;
+      }
+      leds[index] += CHSV(hue, deltaValue, brightness);
+    }
+  }
+}
+
+// -----------------------------
+void draw(bool setup) {
+  fadeToBlackBy(leds, NUM_LEDS, 100U);
+  // fillAll(CRGB::Black);
+  for (int i = 0; i < NUMBER_OF_CIRCLES; i++) {
+    if (setup) {
+      circles[i].reset();
+    } else {
+      if (circles[i].radius() < 0.5) {
+        circles[i].scroll();
+      }
+    }
+    drawCircle(circles[i]);
+  }
+}
+}; // namespace Circles
+
+// ==============
+void Dandelions() {
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      // scale | speed
+      setModeSettings(random8(1U, 100U), random8(10U, 255U));
+    }
+#endif
+    loadingFlag = false;
+    ledsClear(); // esphome: FastLED.clear();
+    Circles::draw(true);
+    // deltaValue = 150 + modes[currentMode].Scale;
+    deltaValue = 155 + modes[currentMode].Scale;
+  }
+
+  // FPSdelay = SOFT_DELAY;
+  Circles::draw(false);
+}
+
+// ============ Serpentine =============
+//             © SlingMaster
+//              Серпантин
+// =====================================
+void Serpentine() {
+  const byte PADDING = HEIGHT * 0.25;
+  const byte BR_INTERWAL = 64 / HEIGHT;
+  const byte DELTA = WIDTH  * 0.25;
+  // ---------------------
+
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      setModeSettings(random8(4, 50), random8(4, 254U));
+    }
+#endif
+    loadingFlag = false;
+    deltaValue = 0;
+    hue = 0;
+    ledsClear(); // esphome: FastLED.clear();
+  }
+  // ---------------------
+
+  byte step1 = map8(modes[currentMode].Speed, 10U, 60U);
+  uint16_t ms = millis();
+  double freq = 3000;
+  float mn = 255.0 / 13.8;
+  byte fade = 180 - abs(128 - step);
+  fadeToBlackBy(leds, NUM_LEDS, fade);
+
+  // -----------------
+  for (uint16_t y = 0; y < HEIGHT; y++) {
+    uint32_t yy = y * 256;
+    uint32_t x1 = beatsin16(step1, WIDTH, (HEIGHT - 1) * 256, WIDTH, y * freq + 32768) / 2;
+
+    // change color --------
+    CRGB col1 = CHSV(ms / 29 + y * 256 / (HEIGHT - 1) + 128, 255, 255 - (HEIGHT - y) * BR_INTERWAL);
+    CRGB col2 = CHSV(ms / 29 + y * 256 / (HEIGHT - 1), 255, 255 - (HEIGHT - y) * BR_INTERWAL);
+    // CRGB col3 = CHSV(ms / 29 + y * 256 / (HEIGHT - 1) + step, 255, 255 - (HEIGHT - y) * BR_INTERWAL - fade);
+
+    wu_pixel( x1 + hue * DELTA, yy - PADDING * (255 - hue), &col1);
+    wu_pixel( abs((WIDTH - 1) * 256 - (x1 + hue * DELTA)), yy - PADDING * hue, &col2);
+  }
+
+  step++;
+  if (step % 64) {
+    if (deltaValue == 0) {
+      hue++;
+      if (hue >= 255) {
+        deltaValue = 1;
+      }
+    } else {
+      hue--;
+      if (hue < 1) {
+        deltaValue = 0;
+      }
+    }
+  }
+}
+
+
+// ************************** СТРЕЛКИ *************************
+int8_t arrow_x[4], arrow_y[4], stop_x[4], stop_y[4];
+uint8_t arrow_direction; // 0x01 - слева направо; 0x02 - снизу вверх; 0х04 - справа налево; 0х08 - сверху вниз
+uint8_t arrow_mode, arrow_mode_orig;// 0 - по очереди все варианты
+// 1 - по очереди от края до края экрана;
+// 2 - одновременно по горизонтали навстречу к ентру, затем одновременно по вертикали навстречу к центру
+// 3 - одновременно все к центру
+// 4 - по два (горизонталь / вертикаль) все от своего края к противоположному, стрелки смещены от центра на 1/3
+// 5 - одновременно все от своего края к противоположному, стрелки смещены от центра на 1/3
+bool arrow_complete, arrow_change_mode;
+uint8_t arrow_hue[4];
+uint8_t arrow_play_mode_count[6]; // Сколько раз проигрывать полностью каждый режим если вариант 0 - текущий счетчик
+uint8_t arrow_play_mode_count_orig[6]; // Сколько раз проигрывать полностью каждый режим если вариант 0 - исходные настройки
+
+void arrowsRoutine() {
+if (loadingFlag) {
+loadingFlag = false;
+//modeCode = MC_ARROWS;
+ledsClear(); // esphome: FastLED.clear();
+arrow_complete = false;
+// arrow_mode_orig = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_ARROWS);
+
+arrow_mode = (arrow_mode_orig == 0 || arrow_mode_orig > 5) ? random8(1,5) : arrow_mode_orig;
+arrow_play_mode_count_orig[0] = 0;
+arrow_play_mode_count_orig[1] = 4; // 4 фазы - все стрелки показаны по кругу один раз - переходить к следующему ->
+arrow_play_mode_count_orig[2] = 4; // 2 фазы - гориз к центру (1), затем верт к центру (2) - обе фазы повторить по 2 раза -> 4
+arrow_play_mode_count_orig[3] = 4; // 1 фаза - все к центру (1) повторить по 4 раза -> 4
+arrow_play_mode_count_orig[4] = 4; // 2 фазы - гориз к центру (1), затем верт к центру (2) - обе фазы повторить по 2 раза -> 4
+arrow_play_mode_count_orig[5] = 4; // 1 фаза - все сразу (1) повторить по 4 раза -> 4
+for (uint8_t i=0; i<6; i++) {
+arrow_play_mode_count[i] = arrow_play_mode_count_orig[i];
+}
+arrowSetupForMode(arrow_mode, true);
+}
+
+//uint8_t effectBrightness;
+//effectBrightness = modes[currentMode].Brightness;
+
+// fader(65);
+dimAll(160);
+CHSV color;
+
+// движение стрелки - cлева направо
+if ((arrow_direction & 0x01) > 0) {
+color = CHSV(arrow_hue[0], 255, modes[currentMode].Brightness);
+for (int8_t x = 0; x <= 4; x++) {
+for (int8_t y = 0; y <= x; y++) {
+if (arrow_x[0] - x >= 0 && arrow_x[0] - x <= stop_x[0]) {
+CHSV clr = (x < 4 || (x == 4 && y < 2)) ? color : CHSV(0,0,0);
+drawPixelXY(arrow_x[0] - x, arrow_y[0] - y, clr);
+drawPixelXY(arrow_x[0] - x, arrow_y[0] + y, clr);
+}
+}
+}
+arrow_x[0]++;
+}
+
+// движение стрелки - cнизу вверх
+if ((arrow_direction & 0x02) > 0) {
+color = CHSV(arrow_hue[1], 255, modes[currentMode].Brightness);
+for (int8_t y = 0; y <= 4; y++) {
+for (int8_t x = 0; x <= y; x++) {
+if (arrow_y[1] - y >= 0 && arrow_y[1] - y <= stop_y[1]) {
+CHSV clr = (y < 4 || (y == 4 && x < 2)) ? color : CHSV(0,0,0);
+drawPixelXY(arrow_x[1] - x, arrow_y[1] - y, clr);
+drawPixelXY(arrow_x[1] + x, arrow_y[1] - y, clr);
+}
+}
+}
+arrow_y[1]++;
+}
+
+// движение стрелки - cправа налево
+if ((arrow_direction & 0x04) > 0) {
+color = CHSV(arrow_hue[2], 255, modes[currentMode].Brightness);
+for (int8_t x = 0; x <= 4; x++) {
+for (int8_t y = 0; y <= x; y++) {
+if (arrow_x[2] + x >= stop_x[2] && arrow_x[2] + x < WIDTH) {
+CHSV clr = (x < 4 || (x == 4 && y < 2)) ? color : CHSV(0,0,0);
+drawPixelXY(arrow_x[2] + x, arrow_y[2] - y, clr);
+drawPixelXY(arrow_x[2] + x, arrow_y[2] + y, clr);
+}
+}
+}
+arrow_x[2]--;
+}
+
+// движение стрелки - cверху вниз
+if ((arrow_direction & 0x08) > 0) {
+color = CHSV(arrow_hue[3], 255, modes[currentMode].Brightness);
+for (int8_t y = 0; y <= 4; y++) {
+for (int8_t x = 0; x <= y; x++) {
+if (arrow_y[3] + y >= stop_y[3] && arrow_y[3] + y < HEIGHT) {
+CHSV clr = (y < 4 || (y == 4 && x < 2)) ? color : CHSV(0,0,0);
+drawPixelXY(arrow_x[3] - x, arrow_y[3] + y, clr);
+drawPixelXY(arrow_x[3] + x, arrow_y[3] + y, clr);
+}
+}
+}
+arrow_y[3]--;
+}
+
+// Проверка завершения движения стрелки, переход к следующей фазе или режиму
+
+switch (arrow_mode) {
+
+case 1:
+// Последовательно - слева-направо -> снизу вверх -> справа налево -> сверху вниз и далее по циклу
+// В каждый сомент времени сктивна только одна стрелка, если она дошла до края - переключиться на следующую и задать ее начальные координаты
+arrow_complete = false;
+switch (arrow_direction) {
+case 1: arrow_complete = arrow_x[0] > stop_x[0]; break;
+case 2: arrow_complete = arrow_y[1] > stop_y[1]; break;
+case 4: arrow_complete = arrow_x[2] < stop_x[2]; break;
+case 8: arrow_complete = arrow_y[3] < stop_y[3]; break;
+}
+
+arrow_change_mode = false;
+if (arrow_complete) {
+arrow_direction = (arrow_direction << 1) & 0x0F;
+if (arrow_direction == 0) arrow_direction = 1;
+if (arrow_mode_orig == 0) {
+arrow_play_mode_count[1]--;
+if (arrow_play_mode_count[1] == 0) {
+arrow_play_mode_count[1] = arrow_play_mode_count_orig[1];
+arrow_mode = random8(1,5);
+arrow_change_mode = true;
+}
+}
+
+arrowSetupForMode(arrow_mode, arrow_change_mode);
+}
+break;
+
+case 2:
+// Одновременно горизонтальные навстречу до половины экрана
+// Затем одновременно вертикальные до половины экрана. Далее - повторять
+arrow_complete = false;
+switch (arrow_direction) {
+case 5: arrow_complete = arrow_x[0] > stop_x[0]; break; // Стрелка слева и справа встречаются в центре одновременно - проверять только стрелку слева
+case 10: arrow_complete = arrow_y[1] > stop_y[1]; break; // Стрелка снизу и сверху встречаются в центре одновременно - проверять только стрелку снизу
+}
+
+arrow_change_mode = false;
+if (arrow_complete) {
+arrow_direction = arrow_direction == 5 ? 10 : 5;
+if (arrow_mode_orig == 0) {
+arrow_play_mode_count[2]--;
+if (arrow_play_mode_count[2] == 0) {
+arrow_play_mode_count[2] = arrow_play_mode_count_orig[2];
+arrow_mode = random8(1,5);
+arrow_change_mode = true;
+}
+}
+
+arrowSetupForMode(arrow_mode, arrow_change_mode);
+}
+break;
+
+case 3:
+// Одновременно со всех сторон к центру
+// Завершение кадра режима - когда все стрелки собрались в центре.
+// Проверять стрелки по самой длинной стороне
+if (WIDTH >= HEIGHT)
+arrow_complete = arrow_x[0] > stop_x[0];
+else
+arrow_complete = arrow_y[1] > stop_y[1];
+
+arrow_change_mode = false;
+if (arrow_complete) {
+if (arrow_mode_orig == 0) {
+arrow_play_mode_count[3]--;
+if (arrow_play_mode_count[3] == 0) {
+arrow_play_mode_count[3] = arrow_play_mode_count_orig[3];
+arrow_mode = random8(1,5);
+arrow_change_mode = true;
+}
+}
+
+arrowSetupForMode(arrow_mode, arrow_change_mode);
+}
+break;
+
+case 4:
+// Одновременно слева/справа от края до края со смещением горизонтальной оси на 1/3 высоты, далее
+// одновременно снизу/сверху от края до края со смещением вертикальной оси на 1/3 ширины
+// Завершение кадра режима - когда все стрелки собрались в центре.
+// Проверять стрелки по самой длинной стороне
+switch (arrow_direction) {
+case 5: arrow_complete = arrow_x[0] > stop_x[0]; break; // Стрелка слева и справа движутся и достигают края одновременно - проверять только стрелку слева
+case 10: arrow_complete = arrow_y[1] > stop_y[1]; break; // Стрелка снизу и сверху движутся и достигают края одновременно - проверять только стрелку снизу
+}
+
+arrow_change_mode = false;
+if (arrow_complete) {
+arrow_direction = arrow_direction == 5 ? 10 : 5;
+if (arrow_mode_orig == 0) {
+arrow_play_mode_count[4]--;
+if (arrow_play_mode_count[4] == 0) {
+arrow_play_mode_count[4] = arrow_play_mode_count_orig[4];
+arrow_mode = random8(1,5);
+arrow_change_mode = true;
+}
+}
+
+arrowSetupForMode(arrow_mode, arrow_change_mode);
+}
+break;
+
+case 5:
+// Одновременно со всех сторон от края до края со смещением горизонтальной оси на 1/3 высоты, далее
+// Проверять стрелки по самой длинной стороне
+if (WIDTH >= HEIGHT)
+arrow_complete = arrow_x[0] > stop_x[0];
+else
+arrow_complete = arrow_y[1] > stop_y[1];
+
+arrow_change_mode = false;
+if (arrow_complete) {
+if (arrow_mode_orig == 0) {
+arrow_play_mode_count[5]--;
+if (arrow_play_mode_count[5] == 0) {
+arrow_play_mode_count[5] = arrow_play_mode_count_orig[5];
+arrow_mode = random8(1,5);
+arrow_change_mode = true;
+}
+}
+
+arrowSetupForMode(arrow_mode, arrow_change_mode);
+}
+break;
+}
+
+}
+
+void arrowSetupForMode(uint8_t mode, bool change) {
+switch (mode) {
+case 1:
+if (change) arrow_direction = 1;
+arrowSetup_mode1(); // От края матрицы к краю, по центру гориз и верт
+break;
+case 2:
+if (change) arrow_direction = 5;
+arrowSetup_mode2(); // По центру матрицы (гориз / верт) - ограничение - центр матрицы
+break;
+case 3:
+if (change) arrow_direction = 15;
+arrowSetup_mode2(); // как и в режиме 2 - по центру матрицы (гориз / верт) - ограничение - центр матрицы
+break;
+case 4:
+if (change) arrow_direction = 5;
+arrowSetup_mode4(); // От края матрицы к краю, верт / гориз
+break;
+case 5:
+if (change) arrow_direction = 15;
+arrowSetup_mode4(); // как и в режиме 4 от края матрицы к краю, на 1/3
+break;
+}
+}
+void arrowSetup_mode1() {
+// Слева направо
+if ((arrow_direction & 0x01) > 0) {
+arrow_hue[0] = random8();
+arrow_x[0] = 0;
+arrow_y[0] = HEIGHT / 2;
+stop_x [0] = WIDTH + 7; // скрывается за экраном на 7 пикселей
+stop_y [0] = 0; // неприменимо
+}
+// снизу вверх
+if ((arrow_direction & 0x02) > 0) {
+arrow_hue[1] = random8();
+arrow_y[1] = 0;
+arrow_x[1] = WIDTH / 2;
+stop_y [1] = HEIGHT + 7; // скрывается за экраном на 7 пикселей
+stop_x [1] = 0; // неприменимо
+}
+// справа налево
+if ((arrow_direction & 0x04) > 0) {
+arrow_hue[2] = random8();
+arrow_x[2] = WIDTH - 1;
+arrow_y[2] = HEIGHT / 2;
+stop_x [2] = -7; // скрывается за экраном на 7 пикселей
+stop_y [2] = 0; // неприменимо
+}
+// сверху вниз
+if ((arrow_direction & 0x08) > 0) {
+arrow_hue[3] = random8();
+arrow_y[3] = HEIGHT - 1;
+arrow_x[3] = WIDTH / 2;
+stop_y [3] = -7; // скрывается за экраном на 7 пикселей
+stop_x [3] = 0; // неприменимо
+}
+}
+
+void arrowSetup_mode2() {
+// Слева направо до половины экрана
+if ((arrow_direction & 0x01) > 0) {
+arrow_hue[0] = random8();
+arrow_x[0] = 0;
+arrow_y[0] = HEIGHT / 2;
+stop_x [0] = WIDTH / 2 - 1; // до центра экрана
+stop_y [0] = 0; // неприменимо
+}
+// снизу вверх до половины экрана
+if ((arrow_direction & 0x02) > 0) {
+arrow_hue[1] = random8();
+arrow_y[1] = 0;
+arrow_x[1] = WIDTH / 2;
+stop_y [1] = HEIGHT / 2 - 1; // до центра экрана
+stop_x [1] = 0; // неприменимо
+}
+// справа налево до половины экрана
+if ((arrow_direction & 0x04) > 0) {
+arrow_hue[2] = random8();
+arrow_x[2] = WIDTH - 1;
+arrow_y[2] = HEIGHT / 2;
+stop_x [2] = WIDTH / 2; // до центра экрана
+stop_y [2] = 0; // неприменимо
+}
+// сверху вниз до половины экрана
+if ((arrow_direction & 0x08) > 0) {
+arrow_hue[3] = random8();
+arrow_y[3] = HEIGHT - 1;
+arrow_x[3] = WIDTH / 2;
+stop_y [3] = HEIGHT / 2; // до центра экрана
+stop_x [3] = 0; // неприменимо
+}
+}
+
+void arrowSetup_mode4() {
+// Слева направо
+if ((arrow_direction & 0x01) > 0) {
+arrow_hue[0] = random8();
+arrow_x[0] = 0;
+arrow_y[0] = (HEIGHT / 3) * 2;
+stop_x [0] = WIDTH + 7; // скрывается за экраном на 7 пикселей
+stop_y [0] = 0; // неприменимо
+}
+// снизу вверх
+if ((arrow_direction & 0x02) > 0) {
+arrow_hue[1] = random8();
+arrow_y[1] = 0;
+arrow_x[1] = (WIDTH / 3) * 2;
+stop_y [1] = HEIGHT + 7; // скрывается за экраном на 7 пикселей
+stop_x [1] = 0; // неприменимо
+}
+// справа налево
+if ((arrow_direction & 0x04) > 0) {
+arrow_hue[2] = random8();
+arrow_x[2] = WIDTH - 1;
+arrow_y[2] = HEIGHT / 3;
+stop_x [2] = -7; // скрывается за экраном на 7 пикселей
+stop_y [2] = 0; // неприменимо
+}
+// сверху вниз
+if ((arrow_direction & 0x08) > 0) {
+arrow_hue[3] = random8();
+arrow_y[3] = HEIGHT - 1;
+arrow_x[3] = WIDTH / 3;
+stop_y [3] = -7; // скрывается за экраном на 7 пикселей
+stop_x [3] = 0; // неприменимо
+}
+}
+
+
+// ======== Digital Тurbulence =========
+//             © SlingMaster
+//        Цифрова Турбулентність
+// =====================================
+void drawRandomCol(uint8_t x, uint8_t y, uint8_t offset, uint32_t count) {
+  const byte STEP = 32;
+  const byte D = HEIGHT / 8;
+  uint8_t color = floor(y / D) * STEP + offset;
+
+  if (count == 0U) {
+    drawPixelXY(x, y, CHSV(color, 255, random8(8U) == 0U ? (step % 2U ? 0 : 255) : 0));
+  } else {
+    drawPixelXY(x, y, CHSV(color, 255, (bitRead(count, y ) == 1U) ? (step % 5U ? 0 : 255) : 0));
+  }
+}
+
+//---------------------------------------
+void Turbulence() {
+  const byte STEP_COLOR = 255 / HEIGHT;
+  const byte STEP_OBJ = 8;
+  const byte DEPTH = 2;
+  static uint32_t count; // 16777216; = 65536
+  uint32_t curColor;
+  if (loadingFlag) {
+#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //                     scale | speed
+      setModeSettings(random8(100U), random8(1, 255U));
+    }
+#endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    loadingFlag = false;
+    step = 0U;
+    deltaValue = 0;
+    hue = 0;
+    if (modes[currentMode].Speed < 20U) {
+      FPSdelay = SpeedFactor(30);
+    }
+    ledsClear(); // esphome: FastLED.clear();
+  }
+
+  deltaValue++;     /* size morph  */
+
+  /* <==== scroll =====> */
+  for (uint8_t y = HEIGHT; y > 0; y--) {
+    drawRandomCol(0, y - 1, hue, count);
+    drawRandomCol(WIDTH - 1, y - 1, hue + 128U, count);
+
+    // left -----
+    for (uint8_t x = CENTER_X_MAJOR - 1; x > 0; x--) {
+      if (x > CENTER_X_MAJOR) {
+        if (random8(2) == 0U) { /* scroll up */
+          CRGB newColor = getPixColorXY(x, y - 1 );
+        }
+      }
+
+      /* ---> */
+      curColor = getPixColorXY(x - 1, y - 1);
+      if (x < CENTER_X_MAJOR - DEPTH / 2) {
+        drawPixelXY(x, y - 1, curColor);
+      } else {
+        if (curColor != 0U) drawPixelXY(x, y - 1, curColor);
+      }
+    }
+
+    // right -----
+    for (uint8_t x = CENTER_X_MAJOR + 1; x < WIDTH; x++) {
+      if (x < CENTER_X_MAJOR + DEPTH ) {
+        if (random8(2) == 0U)  {  /* scroll up */
+          CRGB newColor = getPixColorXY(x, y - 1 );
+        }
+      }
+      /* <---  */
+      curColor = getPixColorXY(x, y - 1);
+      if (x > CENTER_X_MAJOR + DEPTH / 2 ) {
+        drawPixelXY(x - 1, y - 1, curColor);
+      } else {
+        if (curColor != 0U) drawPixelXY(x - 1, y - 1, curColor);
+      }
+    }
+
+    /* scroll center up ---- */
+    for (uint8_t x = CENTER_X_MAJOR - DEPTH; x < CENTER_X_MAJOR + DEPTH; x++) {
+      drawPixelXY(x, y,  makeDarker(getPixColorXY(x, y - 1 ), 128 / y));
+      if (y == 1) {
+        drawPixelXY(x, 0, CRGB::Black);
+      }
+    }
+    /* --------------------- */
+  }
+
+  if (modes[currentMode].Scale > 50) {
+    count++;
+    if (count % 256 == 0U) hue += 16U;
+  } else {
+    count = 0;
+  }
+  step++;
+}
