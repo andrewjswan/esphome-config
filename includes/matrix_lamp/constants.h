@@ -154,15 +154,14 @@
 #define EFF_STARS               (113U)    // Звезды
 #define EFF_TIXYLAND            (114U)    // Земля Тикси
 #define EFF_FIRESPARKS          (115U)    // Огонь с искрами
-#define EFF_PLANETEARTH         (116U)    // Планета Земля
-#define EFF_DANDELIONS          (117U)    // Разноцветные одуванчики
-#define EFF_SERPENTINE          (118U)    // Серпантин
-#define EFF_ARROWS              (119U)    // Стрелки
-#define EFF_TURBULENCE          (120U)    // Цифровая турбулентность
+#define EFF_DANDELIONS          (116U)    // Разноцветные одуванчики
+#define EFF_SERPENTINE          (117U)    // Серпантин
+#define EFF_ARROWS              (118U)    // Стрелки
+#define EFF_TURBULENCE          (119U)    // Цифровая турбулентность
 
-#define EFF_UKRAINE             (121U)   // Україна
+#define EFF_UKRAINE             (120U)   // Україна
 
-#define MODE_AMOUNT             (122U)   // количество режимов
+#define MODE_AMOUNT             (121U)   // количество режимов
 
 // ============= МАССИВ НАСТРОЕК ЭФФЕКТОВ ПО УМОЛЧАНИЮ ===================
 // формат записи:
@@ -285,7 +284,6 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  25, 215,  99}, // Звезды
   {  20, 212,  76}, // Земля Тикси
   {  30,  80,  64}, // Огонь с искрами
-  {  25, 128,  75}, // Планета Земля
   {  20,  50,  90}, // Разноцветные одуванчики
   {  15,  75,  50}, // Серпантин
   {  75, 165,  40}, // Стрелки
