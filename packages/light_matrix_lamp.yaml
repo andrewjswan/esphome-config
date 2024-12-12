@@ -6,14 +6,15 @@ esphome:
   libraries:
     - fastled/FastLED @ 3.6.0
   includes:
-    - includes/matrix_lamp/common.h
     - includes/matrix_lamp/light.h
+    - includes/matrix_lamp/common.h
     - includes/matrix_lamp/constants.h
     - includes/matrix_lamp/effect_data.h
-    - includes/matrix_lamp/utility.h
-    - includes/matrix_lamp/effect_ticker.h
+    - includes/matrix_lamp/effect_palette.h
     - includes/matrix_lamp/effects.h
     - includes/matrix_lamp/noise_effects.h
+    - includes/matrix_lamp/effect_ticker.h
+    - includes/matrix_lamp/utility.h
     - includes/matrix_lamp/matrix_lamp.h
 
 external_components:

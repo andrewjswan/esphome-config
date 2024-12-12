@@ -34,133 +34,126 @@
 // --- ЭФФЕКТЫ -------------------------
 // == названия и номера эффектов ниже в списке используются на вкладке effectTricker ==
 // == если меняете, меняйте и там, и ещё здесь ниже в РЕЕСТРЕ ДОСТУПНЫХ ЭФФЕКТОВ ==
-#define EFF_WHITE_COLOR         ( 0U)    // Бeлый cвeт
-#define EFF_COLOR               ( 1U)    // Цвeт
-#define EFF_COLORS              ( 2U)    // Cмeнa цвeтa
-#define EFF_MADNESS             ( 3U)    // Бeзyмиe
-#define EFF_CLOUDS              ( 4U)    // Oблaкa
-#define EFF_LAVA                ( 5U)    // Лaвa
-#define EFF_PLASMA              ( 6U)    // Плaзмa
-#define EFF_RAINBOW             ( 7U)    // Paдyгa 3D
-#define EFF_RAINBOW_STRIPE      ( 8U)    // Пaвлин
-#define EFF_ZEBRA               ( 9U)    // 3eбpa
-#define EFF_FOREST              (10U)    // Лec
-#define EFF_OCEAN               (11U)    // Oкeaн
-#define EFF_BBALLS              (12U)    // Mячики
-#define EFF_BALLS_BOUNCE        (13U)    // Mячики бeз гpaниц
-#define EFF_POPCORN             (14U)    // Пoпкopн
-#define EFF_SPIRO               (15U)    // Cпиpaли
-#define EFF_PRISMATA            (16U)    // Пpизмaтa
-#define EFF_SMOKEBALLS          (17U)    // Дымoвыe шaшки
-#define EFF_FLAME               (18U)    // Плaмя
-#define EFF_FIRE_2021           (19U)    // Oгoнь 2021
-#define EFF_PACIFIC             (20U)    // Tиxий oкeaн
-#define EFF_SHADOWS             (21U)    // Teни
-#define EFF_DNA                 (22U)    // ДHK
-#define EFF_FLOCK               (23U)    // Cтaя
-#define EFF_FLOCK_N_PR          (24U)    // Cтaя и xищник
-#define EFF_BUTTERFLYS          (25U)    // Moтыльки
-#define EFF_BUTTERFLYS_LAMP     (26U)    // Лaмпa c мoтылькaми
-#define EFF_SNAKES              (27U)    // 3мeйки
-#define EFF_NEXUS               (28U)    // Nexus
-#define EFF_SPHERES             (29U)    // Шapы
-#define EFF_SINUSOID3           (30U)    // Cинycoид
-#define EFF_METABALLS           (31U)    // Meтaбoлз
-#define EFF_AURORA              (32U)    // Ceвepнoe cияниe
-#define EFF_SPIDER              (33U)    // Плaзмeннaя лaмпa
-#define EFF_LAVALAMP            (34U)    // Лaвoвaя лaмпa
-#define EFF_LIQUIDLAMP          (35U)    // Жидкaя лaмпa
-#define EFF_LIQUIDLAMP_AUTO     (36U)    // Жидкaя лaмпa (auto)
-#define EFF_DROPS               (37U)    // Kaпли нa cтeклe
-#define EFF_MATRIX              (38U)    // Maтpицa
-#define EFF_FIRE_2012           (39U)    // Oгoнь 2012
-#define EFF_FIRE_2018           (40U)    // Oгoнь 2018
-#define EFF_FIRE_2020           (41U)    // Oгoнь 2020
-#define EFF_FIRE                (42U)    // Oгoнь
-#define EFF_WHIRL               (43U)    // Bиxpи плaмeни
-#define EFF_WHIRL_MULTI         (44U)    // Paзнoцвeтныe виxpи
-#define EFF_MAGMA               (45U)    // Maгмa
-#define EFF_LLAND               (46U)    // Kипeниe
-#define EFF_WATERFALL           (47U)    // Boдoпaд
-#define EFF_WATERFALL_4IN1      (48U)    // Boдoпaд 4 в 1
-#define EFF_POOL                (49U)    // Бacceйн
-#define EFF_PULSE               (50U)    // Пyльc
-#define EFF_PULSE_RAINBOW       (51U)    // Paдyжный пyльc
-#define EFF_PULSE_WHITE         (52U)    // Бeлый пyльc
-#define EFF_OSCILLATING         (53U)    // Ocциллятop
-#define EFF_FOUNTAIN            (54U)    // Иcтoчник
-#define EFF_FAIRY               (55U)    // Фeя
-#define EFF_COMET               (56U)    // Koмeтa
-#define EFF_COMET_COLOR         (57U)    // Oднoцвeтнaя кoмeтa
-#define EFF_COMET_TWO           (58U)    // Двe кoмeты
-#define EFF_COMET_THREE         (59U)    // Тpи кoмeты
-#define EFF_ATTRACT             (60U)    // Пpитяжeниe
-#define EFF_FIREFLY             (61U)    // Пapящий oгoнь
-#define EFF_FIREFLY_TOP         (62U)    // Bepxoвoй oгoнь
-#define EFF_SNAKE               (63U)    // Paдyжный змeй
-#define EFF_SPARKLES            (64U)    // Koнфeтти
-#define EFF_TWINKLES            (65U)    // Mepцaниe
-#define EFF_SMOKE               (66U)    // Дым
-#define EFF_SMOKE_COLOR         (67U)    // Paзнoцвeтный дым
-#define EFF_PICASSO             (68U)    // Пикacco
-#define EFF_WAVES               (69U)    // Boлны
-#define EFF_SAND                (70U)    // Цвeтныe дpaжe
-#define EFF_RINGS               (71U)    // Koдoвый зaмoк
-#define EFF_CUBE2D              (72U)    // Kyбик Pyбикa
-#define EFF_SIMPLE_RAIN         (73U)    // Tyчкa в бaнкe
-#define EFF_STORMY_RAIN         (74U)    // Гроза в банке
-#define EFF_COLOR_RAIN          (75U)    // Ocaдки
-#define EFF_RAIN                (76U)    // Paзнoцвeтный дoждь
-#define EFF_SNOW                (77U)    // Cнeгoпaд
-#define EFF_STARFALL            (78U)    // 3вeздoпaд / Meтeль
-#define EFF_LEAPERS             (79U)    // Пpыгyны
-#define EFF_LIGHTERS            (80U)    // Cвeтлячки
-#define EFF_LIGHTER_TRACES      (81U)    // Cвeтлячки co шлeйфoм
-#define EFF_LUMENJER            (82U)    // Люмeньep
-#define EFF_PAINTBALL           (83U)    // Пeйнтбoл
-#define EFF_RAINBOW_VER         (84U)    // Paдyгa
-#define EFF_CHRISTMAS_TREE      (85U)    // Новорічна ялинка
-#define EFF_BY_EFFECT           (86U)    // Побічний ефект
-#define EFF_COLOR_FRIZZLES      (87U)    // Кольорові кучері
-#define EFF_COLORED_PYTHON      (88U)    // Кольоровий Пітон
-#define EFF_CONTACTS            (89U)    // Контакти
-#define EFF_DROP_IN_WATER       (90U)    // Краплі на воді
-#define EFF_FEATHER_CANDLE      (91U)    // Свічка
-#define EFF_FIREWORK            (92U)    // Феєрверк
-#define EFF_FIREWORK_2          (93U)    // Феєрверк 2
-#define EFF_HOURGLASS           (94U)    // Пісочний годинник
-#define EFF_LOTUS               (95U)    // Квітка лотоса
-#define EFF_MAGIC_LANTERN       (96U)    // Чарівний ліхтарик
-#define EFF_MOSAIC              (97U)    // Мозайка
-#define EFF_OCTOPUS             (98U)    // Восьминіг
-#define EFF_PAINTS              (99U)    // Олійні фарби
-#define EFF_PLASMA_WAVES        (100U)   // Плазмові хвілі
-#define EFF_RADIAL_WAVE         (101U)   // Радіальна хвиля
-#define EFF_RIVERS              (102U)   // Річки Ботсвани
-#define EFF_SPECTRUM            (103U)   // Спектрум
-#define EFF_STROBE              (104U)   // Строб.Хаос.Дифузія
-#define EFF_SWIRL               (105U)   // Завиток
-#define EFF_TORNADO             (106U)   // Торнадо
-#define EFF_WATERCOLOR          (107U)   // Акварель
-#define EFF_WEB_TOOLS           (108U)   // Мрія дизайнера
-#define EFF_WINE                (109U)   // Вино
+#define EFF_WHITE_COLOR         (  0U)   // Бeлый cвeт
+#define EFF_COLOR               (  1U)   // Цвeт
+#define EFF_COLORS              (  2U)   // Cмeнa цвeтa
+#define EFF_MADNESS             (  3U)   // Бeзyмиe
+#define EFF_CLOUDS              (  4U)   // Oблaкa
+#define EFF_LAVA                (  5U)   // Лaвa
+#define EFF_PLASMA              (  6U)   // Плaзмa
+#define EFF_RAINBOW             (  7U)   // Paдyгa 3D
+#define EFF_RAINBOW_STRIPE      (  8U)   // Пaвлин
+#define EFF_ZEBRA               (  9U)   // 3eбpa
+#define EFF_FOREST              ( 10U)   // Лec
+#define EFF_OCEAN               ( 11U)   // Oкeaн
+#define EFF_BBALLS              ( 12U)   // Mячики
+#define EFF_BALLS_BOUNCE        ( 13U)   // Mячики бeз гpaниц
+#define EFF_POPCORN             ( 14U)   // Пoпкopн
+#define EFF_SPIRO               ( 15U)   // Cпиpaли
+#define EFF_PRISMATA            ( 16U)   // Пpизмaтa
+#define EFF_SMOKEBALLS          ( 17U)   // Дымoвыe шaшки
+#define EFF_FLAME               ( 18U)   // Плaмя
+#define EFF_FIRE_2021           ( 19U)   // Oгoнь 2021
+#define EFF_PACIFIC             ( 20U)   // Tиxий oкeaн
+#define EFF_SHADOWS             ( 21U)   // Teни
+#define EFF_DNA                 ( 22U)   // ДHK
+#define EFF_FLOCK               ( 23U)   // Cтaя
+#define EFF_FLOCK_N_PR          ( 24U)   // Cтaя и xищник
+#define EFF_BUTTERFLYS          ( 25U)   // Moтыльки
+#define EFF_BUTTERFLYS_LAMP     ( 26U)   // Лaмпa c мoтылькaми
+#define EFF_SNAKES              ( 27U)   // 3мeйки
+#define EFF_NEXUS               ( 28U)   // Nexus
+#define EFF_SPHERES             ( 29U)   // Шapы
+#define EFF_SINUSOID3           ( 30U)   // Cинycoид
+#define EFF_METABALLS           ( 31U)   // Meтaбoлз
+#define EFF_AURORA              ( 32U)   // Ceвepнoe cияниe
+#define EFF_SPIDER              ( 33U)   // Плaзмeннaя лaмпa
+#define EFF_LAVALAMP            ( 34U)   // Лaвoвaя лaмпa
+#define EFF_LIQUIDLAMP          ( 35U)   // Жидкaя лaмпa
+#define EFF_LIQUIDLAMP_AUTO     ( 36U)   // Жидкaя лaмпa (auto)
+#define EFF_DROPS               ( 37U)   // Kaпли нa cтeклe
+#define EFF_MATRIX              ( 38U)   // Maтpицa
+#define EFF_FIRE_2012           ( 39U)   // Oгoнь 2012
+#define EFF_FIRE_2018           ( 40U)   // Oгoнь 2018
+#define EFF_FIRE_2020           ( 41U)   // Oгoнь 2020
+#define EFF_FIRE                ( 42U)   // Oгoнь
+#define EFF_WHIRL               ( 43U)   // Bиxpи плaмeни
+#define EFF_WHIRL_MULTI         ( 44U)   // Paзнoцвeтныe виxpи
+#define EFF_MAGMA               ( 45U)   // Maгмa
+#define EFF_LLAND               ( 46U)   // Kипeниe
+#define EFF_WATERFALL           ( 47U)   // Boдoпaд
+#define EFF_WATERFALL_4IN1      ( 48U)   // Boдoпaд 4 в 1
+#define EFF_POOL                ( 49U)   // Бacceйн
+#define EFF_PULSE               ( 50U)   // Пyльc
+#define EFF_PULSE_RAINBOW       ( 51U)   // Paдyжный пyльc
+#define EFF_PULSE_WHITE         ( 52U)   // Бeлый пyльc
+#define EFF_OSCILLATING         ( 53U)   // Ocциллятop
+#define EFF_FOUNTAIN            ( 54U)   // Иcтoчник
+#define EFF_FAIRY               ( 55U)   // Фeя
+#define EFF_COMET               ( 56U)   // Koмeтa
+#define EFF_COMET_COLOR         ( 57U)   // Oднoцвeтнaя кoмeтa
+#define EFF_COMET_TWO           ( 58U)   // Двe кoмeты
+#define EFF_COMET_THREE         ( 59U)   // Тpи кoмeты
+#define EFF_ATTRACT             ( 60U)   // Пpитяжeниe
+#define EFF_FIREFLY             ( 61U)   // Пapящий oгoнь
+#define EFF_FIREFLY_TOP         ( 62U)   // Bepxoвoй oгoнь
+#define EFF_SNAKE               ( 63U)   // Paдyжный змeй
+#define EFF_SPARKLES            ( 64U)   // Koнфeтти
+#define EFF_TWINKLES            ( 65U)   // Mepцaниe
+#define EFF_SMOKE               ( 66U)   // Дым
+#define EFF_SMOKE_COLOR         ( 67U)   // Paзнoцвeтный дым
+#define EFF_PICASSO             ( 68U)   // Пикacco
+#define EFF_WAVES               ( 69U)   // Boлны
+#define EFF_SAND                ( 70U)   // Цвeтныe дpaжe
+#define EFF_RINGS               ( 71U)   // Koдoвый зaмoк
+#define EFF_CUBE2D              ( 72U)   // Kyбик Pyбикa
+#define EFF_SIMPLE_RAIN         ( 73U)   // Tyчкa в бaнкe
+#define EFF_STORMY_RAIN         ( 74U)   // Гроза в банке
+#define EFF_COLOR_RAIN          ( 75U)   // Ocaдки
+#define EFF_SNOW                ( 76U)   // Cнeгoпaд
+#define EFF_STARFALL            ( 77U)   // 3вeздoпaд / Meтeль
+#define EFF_LEAPERS             ( 78U)   // Пpыгyны
+#define EFF_LIGHTERS            ( 79U)   // Cвeтлячки
+#define EFF_LIGHTER_TRACES      ( 80U)   // Cвeтлячки co шлeйфoм
+#define EFF_LUMENJER            ( 81U)   // Люмeньep
+#define EFF_PAINTBALL           ( 82U)   // Пeйнтбoл
+#define EFF_RAINBOW_VER         ( 83U)   // Paдyгa
+#define EFF_CHRISTMAS_TREE      ( 84U)   // Новорічна ялинка
+#define EFF_BY_EFFECT           ( 85U)   // Побічний ефект
+#define EFF_COLOR_FRIZZLES      ( 86U)   // Кольорові кучері
+#define EFF_COLORED_PYTHON      ( 87U)   // Кольоровий Пітон
+#define EFF_CONTACTS            ( 88U)   // Контакти
+#define EFF_DROP_IN_WATER       ( 89U)   // Краплі на воді
+#define EFF_FEATHER_CANDLE      ( 90U)   // Свічка
+#define EFF_FIREWORK            ( 91U)   // Феєрверк
+#define EFF_FIREWORK_2          ( 92U)   // Феєрверк 2
+#define EFF_HOURGLASS           ( 93U)   // Пісочний годинник
+#define EFF_LOTUS               ( 94U)   // Квітка лотоса
+#define EFF_MAGIC_LANTERN       ( 95U)   // Чарівний ліхтарик
+#define EFF_MOSAIC              ( 96U)   // Мозайка
+#define EFF_OCTOPUS             ( 97U)   // Восьминіг
+#define EFF_PAINTS              ( 98U)   // Олійні фарби
+#define EFF_PLASMA_WAVES        ( 99U)   // Плазмові хвілі
+#define EFF_RADIAL_WAVE         (100U)   // Радіальна хвиля
+#define EFF_RIVERS              (101U)   // Річки Ботсвани
+#define EFF_SPECTRUM            (102U)   // Спектрум
+#define EFF_STROBE              (103U)   // Строб.Хаос.Дифузія
+#define EFF_SWIRL               (104U)   // Завиток
+#define EFF_TORNADO             (105U)   // Торнадо
+#define EFF_WATERCOLOR          (106U)   // Акварель
+#define EFF_WEB_TOOLS           (107U)   // Мрія дизайнера
+#define EFF_WINE                (108U)   // Вино
+#define EFF_BAMBOO              (109U)   // Бамбук
+#define EFF_BALLROUTINE         (110U)   // Блуждающий кубик
+#define EFF_STARS               (111U)   // Звезды
+#define EFF_TIXYLAND            (112U)   // Земля Тикси
+#define EFF_FIRESPARKS          (113U)   // Огонь с искрами
+#define EFF_DANDELIONS          (114U)   // Разноцветные одуванчики
+#define EFF_SERPENTINE          (115U)   // Серпантин
+#define EFF_TURBULENCE          (116U)   // Цифровая турбулентность
+#define EFF_UKRAINE             (117U)   // Україна
 
-// https://github.com/SlingMaster/WiFiLampJavelin/blob/main/Firmware/effectTicker.ino
-// https://github.com/terrorsl/FieryLedLamp/blob/main/FieryLedLamp_New_WEB/FieryLedLamp2/src/Constants.h
-
-#define EFF_BAMBOO              (110U)    // Бамбук
-#define EFF_BALLROUTINE         (111U)    // Блуждающий кубик
-#define EFF_STARS               (112U)    // Звезды
-#define EFF_TIXYLAND            (113U)    // Земля Тикси
-#define EFF_FIRESPARKS          (114U)    // Огонь с искрами
-#define EFF_DANDELIONS          (115U)    // Разноцветные одуванчики
-#define EFF_SERPENTINE          (116U)    // Серпантин
-#define EFF_ARROWS              (117U)    // Стрелки
-#define EFF_TURBULENCE          (118U)    // Цифровая турбулентность
-
-#define EFF_UKRAINE             (119U)   // Україна
-
-#define MODE_AMOUNT             (120U)   // количество режимов
+#define MODE_AMOUNT             (118U)   // количество режимов
 
 // ============= МАССИВ НАСТРОЕК ЭФФЕКТОВ ПО УМОЛЧАНИЮ ===================
 // формат записи:
@@ -242,7 +235,6 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  30, 233,   2}, // Tyчкa в бaнкe
   {  20, 236,  25}, // Гроза в банке
   {  15, 198,  99}, // Ocaдки
-  {  15, 225,   1}, // Paзнoцвeтный дoждь
   {   9, 180,  90}, // Cнeгoпaд
   {  20, 199,  54}, // 3вeздoпaд / Meтeль
   {  24, 203,   5}, // Пpыгyны
@@ -258,7 +250,7 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  10, 200,  60}, // Контакти
   {  15, 200,  55}, // Краплі на воді
   {  50, 220,   5}, // Свічка
-  {  80,  50,   0}, // Феєрверк
+  {  80,  50, 100}, // Феєрверк
   {  40, 240,  75}, // Феєрверк 2
   {  30, 250, 100}, // Пісочний годинник
   {  20, 210,  33}, // Квітка лотоса
@@ -276,7 +268,6 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  25, 240,  65}, // Акварель
   {  15, 128,  50}, // Мрія дизайнера
   {  50, 230,  63}, // Вино
-  
   {  20, 215,  90}, // Бамбук
   {  20, 150,  50}, // Блуждающий кубик
   {  25, 215,  99}, // Звезды
@@ -284,9 +275,7 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  30,  80,  64}, // Огонь с искрами
   {  20,  50,  90}, // Разноцветные одуванчики
   {  15,  75,  50}, // Серпантин
-  {  75, 165,  40}, // Стрелки
   {  15, 215,  35}, // Цифровая турбулентность
-  
   {  15, 240,  50}  // Україна
 }; //             ^-- проверьте, чтобы у предыдущей строки не было запятой после скобки
 
