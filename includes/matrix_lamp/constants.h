@@ -119,7 +119,6 @@
 #define EFF_LUMENJER            (82U)    // Люмeньep
 #define EFF_PAINTBALL           (83U)    // Пeйнтбoл
 #define EFF_RAINBOW_VER         (84U)    // Paдyгa
-
 #define EFF_CHRISTMAS_TREE      (85U)    // Новорічна ялинка
 #define EFF_BY_EFFECT           (86U)    // Побічний ефект
 #define EFF_COLOR_FRIZZLES      (87U)    // Кольорові кучері
@@ -145,9 +144,25 @@
 #define EFF_WATERCOLOR          (107U)   // Акварель
 #define EFF_WEB_TOOLS           (108U)   // Мрія дизайнера
 #define EFF_WINE                (109U)   // Вино
-#define EFF_UKRAINE             (110U)   // Україна
 
-#define MODE_AMOUNT             (111U)   // количество режимов
+// https://github.com/SlingMaster/WiFiLampJavelin/blob/main/Firmware/effectTicker.ino
+// https://github.com/terrorsl/FieryLedLamp/blob/main/FieryLedLamp_New_WEB/FieryLedLamp2/src/Constants.h
+
+#define EFF_FLOWERRUTA          (110U)    // Червона Рута
+#define EFF_BAMBOO              (111U)    // Бамбук
+#define EFF_BALLROUTINE         (112U)    // Блуждающий кубик
+#define EFF_STARS               (113U)    // Звезды
+#define EFF_TIXYLAND            (114U)    // Земля Тикси
+#define EFF_FIRESPARKS          (115U)    // Огонь с искрами
+#define EFF_PLANETEARTH         (116U)    // Планета Земля
+#define EFF_DANDELIONS          (117U)    // Разноцветные одуванчики
+#define EFF_SERPENTINE          (118U)    // Серпантин
+#define EFF_ARROWS              (119U)    // Стрелки
+#define EFF_TURBULENCE          (120U)    // Цифровая турбулентность
+
+#define EFF_UKRAINE             (121U)   // Україна
+
+#define MODE_AMOUNT             (122U)   // количество режимов
 
 // ============= МАССИВ НАСТРОЕК ЭФФЕКТОВ ПО УМОЛЧАНИЮ ===================
 // формат записи:
@@ -238,7 +253,6 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  14, 223,  40}, // Люмeньep
   {  11, 236,   7}, // Пeйнтбoл
   {   8, 196,  56}, // Paдyгa
-
   {  50,  90,  50}, // Новорічна ялинка
   {  45, 150,  30}, // Побічний ефект
   {  20, 128,  25}, // Кольорові кучері
@@ -264,7 +278,20 @@ static const uint8_t defaultSettings[][3] PROGMEM = {
   {  25, 240,  65}, // Акварель
   {  15, 128,  50}, // Мрія дизайнера
   {  50, 230,  63}, // Вино
-  {  15, 240,  50}, // Україна
+  
+  {  20, 215,  60}, // Червона Рута
+  {  20, 215,  90}, // Бамбук
+  {  20, 150,  50}, // Блуждающий кубик
+  {  25, 215,  99}, // Звезды
+  {  20, 212,  76}, // Земля Тикси
+  {  30,  80,  64}, // Огонь с искрами
+  {  25, 128,  75}, // Планета Земля
+  {  20,  50,  90}, // Разноцветные одуванчики
+  {  15,  75,  50}, // Серпантин
+  {  75, 165,  40}, // Стрелки
+  {  15, 215,  35}, // Цифровая турбулентность
+  
+  {  15, 240,  50}  // Україна
 }; //             ^-- проверьте, чтобы у предыдущей строки не было запятой после скобки
 
 // ============= КОНЕЦ МАССИВА =====
