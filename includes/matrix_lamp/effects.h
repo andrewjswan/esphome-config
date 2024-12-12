@@ -12149,7 +12149,7 @@ void TixyLand() {
   unsigned long milli = millis();
   double t = milli / 1000.0;
 
-  EVERY_N_SECONDS(eff_interval) {
+  EVERY_N_SECONDS(20) {
     if ((modes[currentMode].Speed < 5) || (modes[currentMode].Speed > 250)) {
       pcnt++;
     }
@@ -12417,8 +12417,8 @@ void Serpentine() {
     CRGB col2 = CHSV(ms / 29 + y * 256 / (HEIGHT - 1), 255, 255 - (HEIGHT - y) * BR_INTERWAL);
     // CRGB col3 = CHSV(ms / 29 + y * 256 / (HEIGHT - 1) + step, 255, 255 - (HEIGHT - y) * BR_INTERWAL - fade);
 
-    wu_pixel( x1 + hue * DELTA, yy - PADDING * (255 - hue), &col1);
-    wu_pixel( abs((WIDTH - 1) * 256 - (x1 + hue * DELTA)), yy - PADDING * hue, &col2);
+    wu_pixel( (uint32_t)(x1 + hue * DELTA), (uint32_t)(yy - PADDING * (255 - hue)), &col1);
+    wu_pixel( abs((uint32_t)((WIDTH - 1) * 256 - (x1 + hue * DELTA))), (uint32_t)(yy - PADDING * hue), &col2);
   }
 
   step++;
@@ -12438,7 +12438,9 @@ void Serpentine() {
 }
 
 
-// ************************** СТРЕЛКИ *************************
+// ============== Arrows ===============
+//                Стрелки
+// =====================================
 int8_t arrow_x[4], arrow_y[4], stop_x[4], stop_y[4];
 uint8_t arrow_direction; // 0x01 - слева направо; 0x02 - снизу вверх; 0х04 - справа налево; 0х08 - сверху вниз
 uint8_t arrow_mode, arrow_mode_orig;// 0 - по очереди все варианты
@@ -12452,354 +12454,347 @@ uint8_t arrow_hue[4];
 uint8_t arrow_play_mode_count[6]; // Сколько раз проигрывать полностью каждый режим если вариант 0 - текущий счетчик
 uint8_t arrow_play_mode_count_orig[6]; // Сколько раз проигрывать полностью каждый режим если вариант 0 - исходные настройки
 
-void arrowsRoutine() {
-if (loadingFlag) {
-loadingFlag = false;
-//modeCode = MC_ARROWS;
-ledsClear(); // esphome: FastLED.clear();
-arrow_complete = false;
-// arrow_mode_orig = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_ARROWS);
-
-arrow_mode = (arrow_mode_orig == 0 || arrow_mode_orig > 5) ? random8(1,5) : arrow_mode_orig;
-arrow_play_mode_count_orig[0] = 0;
-arrow_play_mode_count_orig[1] = 4; // 4 фазы - все стрелки показаны по кругу один раз - переходить к следующему ->
-arrow_play_mode_count_orig[2] = 4; // 2 фазы - гориз к центру (1), затем верт к центру (2) - обе фазы повторить по 2 раза -> 4
-arrow_play_mode_count_orig[3] = 4; // 1 фаза - все к центру (1) повторить по 4 раза -> 4
-arrow_play_mode_count_orig[4] = 4; // 2 фазы - гориз к центру (1), затем верт к центру (2) - обе фазы повторить по 2 раза -> 4
-arrow_play_mode_count_orig[5] = 4; // 1 фаза - все сразу (1) повторить по 4 раза -> 4
-for (uint8_t i=0; i<6; i++) {
-arrow_play_mode_count[i] = arrow_play_mode_count_orig[i];
-}
-arrowSetupForMode(arrow_mode, true);
-}
-
-//uint8_t effectBrightness;
-//effectBrightness = modes[currentMode].Brightness;
-
-// fader(65);
-dimAll(160);
-CHSV color;
-
-// движение стрелки - cлева направо
-if ((arrow_direction & 0x01) > 0) {
-color = CHSV(arrow_hue[0], 255, modes[currentMode].Brightness);
-for (int8_t x = 0; x <= 4; x++) {
-for (int8_t y = 0; y <= x; y++) {
-if (arrow_x[0] - x >= 0 && arrow_x[0] - x <= stop_x[0]) {
-CHSV clr = (x < 4 || (x == 4 && y < 2)) ? color : CHSV(0,0,0);
-drawPixelXY(arrow_x[0] - x, arrow_y[0] - y, clr);
-drawPixelXY(arrow_x[0] - x, arrow_y[0] + y, clr);
-}
-}
-}
-arrow_x[0]++;
+void arrowSetup_mode1() {
+  // Слева направо
+  if ((arrow_direction & 0x01) > 0) {
+    arrow_hue[0] = random8();
+    arrow_x[0] = 0;
+    arrow_y[0] = HEIGHT / 2;
+    stop_x [0] = WIDTH + 7; // скрывается за экраном на 7 пикселей
+    stop_y [0] = 0; // неприменимо
+  }
+  // снизу вверх
+  if ((arrow_direction & 0x02) > 0) {
+    arrow_hue[1] = random8();
+    arrow_y[1] = 0;
+    arrow_x[1] = WIDTH / 2;
+    stop_y [1] = HEIGHT + 7; // скрывается за экраном на 7 пикселей
+    stop_x [1] = 0; // неприменимо
+  }
+  // справа налево
+  if ((arrow_direction & 0x04) > 0) {
+    arrow_hue[2] = random8();
+    arrow_x[2] = WIDTH - 1;
+    arrow_y[2] = HEIGHT / 2;
+    stop_x [2] = -7; // скрывается за экраном на 7 пикселей
+    stop_y [2] = 0; // неприменимо
+  }
+  // сверху вниз
+  if ((arrow_direction & 0x08) > 0) {
+    arrow_hue[3] = random8();
+    arrow_y[3] = HEIGHT - 1;
+    arrow_x[3] = WIDTH / 2;
+    stop_y [3] = -7; // скрывается за экраном на 7 пикселей
+    stop_x [3] = 0; // неприменимо
+  }
 }
 
-// движение стрелки - cнизу вверх
-if ((arrow_direction & 0x02) > 0) {
-color = CHSV(arrow_hue[1], 255, modes[currentMode].Brightness);
-for (int8_t y = 0; y <= 4; y++) {
-for (int8_t x = 0; x <= y; x++) {
-if (arrow_y[1] - y >= 0 && arrow_y[1] - y <= stop_y[1]) {
-CHSV clr = (y < 4 || (y == 4 && x < 2)) ? color : CHSV(0,0,0);
-drawPixelXY(arrow_x[1] - x, arrow_y[1] - y, clr);
-drawPixelXY(arrow_x[1] + x, arrow_y[1] - y, clr);
-}
-}
-}
-arrow_y[1]++;
-}
-
-// движение стрелки - cправа налево
-if ((arrow_direction & 0x04) > 0) {
-color = CHSV(arrow_hue[2], 255, modes[currentMode].Brightness);
-for (int8_t x = 0; x <= 4; x++) {
-for (int8_t y = 0; y <= x; y++) {
-if (arrow_x[2] + x >= stop_x[2] && arrow_x[2] + x < WIDTH) {
-CHSV clr = (x < 4 || (x == 4 && y < 2)) ? color : CHSV(0,0,0);
-drawPixelXY(arrow_x[2] + x, arrow_y[2] - y, clr);
-drawPixelXY(arrow_x[2] + x, arrow_y[2] + y, clr);
-}
-}
-}
-arrow_x[2]--;
-}
-
-// движение стрелки - cверху вниз
-if ((arrow_direction & 0x08) > 0) {
-color = CHSV(arrow_hue[3], 255, modes[currentMode].Brightness);
-for (int8_t y = 0; y <= 4; y++) {
-for (int8_t x = 0; x <= y; x++) {
-if (arrow_y[3] + y >= stop_y[3] && arrow_y[3] + y < HEIGHT) {
-CHSV clr = (y < 4 || (y == 4 && x < 2)) ? color : CHSV(0,0,0);
-drawPixelXY(arrow_x[3] - x, arrow_y[3] + y, clr);
-drawPixelXY(arrow_x[3] + x, arrow_y[3] + y, clr);
-}
-}
-}
-arrow_y[3]--;
+void arrowSetup_mode2() {
+  // Слева направо до половины экрана
+  if ((arrow_direction & 0x01) > 0) {
+    arrow_hue[0] = random8();
+    arrow_x[0] = 0;
+    arrow_y[0] = HEIGHT / 2;
+    stop_x [0] = WIDTH / 2 - 1; // до центра экрана
+    stop_y [0] = 0; // неприменимо
+  }
+  // снизу вверх до половины экрана
+  if ((arrow_direction & 0x02) > 0) {
+    arrow_hue[1] = random8();
+    arrow_y[1] = 0;
+    arrow_x[1] = WIDTH / 2;
+    stop_y [1] = HEIGHT / 2 - 1; // до центра экрана
+    stop_x [1] = 0; // неприменимо
+  }
+  // справа налево до половины экрана
+  if ((arrow_direction & 0x04) > 0) {
+    arrow_hue[2] = random8();
+    arrow_x[2] = WIDTH - 1;
+    arrow_y[2] = HEIGHT / 2;
+    stop_x [2] = WIDTH / 2; // до центра экрана
+    stop_y [2] = 0; // неприменимо
+  }
+  // сверху вниз до половины экрана
+  if ((arrow_direction & 0x08) > 0) {
+    arrow_hue[3] = random8();
+    arrow_y[3] = HEIGHT - 1;
+    arrow_x[3] = WIDTH / 2;
+    stop_y [3] = HEIGHT / 2; // до центра экрана
+    stop_x [3] = 0; // неприменимо
+  }
 }
 
-// Проверка завершения движения стрелки, переход к следующей фазе или режиму
-
-switch (arrow_mode) {
-
-case 1:
-// Последовательно - слева-направо -> снизу вверх -> справа налево -> сверху вниз и далее по циклу
-// В каждый сомент времени сктивна только одна стрелка, если она дошла до края - переключиться на следующую и задать ее начальные координаты
-arrow_complete = false;
-switch (arrow_direction) {
-case 1: arrow_complete = arrow_x[0] > stop_x[0]; break;
-case 2: arrow_complete = arrow_y[1] > stop_y[1]; break;
-case 4: arrow_complete = arrow_x[2] < stop_x[2]; break;
-case 8: arrow_complete = arrow_y[3] < stop_y[3]; break;
-}
-
-arrow_change_mode = false;
-if (arrow_complete) {
-arrow_direction = (arrow_direction << 1) & 0x0F;
-if (arrow_direction == 0) arrow_direction = 1;
-if (arrow_mode_orig == 0) {
-arrow_play_mode_count[1]--;
-if (arrow_play_mode_count[1] == 0) {
-arrow_play_mode_count[1] = arrow_play_mode_count_orig[1];
-arrow_mode = random8(1,5);
-arrow_change_mode = true;
-}
-}
-
-arrowSetupForMode(arrow_mode, arrow_change_mode);
-}
-break;
-
-case 2:
-// Одновременно горизонтальные навстречу до половины экрана
-// Затем одновременно вертикальные до половины экрана. Далее - повторять
-arrow_complete = false;
-switch (arrow_direction) {
-case 5: arrow_complete = arrow_x[0] > stop_x[0]; break; // Стрелка слева и справа встречаются в центре одновременно - проверять только стрелку слева
-case 10: arrow_complete = arrow_y[1] > stop_y[1]; break; // Стрелка снизу и сверху встречаются в центре одновременно - проверять только стрелку снизу
-}
-
-arrow_change_mode = false;
-if (arrow_complete) {
-arrow_direction = arrow_direction == 5 ? 10 : 5;
-if (arrow_mode_orig == 0) {
-arrow_play_mode_count[2]--;
-if (arrow_play_mode_count[2] == 0) {
-arrow_play_mode_count[2] = arrow_play_mode_count_orig[2];
-arrow_mode = random8(1,5);
-arrow_change_mode = true;
-}
-}
-
-arrowSetupForMode(arrow_mode, arrow_change_mode);
-}
-break;
-
-case 3:
-// Одновременно со всех сторон к центру
-// Завершение кадра режима - когда все стрелки собрались в центре.
-// Проверять стрелки по самой длинной стороне
-if (WIDTH >= HEIGHT)
-arrow_complete = arrow_x[0] > stop_x[0];
-else
-arrow_complete = arrow_y[1] > stop_y[1];
-
-arrow_change_mode = false;
-if (arrow_complete) {
-if (arrow_mode_orig == 0) {
-arrow_play_mode_count[3]--;
-if (arrow_play_mode_count[3] == 0) {
-arrow_play_mode_count[3] = arrow_play_mode_count_orig[3];
-arrow_mode = random8(1,5);
-arrow_change_mode = true;
-}
-}
-
-arrowSetupForMode(arrow_mode, arrow_change_mode);
-}
-break;
-
-case 4:
-// Одновременно слева/справа от края до края со смещением горизонтальной оси на 1/3 высоты, далее
-// одновременно снизу/сверху от края до края со смещением вертикальной оси на 1/3 ширины
-// Завершение кадра режима - когда все стрелки собрались в центре.
-// Проверять стрелки по самой длинной стороне
-switch (arrow_direction) {
-case 5: arrow_complete = arrow_x[0] > stop_x[0]; break; // Стрелка слева и справа движутся и достигают края одновременно - проверять только стрелку слева
-case 10: arrow_complete = arrow_y[1] > stop_y[1]; break; // Стрелка снизу и сверху движутся и достигают края одновременно - проверять только стрелку снизу
-}
-
-arrow_change_mode = false;
-if (arrow_complete) {
-arrow_direction = arrow_direction == 5 ? 10 : 5;
-if (arrow_mode_orig == 0) {
-arrow_play_mode_count[4]--;
-if (arrow_play_mode_count[4] == 0) {
-arrow_play_mode_count[4] = arrow_play_mode_count_orig[4];
-arrow_mode = random8(1,5);
-arrow_change_mode = true;
-}
-}
-
-arrowSetupForMode(arrow_mode, arrow_change_mode);
-}
-break;
-
-case 5:
-// Одновременно со всех сторон от края до края со смещением горизонтальной оси на 1/3 высоты, далее
-// Проверять стрелки по самой длинной стороне
-if (WIDTH >= HEIGHT)
-arrow_complete = arrow_x[0] > stop_x[0];
-else
-arrow_complete = arrow_y[1] > stop_y[1];
-
-arrow_change_mode = false;
-if (arrow_complete) {
-if (arrow_mode_orig == 0) {
-arrow_play_mode_count[5]--;
-if (arrow_play_mode_count[5] == 0) {
-arrow_play_mode_count[5] = arrow_play_mode_count_orig[5];
-arrow_mode = random8(1,5);
-arrow_change_mode = true;
-}
-}
-
-arrowSetupForMode(arrow_mode, arrow_change_mode);
-}
-break;
-}
-
+void arrowSetup_mode4() {
+  // Слева направо
+  if ((arrow_direction & 0x01) > 0) {
+    arrow_hue[0] = random8();
+    arrow_x[0] = 0;
+    arrow_y[0] = (HEIGHT / 3) * 2;
+    stop_x [0] = WIDTH + 7; // скрывается за экраном на 7 пикселей
+    stop_y [0] = 0; // неприменимо
+  }
+  // снизу вверх
+  if ((arrow_direction & 0x02) > 0) {
+    arrow_hue[1] = random8();
+    arrow_y[1] = 0;
+    arrow_x[1] = (WIDTH / 3) * 2;
+    stop_y [1] = HEIGHT + 7; // скрывается за экраном на 7 пикселей
+    stop_x [1] = 0; // неприменимо
+  }
+  // справа налево
+  if ((arrow_direction & 0x04) > 0) {
+    arrow_hue[2] = random8();
+    arrow_x[2] = WIDTH - 1;
+    arrow_y[2] = HEIGHT / 3;
+    stop_x [2] = -7; // скрывается за экраном на 7 пикселей
+    stop_y [2] = 0; // неприменимо
+  }
+  // сверху вниз
+  if ((arrow_direction & 0x08) > 0) {
+    arrow_hue[3] = random8();
+    arrow_y[3] = HEIGHT - 1;
+    arrow_x[3] = WIDTH / 3;
+    stop_y [3] = -7; // скрывается за экраном на 7 пикселей
+    stop_x [3] = 0; // неприменимо
+  }
 }
 
 void arrowSetupForMode(uint8_t mode, bool change) {
 switch (mode) {
-case 1:
-if (change) arrow_direction = 1;
-arrowSetup_mode1(); // От края матрицы к краю, по центру гориз и верт
-break;
-case 2:
-if (change) arrow_direction = 5;
-arrowSetup_mode2(); // По центру матрицы (гориз / верт) - ограничение - центр матрицы
-break;
-case 3:
-if (change) arrow_direction = 15;
-arrowSetup_mode2(); // как и в режиме 2 - по центру матрицы (гориз / верт) - ограничение - центр матрицы
-break;
-case 4:
-if (change) arrow_direction = 5;
-arrowSetup_mode4(); // От края матрицы к краю, верт / гориз
-break;
-case 5:
-if (change) arrow_direction = 15;
-arrowSetup_mode4(); // как и в режиме 4 от края матрицы к краю, на 1/3
-break;
-}
-}
-void arrowSetup_mode1() {
-// Слева направо
-if ((arrow_direction & 0x01) > 0) {
-arrow_hue[0] = random8();
-arrow_x[0] = 0;
-arrow_y[0] = HEIGHT / 2;
-stop_x [0] = WIDTH + 7; // скрывается за экраном на 7 пикселей
-stop_y [0] = 0; // неприменимо
-}
-// снизу вверх
-if ((arrow_direction & 0x02) > 0) {
-arrow_hue[1] = random8();
-arrow_y[1] = 0;
-arrow_x[1] = WIDTH / 2;
-stop_y [1] = HEIGHT + 7; // скрывается за экраном на 7 пикселей
-stop_x [1] = 0; // неприменимо
-}
-// справа налево
-if ((arrow_direction & 0x04) > 0) {
-arrow_hue[2] = random8();
-arrow_x[2] = WIDTH - 1;
-arrow_y[2] = HEIGHT / 2;
-stop_x [2] = -7; // скрывается за экраном на 7 пикселей
-stop_y [2] = 0; // неприменимо
-}
-// сверху вниз
-if ((arrow_direction & 0x08) > 0) {
-arrow_hue[3] = random8();
-arrow_y[3] = HEIGHT - 1;
-arrow_x[3] = WIDTH / 2;
-stop_y [3] = -7; // скрывается за экраном на 7 пикселей
-stop_x [3] = 0; // неприменимо
-}
+  case 1:
+    if (change) arrow_direction = 1;
+    arrowSetup_mode1(); // От края матрицы к краю, по центру гориз и верт
+    break;
+  case 2:
+    if (change) arrow_direction = 5;
+    arrowSetup_mode2(); // По центру матрицы (гориз / верт) - ограничение - центр матрицы
+    break;
+  case 3:
+    if (change) arrow_direction = 15;
+    arrowSetup_mode2(); // как и в режиме 2 - по центру матрицы (гориз / верт) - ограничение - центр матрицы
+    break;
+  case 4:
+    if (change) arrow_direction = 5;
+    arrowSetup_mode4(); // От края матрицы к краю, верт / гориз
+    break;
+  case 5:
+    if (change) arrow_direction = 15;
+    arrowSetup_mode4(); // как и в режиме 4 от края матрицы к краю, на 1/3
+    break;
+  }
 }
 
-void arrowSetup_mode2() {
-// Слева направо до половины экрана
-if ((arrow_direction & 0x01) > 0) {
-arrow_hue[0] = random8();
-arrow_x[0] = 0;
-arrow_y[0] = HEIGHT / 2;
-stop_x [0] = WIDTH / 2 - 1; // до центра экрана
-stop_y [0] = 0; // неприменимо
-}
-// снизу вверх до половины экрана
-if ((arrow_direction & 0x02) > 0) {
-arrow_hue[1] = random8();
-arrow_y[1] = 0;
-arrow_x[1] = WIDTH / 2;
-stop_y [1] = HEIGHT / 2 - 1; // до центра экрана
-stop_x [1] = 0; // неприменимо
-}
-// справа налево до половины экрана
-if ((arrow_direction & 0x04) > 0) {
-arrow_hue[2] = random8();
-arrow_x[2] = WIDTH - 1;
-arrow_y[2] = HEIGHT / 2;
-stop_x [2] = WIDTH / 2; // до центра экрана
-stop_y [2] = 0; // неприменимо
-}
-// сверху вниз до половины экрана
-if ((arrow_direction & 0x08) > 0) {
-arrow_hue[3] = random8();
-arrow_y[3] = HEIGHT - 1;
-arrow_x[3] = WIDTH / 2;
-stop_y [3] = HEIGHT / 2; // до центра экрана
-stop_x [3] = 0; // неприменимо
-}
-}
+void arrowsRoutine() {
+  if (loadingFlag) {
+    loadingFlag = false;
+    //modeCode = MC_ARROWS;
+    ledsClear(); // esphome: FastLED.clear();
+    arrow_complete = false;
+    // arrow_mode_orig = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_ARROWS);
 
-void arrowSetup_mode4() {
-// Слева направо
-if ((arrow_direction & 0x01) > 0) {
-arrow_hue[0] = random8();
-arrow_x[0] = 0;
-arrow_y[0] = (HEIGHT / 3) * 2;
-stop_x [0] = WIDTH + 7; // скрывается за экраном на 7 пикселей
-stop_y [0] = 0; // неприменимо
-}
-// снизу вверх
-if ((arrow_direction & 0x02) > 0) {
-arrow_hue[1] = random8();
-arrow_y[1] = 0;
-arrow_x[1] = (WIDTH / 3) * 2;
-stop_y [1] = HEIGHT + 7; // скрывается за экраном на 7 пикселей
-stop_x [1] = 0; // неприменимо
-}
-// справа налево
-if ((arrow_direction & 0x04) > 0) {
-arrow_hue[2] = random8();
-arrow_x[2] = WIDTH - 1;
-arrow_y[2] = HEIGHT / 3;
-stop_x [2] = -7; // скрывается за экраном на 7 пикселей
-stop_y [2] = 0; // неприменимо
-}
-// сверху вниз
-if ((arrow_direction & 0x08) > 0) {
-arrow_hue[3] = random8();
-arrow_y[3] = HEIGHT - 1;
-arrow_x[3] = WIDTH / 3;
-stop_y [3] = -7; // скрывается за экраном на 7 пикселей
-stop_x [3] = 0; // неприменимо
-}
+    arrow_mode = (arrow_mode_orig == 0 || arrow_mode_orig > 5) ? random8(1,5) : arrow_mode_orig;
+    arrow_play_mode_count_orig[0] = 0;
+    arrow_play_mode_count_orig[1] = 4; // 4 фазы - все стрелки показаны по кругу один раз - переходить к следующему ->
+    arrow_play_mode_count_orig[2] = 4; // 2 фазы - гориз к центру (1), затем верт к центру (2) - обе фазы повторить по 2 раза -> 4
+    arrow_play_mode_count_orig[3] = 4; // 1 фаза - все к центру (1) повторить по 4 раза -> 4
+    arrow_play_mode_count_orig[4] = 4; // 2 фазы - гориз к центру (1), затем верт к центру (2) - обе фазы повторить по 2 раза -> 4
+    arrow_play_mode_count_orig[5] = 4; // 1 фаза - все сразу (1) повторить по 4 раза -> 4
+    for (uint8_t i=0; i<6; i++) {
+      arrow_play_mode_count[i] = arrow_play_mode_count_orig[i];
+    }
+    arrowSetupForMode(arrow_mode, true);
+  }
+
+  //uint8_t effectBrightness;
+  //effectBrightness = modes[currentMode].Brightness;
+
+  // fader(65);
+  dimAll(160);
+  CHSV color;
+
+  // движение стрелки - cлева направо
+  if ((arrow_direction & 0x01) > 0) {
+    color = CHSV(arrow_hue[0], 255, modes[currentMode].Brightness);
+    for (int8_t x = 0; x <= 4; x++) {
+      for (int8_t y = 0; y <= x; y++) {
+        if (arrow_x[0] - x >= 0 && arrow_x[0] - x <= stop_x[0]) {
+          CHSV clr = (x < 4 || (x == 4 && y < 2)) ? color : CHSV(0,0,0);
+          drawPixelXY(arrow_x[0] - x, arrow_y[0] - y, clr);
+          drawPixelXY(arrow_x[0] - x, arrow_y[0] + y, clr);
+        }
+      }
+    }
+  arrow_x[0]++;
+  }
+
+  // движение стрелки - cнизу вверх
+  if ((arrow_direction & 0x02) > 0) {
+    color = CHSV(arrow_hue[1], 255, modes[currentMode].Brightness);
+    for (int8_t y = 0; y <= 4; y++) {
+      for (int8_t x = 0; x <= y; x++) {
+        if (arrow_y[1] - y >= 0 && arrow_y[1] - y <= stop_y[1]) {
+          CHSV clr = (y < 4 || (y == 4 && x < 2)) ? color : CHSV(0,0,0);
+          drawPixelXY(arrow_x[1] - x, arrow_y[1] - y, clr);
+          drawPixelXY(arrow_x[1] + x, arrow_y[1] - y, clr);
+        }
+      }
+    }
+    arrow_y[1]++;
+  }
+
+  // движение стрелки - cправа налево
+  if ((arrow_direction & 0x04) > 0) {
+    color = CHSV(arrow_hue[2], 255, modes[currentMode].Brightness);
+    for (int8_t x = 0; x <= 4; x++) {
+      for (int8_t y = 0; y <= x; y++) {
+        if (arrow_x[2] + x >= stop_x[2] && arrow_x[2] + x < WIDTH) {
+          CHSV clr = (x < 4 || (x == 4 && y < 2)) ? color : CHSV(0,0,0);
+          drawPixelXY(arrow_x[2] + x, arrow_y[2] - y, clr);
+          drawPixelXY(arrow_x[2] + x, arrow_y[2] + y, clr);
+        }
+      }
+    }
+    arrow_x[2]--;
+  }
+
+  // движение стрелки - cверху вниз
+  if ((arrow_direction & 0x08) > 0) {
+    color = CHSV(arrow_hue[3], 255, modes[currentMode].Brightness);
+    for (int8_t y = 0; y <= 4; y++) {
+      for (int8_t x = 0; x <= y; x++) {
+        if (arrow_y[3] + y >= stop_y[3] && arrow_y[3] + y < HEIGHT) {
+          CHSV clr = (y < 4 || (y == 4 && x < 2)) ? color : CHSV(0,0,0);
+          drawPixelXY(arrow_x[3] - x, arrow_y[3] + y, clr);
+          drawPixelXY(arrow_x[3] + x, arrow_y[3] + y, clr);
+        }
+      }
+    }
+    arrow_y[3]--;
+  }
+
+  // Проверка завершения движения стрелки, переход к следующей фазе или режиму
+  switch (arrow_mode) {
+    case 1:
+      // Последовательно - слева-направо -> снизу вверх -> справа налево -> сверху вниз и далее по циклу
+      // В каждый сомент времени сктивна только одна стрелка, если она дошла до края - переключиться на следующую и задать ее начальные координаты
+      arrow_complete = false;
+      switch (arrow_direction) {
+        case 1: arrow_complete = arrow_x[0] > stop_x[0]; break;
+        case 2: arrow_complete = arrow_y[1] > stop_y[1]; break;
+        case 4: arrow_complete = arrow_x[2] < stop_x[2]; break;
+        case 8: arrow_complete = arrow_y[3] < stop_y[3]; break;
+      }
+
+      arrow_change_mode = false;
+      if (arrow_complete) {
+        arrow_direction = (arrow_direction << 1) & 0x0F;
+        if (arrow_direction == 0) arrow_direction = 1;
+        if (arrow_mode_orig == 0) {
+          arrow_play_mode_count[1]--;
+          if (arrow_play_mode_count[1] == 0) {
+            arrow_play_mode_count[1] = arrow_play_mode_count_orig[1];
+            arrow_mode = random8(1,5);
+            arrow_change_mode = true;
+          }
+        }
+        arrowSetupForMode(arrow_mode, arrow_change_mode);
+      }
+      break;
+
+    case 2:
+      // Одновременно горизонтальные навстречу до половины экрана
+      // Затем одновременно вертикальные до половины экрана. Далее - повторять
+      arrow_complete = false;
+      switch (arrow_direction) {
+        case 5: arrow_complete = arrow_x[0] > stop_x[0]; break; // Стрелка слева и справа встречаются в центре одновременно - проверять только стрелку слева
+        case 10: arrow_complete = arrow_y[1] > stop_y[1]; break; // Стрелка снизу и сверху встречаются в центре одновременно - проверять только стрелку снизу
+      }
+
+      arrow_change_mode = false;
+      if (arrow_complete) {
+        arrow_direction = arrow_direction == 5 ? 10 : 5;
+        if (arrow_mode_orig == 0) {
+          arrow_play_mode_count[2]--;
+          if (arrow_play_mode_count[2] == 0) {
+            arrow_play_mode_count[2] = arrow_play_mode_count_orig[2];
+            arrow_mode = random8(1,5);
+            arrow_change_mode = true;
+          }
+        }
+        arrowSetupForMode(arrow_mode, arrow_change_mode);
+      }
+      break;
+
+    case 3:
+      // Одновременно со всех сторон к центру
+      // Завершение кадра режима - когда все стрелки собрались в центре.
+      // Проверять стрелки по самой длинной стороне
+      if (WIDTH >= HEIGHT)
+        arrow_complete = arrow_x[0] > stop_x[0];
+      else
+        arrow_complete = arrow_y[1] > stop_y[1];
+
+      arrow_change_mode = false;
+      if (arrow_complete) {
+        if (arrow_mode_orig == 0) {
+          arrow_play_mode_count[3]--;
+          if (arrow_play_mode_count[3] == 0) {
+            arrow_play_mode_count[3] = arrow_play_mode_count_orig[3];
+            arrow_mode = random8(1,5);
+            arrow_change_mode = true;
+          }
+        }
+        arrowSetupForMode(arrow_mode, arrow_change_mode);
+      }
+      break;
+
+    case 4:
+      // Одновременно слева/справа от края до края со смещением горизонтальной оси на 1/3 высоты, далее
+      // одновременно снизу/сверху от края до края со смещением вертикальной оси на 1/3 ширины
+      // Завершение кадра режима - когда все стрелки собрались в центре.
+      // Проверять стрелки по самой длинной стороне
+      switch (arrow_direction) {
+        case 5: arrow_complete = arrow_x[0] > stop_x[0]; break; // Стрелка слева и справа движутся и достигают края одновременно - проверять только стрелку слева
+        case 10: arrow_complete = arrow_y[1] > stop_y[1]; break; // Стрелка снизу и сверху движутся и достигают края одновременно - проверять только стрелку снизу
+      }
+
+      arrow_change_mode = false;
+      if (arrow_complete) {
+        arrow_direction = arrow_direction == 5 ? 10 : 5;
+        if (arrow_mode_orig == 0) {
+          arrow_play_mode_count[4]--;
+          if (arrow_play_mode_count[4] == 0) {
+            arrow_play_mode_count[4] = arrow_play_mode_count_orig[4];
+            arrow_mode = random8(1,5);
+            arrow_change_mode = true;
+          }
+        }
+        arrowSetupForMode(arrow_mode, arrow_change_mode);
+      }
+      break;
+
+    case 5:
+      // Одновременно со всех сторон от края до края со смещением горизонтальной оси на 1/3 высоты, далее
+      // Проверять стрелки по самой длинной стороне
+      if (WIDTH >= HEIGHT)
+        arrow_complete = arrow_x[0] > stop_x[0];
+      else
+        arrow_complete = arrow_y[1] > stop_y[1];
+
+      arrow_change_mode = false;
+      if (arrow_complete) {
+        if (arrow_mode_orig == 0) {
+          arrow_play_mode_count[5]--;
+          if (arrow_play_mode_count[5] == 0) {
+            arrow_play_mode_count[5] = arrow_play_mode_count_orig[5];
+            arrow_mode = random8(1,5);
+            arrow_change_mode = true;
+          }
+        }
+        arrowSetupForMode(arrow_mode, arrow_change_mode);
+      }
+      break;
+  }
 }
 
 
