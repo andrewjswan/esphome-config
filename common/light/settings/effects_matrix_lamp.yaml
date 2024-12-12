@@ -1059,6 +1059,97 @@ effects:
         }
         matrix_lamp.ShowFrame(EFF_WINE, current_color, &it);
 
+
+  - addressable_lambda:
+      name: Bamboo
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Bamboo");
+        }
+        matrix_lamp.ShowFrame(EFF_BAMBOO, current_color, &it);
+
+  - addressable_lambda:
+      name: Ball Routine
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Ball Routine");
+        }
+        matrix_lamp.ShowFrame(EFF_BALLROUTINE, current_color, &it);
+
+  - addressable_lambda:
+      name: Stars
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Stars");
+        }
+        matrix_lamp.ShowFrame(EFF_STARS, current_color, &it);
+
+  - addressable_lambda:
+      name: Tyxy Land
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Tyxy Land");
+        }
+        matrix_lamp.ShowFrame(EFF_TIXYLAND, current_color, &it);
+
+  - addressable_lambda:
+      name: Firesparcs
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Firesparcs");
+        }
+        matrix_lamp.ShowFrame(EFF_FIRESPARKS, current_color, &it);
+
+  - addressable_lambda:
+      name: Dandelions
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Dandelions");
+        }
+        matrix_lamp.ShowFrame(EFF_DANDELIONS, current_color, &it);
+
+  - addressable_lambda:
+      name: Serpentine
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Serpentine");
+        }
+        matrix_lamp.ShowFrame(EFF_SERPENTINE, current_color, &it);
+
+  - addressable_lambda:
+      name: Arrows
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Arrows");
+        }
+        matrix_lamp.ShowFrame(EFF_ARROWS, current_color, &it);
+
+  - addressable_lambda:
+      name: Turbulence
+      update_interval: 0s
+      lambda: |-
+        if (initial_run)
+        {
+          ESP_LOGD("effect", "Turbulence");
+        }
+        matrix_lamp.ShowFrame(EFF_TURBULENCE, current_color, &it);
+
   - addressable_lambda:
       name: Ukraine
       update_interval: 0s
