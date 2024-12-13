@@ -47,6 +47,25 @@ switch:
           matrix_lamp.SetRandomSettings(false);
 
 number:
+  # Matrix Orientation
+  - platform: template
+    name: ${name} Matrix Orientation
+    icon: mdi:mdi-arrow-expand
+    min_value: 1
+    max_value: 8
+    step: 1
+    optimistic: true
+    id: matrix_orientation
+    initial_value: 3
+    mode: slider
+    entity_category: config
+    disabled_by_default: true
+    restore_value: true
+    on_value:
+      then:
+        - lambda: |-
+            matrix_lamp.SetMatrixOrientation(x);
+
   # FastLed Settings
   - !include ../common/number/fastled_speed.yaml
   - !include ../common/number/fastled_variant.yaml

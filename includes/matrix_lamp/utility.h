@@ -1,134 +1,66 @@
 #pragma once
 
-// ************* НАСТРОЙКА МАТРИЦЫ *****
-#if (CONNECTION_ANGLE == 0 && STRIP_DIRECTION == 0)
-#define _WIDTH WIDTH
-#define THIS_X x
-#define THIS_Y y
-
-#elif (CONNECTION_ANGLE == 0 && STRIP_DIRECTION == 1)
-#define _WIDTH HEIGHT
-#define THIS_X y
-#define THIS_Y x
-
-#elif (CONNECTION_ANGLE == 1 && STRIP_DIRECTION == 0)
-#define _WIDTH WIDTH
-#define THIS_X x
-#define THIS_Y (HEIGHT - y - 1)
-
-#elif (CONNECTION_ANGLE == 1 && STRIP_DIRECTION == 3)
-#define _WIDTH HEIGHT
-#define THIS_X (HEIGHT - y - 1)
-#define THIS_Y x
-
-#elif (CONNECTION_ANGLE == 2 && STRIP_DIRECTION == 2)
-#define _WIDTH WIDTH
-#define THIS_X (WIDTH - x - 1)
-#define THIS_Y (HEIGHT - y - 1)
-
-#elif (CONNECTION_ANGLE == 2 && STRIP_DIRECTION == 3)
-#define _WIDTH HEIGHT
-#define THIS_X (HEIGHT - y - 1)
-#define THIS_Y (WIDTH - x - 1)
-
-#elif (CONNECTION_ANGLE == 3 && STRIP_DIRECTION == 2)
-#define _WIDTH WIDTH
-#define THIS_X (WIDTH - x - 1)
-#define THIS_Y y
-
-#elif (CONNECTION_ANGLE == 3 && STRIP_DIRECTION == 1)
-#define _WIDTH HEIGHT
-#define THIS_X y
-#define THIS_Y (WIDTH - x - 1)
-
-#else
-!!!!!!!!!!!!!!!!!!!!!!!!!!!   смотрите инструкцию: https://alexgyver.ru/wp-content/uploads/2018/11/scheme3.jpg
-!!!!!!!!!!!!!!!!!!!!!!!!!!!   такого сочетания CONNECTION_ANGLE и STRIP_DIRECTION не бывает
-#define _WIDTH WIDTH
-#define THIS_X x
-#define THIS_Y y
-#pragma message "Wrong matrix parameters! Set to default"
-
-#endif
-
-// если у вас матрица необычной формы с зазорами/вырезами, либо просто маленькая, тогда вам придётся переписать функцию XY() под себя
-// массив для переадресации можно сформировать на этом онлайн-сервисе: https://macetech.github.io/FastLED-XY-Map-Generator/
-// или тут по-русски: https://firelamp.pp.ua/matrix_generator/
-
-// ниже пример функции, когда у вас матрица 8х16, а вы хотите, чтобы эффекты рисовались, будто бы матрица 16х16 (рисуем по центру, а по бокам обрезано)
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  Х  Х  -  -  -  - 
-//   -  -  -  -  Х  Х  Х  Х  Х  Х  9  8  -  -  -  - 
-//   -  -  -  -  0  1  2  3  4  5  6  7  -  -  -  -
-/*
-uint8_t XY (uint8_t x, uint8_t y) {
-  // any out of bounds address maps to the first hidden pixel
-  if ( (x >= 16) || (y >= 16) ) {
-    return (128); //(LAST_VISIBLE_LED + 1);
-  }
-
-  const uint8_t XYTable[] = {
-   255, 254, 253, 252, 127, 126, 125, 124, 123, 122, 121, 120, 251, 250, 249, 248,
-   240, 241, 242, 243, 112, 113, 114, 115, 116, 117, 118, 119, 244, 245, 246, 247,
-   239, 238, 237, 236, 111, 110, 109, 108, 107, 106, 105, 104, 235, 234, 233, 232,
-   224, 225, 226, 227,  96,  97,  98,  99, 100, 101, 102, 103, 228, 229, 230, 231,
-   223, 222, 221, 220,  95,  94,  93,  92,  91,  90,  89,  88, 219, 218, 217, 216,
-   208, 209, 210, 211,  80,  81,  82,  83,  84,  85,  86,  87, 212, 213, 214, 215,
-   207, 206, 205, 204,  79,  78,  77,  76,  75,  74,  73,  72, 203, 202, 201, 200,
-   192, 193, 194, 195,  64,  65,  66,  67,  68,  69,  70,  71, 196, 197, 198, 199,
-   191, 190, 189, 188,  63,  62,  61,  60,  59,  58,  57,  56, 187, 186, 185, 184,
-   176, 177, 178, 179,  48,  49,  50,  51,  52,  53,  54,  55, 180, 181, 182, 183,
-   175, 174, 173, 172,  47,  46,  45,  44,  43,  42,  41,  40, 171, 170, 169, 168,
-   160, 161, 162, 163,  32,  33,  34,  35,  36,  37,  38,  39, 164, 165, 166, 167,
-   159, 158, 157, 156,  31,  30,  29,  28,  27,  26,  25,  24, 155, 154, 153, 152,
-   144, 145, 146, 147,  16,  17,  18,  19,  20,  21,  22,  23, 148, 149, 150, 151,
-   143, 142, 141, 140,  15,  14,  13,  12,  11,  10,   9,   8, 139, 138, 137, 136,
-   128, 129, 130, 131,   0,   1,   2,   3,   4,   5,   6,   7, 132, 133, 134, 135
-  };
-
-  uint8_t i = (y * 16) + x;
-  return XYTable[i];
-}
-*/
-
-#if CONNECTION_ANGLE == 0 && STRIP_DIRECTION == 0
-  #define ORIENTATION      (0U)
-#endif
-#if CONNECTION_ANGLE == 0 && STRIP_DIRECTION == 1
-  #define ORIENTATION      (1U)
-#endif
-#if CONNECTION_ANGLE == 1 && STRIP_DIRECTION == 0
-  #define ORIENTATION      (2U)
-#endif
-#if CONNECTION_ANGLE == 1 && STRIP_DIRECTION == 3
-  #define ORIENTATION      (3U)
-#endif
-#if CONNECTION_ANGLE == 2 && STRIP_DIRECTION == 2
-  #define ORIENTATION      (4U)
-#endif
-#if CONNECTION_ANGLE == 2 && STRIP_DIRECTION == 3
-  #define ORIENTATION      (5U)
-#endif
-#if CONNECTION_ANGLE == 3 && STRIP_DIRECTION == 2
-  #define ORIENTATION      (6U)
-#endif
-#if CONNECTION_ANGLE == 3 && STRIP_DIRECTION == 1
-  #define ORIENTATION      (7U)
-#endif
-
+// ------------------------------------------------
+// получить номер пикселя в ленте по координатам
+// библиотека FastLED тоже использует эту функцию
+uint16_t XY(uint8_t x, uint8_t y)
+{
+  uint8_t THIS_X;
+  uint8_t THIS_Y;
+  uint8_t _WIDTH = WIDTH;
  
+  switch (ORIENTATION)
+  {
+    case 0: 
+      THIS_X = x;
+      THIS_Y =y;
+      break;
+    case 1:
+      _WIDTH = HEIGHT;
+      THIS_X = y;
+      THIS_Y = x;
+      break;
+    case 2:
+      THIS_X = x;
+      THIS_Y = (HEIGHT - y - 1);
+      break;
+    case 3:
+      _WIDTH = HEIGHT;
+      THIS_X = (HEIGHT - y - 1);
+      THIS_Y = x;
+      break;
+    case 4:
+      THIS_X = (WIDTH - x - 1);
+      THIS_Y = (HEIGHT - y - 1);
+      break;
+    case 5:
+      _WIDTH = HEIGHT;
+      THIS_X = (HEIGHT - y - 1);
+      THIS_Y = (WIDTH - x - 1);
+      break;
+    case 6:
+      THIS_X = (WIDTH - x - 1);
+      THIS_Y =y;
+      break;
+    case 7:
+      _WIDTH = HEIGHT;
+      THIS_X = y;
+      THIS_Y = (WIDTH - x - 1);
+      break;
+    default :
+      THIS_X = x;                                     // !! смотрите инструкцию: https://alexgyver.ru/wp-content/uploads/2018/11/scheme3.jpg
+      THIS_Y =y;                                      // !! такого сочетания CONNECTION_ANGLE и STRIP_DIRECTION не бывает
+      break;
+   }
+ 
+   if (!(THIS_Y & 0x01) || MATRIX_TYPE)               // Even rows run forwards
+     return (THIS_Y * _WIDTH + THIS_X);
+   else                                                  
+     return (THIS_Y * _WIDTH + _WIDTH - THIS_X - 1);  // Odd rows run backwards
+}
+
+
+// ------------------------------------------------
 void restoreSettings()
 {
   for (uint8_t i = 0; i < MODE_AMOUNT; i++)
@@ -139,7 +71,8 @@ void restoreSettings()
   }
 }
 
-// =====================================
+
+// ------------------------------------------------
 uint8_t SpeedFactor(uint8_t spd)
 {
   uint8_t result = spd * NUM_LEDS / 1024.0;
@@ -147,6 +80,7 @@ uint8_t SpeedFactor(uint8_t spd)
 }
 
 
+// ------------------------------------------------
 // неточный, зато более быстрый квадратный корень
 float sqrt3(const float x)
 {
@@ -161,17 +95,8 @@ float sqrt3(const float x)
   return u.x;
 }
 
-// получить номер пикселя в ленте по координатам
-// библиотека FastLED тоже использует эту функцию
-uint16_t XY(uint8_t x, uint8_t y)
-{
-  if (!(THIS_Y & 0x01) || MATRIX_TYPE)               // Even rows run forwards
-    return (THIS_Y * _WIDTH + THIS_X);
-  else                                                  
-    return (THIS_Y * _WIDTH + _WIDTH - THIS_X - 1);  // Odd rows run backwards
-}
 
-
+// ------------------------------------------------
 // функция отрисовки точки по координатам X Y
 #if (WIDTH > 127) || (HEIGHT > 127)
 void drawPixelXY(int16_t x, int16_t y, CRGB color)
@@ -189,6 +114,7 @@ void drawPixelXY(int8_t x, int8_t y, CRGB color)
 }
 
 
+// ------------------------------------------------
 // функция получения цвета пикселя по его номеру
 uint32_t getPixColor(uint16_t thisPixel)
 {
@@ -197,6 +123,7 @@ uint32_t getPixColor(uint16_t thisPixel)
 }
 
 
+// ------------------------------------------------
 // функция получения цвета пикселя в матрице по его координатам
 uint32_t getPixColorXY(uint8_t x, uint8_t y)
 {
@@ -204,6 +131,7 @@ uint32_t getPixColorXY(uint8_t x, uint8_t y)
 }
 
 
+// ------------------------------------------------
 // залить все
 void fillAll(CRGB color)
 {
@@ -216,6 +144,7 @@ void ledsClear()
   fillAll(CRGB(0,0,0));
 }
 
+// ------------------------------------------------
 // стандартные функции библиотеки LEDraw от @Palpalych (для адаптаций его эффектов)
 void blurScreen(fract8 blur_amount, CRGB *LEDarray = leds)
 {
@@ -254,7 +183,7 @@ void drawPixelXYF(float x, float y, CRGB color) //, uint8_t darklevel = 0U)
 }
 
 
-//---------------------------------------
+// ------------------------------------------------
 void DrawLine(int x1, int y1, int x2, int y2, CRGB color)
 {
   int deltaX = abs(x2 - x1);
@@ -279,7 +208,7 @@ void DrawLine(int x1, int y1, int x2, int y2, CRGB color)
 }
 
 
-//---------------------------------------
+// ------------------------------------------------
 void DrawLineF(float x1, float y1, float x2, float y2, CRGB color)
 {
   float deltaX = std::fabs(x2 - x1);
@@ -306,9 +235,9 @@ void DrawLineF(float x1, float y1, float x2, float y2, CRGB color)
 }
 
 
-//---------------------------------------
-/* kostyamat добавил
- функция уменьшения яркости */
+// ------------------------------------------------
+// kostyamat добавил
+// функция уменьшения яркости
 CRGB makeDarker( const CRGB& color, fract8 howMuchDarker)
 {
   CRGB newcolor = color;
@@ -318,17 +247,13 @@ CRGB makeDarker( const CRGB& color, fract8 howMuchDarker)
 }
 
 
-//---------------------------------------
+// ------------------------------------------------
 void drawCircleF(float x0, float y0, float radius, CRGB color)
 {
   float x = 0, y = radius, error = 0;
   float delta = 1. - 2. * radius;
 
   while (y >= 0) {
-//    drawPixelXYF(x0 + x, y0 + y, color);
-//    drawPixelXYF(x0 + x, y0 - y, color);
-//    drawPixelXYF(x0 - x, y0 + y, color);
-//    drawPixelXYF(x0 - x, y0 - y, color);
     drawPixelXYF(fmod(x0 + x +WIDTH,WIDTH), y0 + y, color); // сделал, чтобы круги были бесшовными по оси х
     drawPixelXYF(fmod(x0 + x +WIDTH,WIDTH), y0 - y, color);
     drawPixelXYF(fmod(x0 - x +WIDTH,WIDTH), y0 + y, color);
@@ -352,7 +277,7 @@ void drawCircleF(float x0, float y0, float radius, CRGB color)
 }
 
 
-//---------------------------------------
+// ------------------------------------------------
 uint8_t wrapX(int8_t x){
   return (x + WIDTH)%WIDTH;
 }
@@ -361,7 +286,7 @@ uint8_t wrapY(int8_t y){
 }
 
 
-//---------------------------------------
+// ------------------------------------------------
 void drawRec(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, uint32_t color) {
   for (uint8_t y = startY; y < endY; y++) {
     for (uint8_t x = startX; x < endX; x++) {
@@ -370,7 +295,7 @@ void drawRec(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, uint32_
   }
 }
 
-//---------------------------------------
+// ------------------------------------------------
 void drawRecCHSV(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, CHSV color) {
   for (uint8_t y = startY; y < endY; y++) {
     for (uint8_t x = startX; x < endX; x++) {
@@ -379,7 +304,7 @@ void drawRecCHSV(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, CHS
   }
 }
 
-//--------------------------------------
+// ------------------------------------------------
 uint8_t validMinMax(float val, uint8_t minV, uint32_t maxV) {
   uint8_t result;
   if (val <= minV) {
@@ -394,7 +319,7 @@ uint8_t validMinMax(float val, uint8_t minV, uint32_t maxV) {
 }
 
 
-//--------------------------------------
+// ------------------------------------------------
 // альтернативный градиент для ламп собраных из лент с вертикальной компоновкой
 // gradientHorizontal | gradientVertical менее производительный но работает на всех видах ламп
 void gradientHorizontal(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, uint8_t start_color, uint8_t end_color, uint8_t start_br, uint8_t end_br, uint8_t saturate) {
@@ -431,7 +356,7 @@ void gradientHorizontal(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t en
 }
 
 
-//--------------------------------------
+// ------------------------------------------------
 void gradientVertical(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, uint8_t start_color, uint8_t end_color, uint8_t start_br, uint8_t end_br, uint8_t saturate) {
   float step_color = 0;
   float step_br = 0;
@@ -465,27 +390,30 @@ void gradientVertical(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY
 }
 
 
-//---------------------------------------
+// ------------------------------------------------
 // gradientDownTop • более плавный градиент в отличие от gradientVertical
 // но может некоректно работать на лампах собранных на ленточных светодиодах
-//---------------------------------------
 void gradientDownTop( uint8_t bottom, CHSV bottom_color, uint8_t top, CHSV top_color ) {
-  //  FORWARD_HUES: hue always goes clockwise
+  //  FORWARD_HUES:  hue always goes clockwise
   //  BACKWARD_HUES: hue always goes counter-clockwise
   //  SHORTEST_HUES: hue goes whichever way is shortest
-  //  LONGEST_HUES: hue goes whichever way is longest
-  if (ORIENTATION < 3 || ORIENTATION == 7) {    // if (STRIP_DIRECTION < 2) {
+  //  LONGEST_HUES:  hue goes whichever way is longest
+  if (ORIENTATION < 3 || ORIENTATION == 7)
+  {
     // STRIP_DIRECTION to UP ========
     fill_gradient(leds, top * WIDTH, top_color, bottom * WIDTH, bottom_color, SHORTEST_HUES);
-  } else {
+  }
+  else
+  {
     // STRIP_DIRECTION to DOWN ======
     fill_gradient(leds, NUM_LEDS - bottom * WIDTH - 1, bottom_color, NUM_LEDS - top * WIDTH, top_color, SHORTEST_HUES);
   }
 }
 
 
-//---------------------------------------
-void fadePixel(uint8_t i, uint8_t j, uint8_t step)          // новый фейдер
+// ------------------------------------------------
+// новый фейдер
+void fadePixel(uint8_t i, uint8_t j, uint8_t step)
 {
   int32_t pixelNum = XY(i, j);
   if (getPixColor(pixelNum) == 0U) return;
