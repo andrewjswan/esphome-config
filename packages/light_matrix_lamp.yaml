@@ -63,8 +63,8 @@ number:
     restore_value: true
     on_value:
       then:
-      - lambda: |-
-          matrix_lamp.SetMatrixOrientation(x);
+        - lambda: |-
+            matrix_lamp.SetMatrixOrientation(x);
 
   # FastLed Settings
   - !include ../common/number/fastled_speed.yaml
