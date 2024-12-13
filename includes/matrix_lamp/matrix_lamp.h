@@ -1,6 +1,7 @@
 #pragma once
 
 #include "light.h"
+#include "common.h"
 #include "constants.h"
 #include "utility.h"
 #include "effect_ticker.h"
