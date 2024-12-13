@@ -16,10 +16,18 @@ class MatrixLamp
     MatrixLamp();
     ~MatrixLamp();
 
+    // Set Matrix Orientation [1..8] instead of real matrix ORIENTATION [0..7]
+    bool SetMatrixOrientation(uint8_t orientation);
+
+    // Set Matrix Type [1..2] instead of real matrix MATRIX_TYPE [0..1]
+    bool SetMatrixType(uint8_t type);
+
 #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
     bool GetRandomSettings();
+
     void SetRandomSettings(bool b=false);
 #endif // #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+
     void ShowFrame(uint8_t CurrentMode, esphome::Color current_color, light::AddressableLight *p_it);
 };
 
@@ -34,6 +42,26 @@ MatrixLamp::MatrixLamp()
 MatrixLamp::~MatrixLamp()
 {
   FreeLeds();
+}
+
+bool MatrixLamp::SetMatrixOrientation(uint8_t orientation)
+{
+  if (orientation >= 1 && orientation <= 8)
+  {
+    ORIENTATION = orientation - 1;
+    return true;
+  }
+  return false;
+}
+
+bool MatrixLamp::SetMatrixType(uint8_t type)
+{
+  if (type >= 1 && type <= 2)
+  {
+    MATRIX_TYPE = type - 1;
+    return true;
+  }
+  return false;
 }
 
 #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
