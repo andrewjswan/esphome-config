@@ -10,11 +10,6 @@ esp32:
   # framework:
   #   type: esp-idf
 
-packages:
-  common: +!include packages/common.yaml
-  svitlobot: +!include packages/svitlobot.yaml
-  esp32: +!include packages/esp32.yaml
-
 remote_package_files:
   url: https://github.com/andrewjswan/svitlobot
   files:
