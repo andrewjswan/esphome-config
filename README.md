@@ -9,3 +9,7 @@ My configurations of different devices based on ESPHome
 > [!TIP]
 > ### SvitloBot
 > https://github.com/andrewjswan/svitlobot
+
+> [!TIP]
+> ### MatrixLamp
+> https://github.com/andrewjswan/matrix-lamp
