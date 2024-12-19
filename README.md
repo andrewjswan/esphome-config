@@ -6,6 +6,8 @@
 # ESPHome Config
 My configurations of different devices based on ESPHome
 
+<br /><br />
+
 > [!TIP]
 > ### Matrix Lamp
 > https://github.com/andrewjswan/matrix-lamp
