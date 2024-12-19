@@ -7,9 +7,9 @@
 My configurations of different devices based on ESPHome
 
 > [!TIP]
+> ### Matrix Lamp
+> https://github.com/andrewjswan/matrix-lamp
+> ### Pixel Clock aka TRAM
+> https://github.com/andrewjswan/pixel-clock
 > ### SvitloBot
 > https://github.com/andrewjswan/svitlobot
-
-> [!TIP]
-> ### MatrixLamp
-> https://github.com/andrewjswan/matrix-lamp
