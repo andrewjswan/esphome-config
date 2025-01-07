@@ -36,14 +36,14 @@ addressable_lambda:
     {
       sunrise_counter++;
     }
-  
+
     for (int i = 0; i < it.size(); i++)
     {
       it[i] = sunrise_colors[i % 6U];
     }
 
     sunrise_length++;
-    
+
     if (sunrise_length > ${sunrise})
     {
       auto call = id(neopixel_led).turn_on();
