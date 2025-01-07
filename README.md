@@ -6,10 +6,12 @@
 # ESPHome Config
 My configurations of different devices based on ESPHome
 
-> [!TIP]
-> ### SvitloBot
-> https://github.com/andrewjswan/svitlobot
+<br /><br />
 
 > [!TIP]
-> ### MatrixLamp
+> ### Matrix Lamp
 > https://github.com/andrewjswan/matrix-lamp
+> ### Pixel Clock aka TRAM
+> https://github.com/andrewjswan/pixel-clock
+> ### SvitloBot
+> https://github.com/andrewjswan/svitlobot
