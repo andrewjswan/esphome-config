@@ -1,21 +1,55 @@
-lambda:
+addressable_lambda:
   name: Sunrise
-  update_interval: 15s
+  update_interval: 1s
   lambda: |-
-    static int state = 10;
+    static ESPHSVColor sunrise_colors[6];
+    static uint8_t sunrise_counter;
+    static uint32_t sunrise_length;
 
     if (initial_run)
     {
       ESP_LOGD("effect", "Sunrise");
+
+      sunrise_length = 0;
+      sunrise_counter = 0;
+
+      it.all() = Color::BLACK;
+      for (uint8_t i = 0U; i < 6U; i++)
+      {
+        sunrise_colors[i] = ESPHSVColor(0, 0, 0);
+      }
     }
 
-    auto call = id(neopixel_led).make_call();
-    call.set_transition_length(5000);
-    call.set_rgb(1.0, 0.75, 0.0);
-    call.set_brightness(state / 100.0);
-    call.perform();
-
-    if (state < ${sunrise})
+    uint8_t sunrise_position = (uint8_t) (255 * ((float)sunrise_length / (float)${sunrise}));
+    for (uint8_t i = 5U; i > 0U; i--)
     {
-      state++;
+      if (sunrise_counter >= i)
+      {
+        sunrise_colors[i] = sunrise_colors[i - 1U];
+      }
+    }
+    sunrise_colors[0] = ESPHSVColor(map(sunrise_position, 0, 255, 10, 35),
+                                    map(sunrise_position, 0, 255, 255, 170),
+                                    map(sunrise_position, 0, 255, 2, ${sunrize_bright}));
+
+    if ((sunrise_position % 31 == 30) && (sunrise_counter < 5U))
+    {
+      sunrise_counter++;
+    }
+  
+    for (int i = 0; i < it.size(); i++)
+    {
+      it[i] = sunrise_colors[i % 6U];
+    }
+
+    sunrise_length++;
+    
+    if (sunrise_length > ${sunrise})
+    {
+      auto call = id(neopixel_led).turn_on();
+      call.set_transition_length(5000);
+      call.set_rgb(sunrise_colors[0].to_rgb().r / 255.0, sunrise_colors[0].to_rgb().g / 255.0, sunrise_colors[0].to_rgb().b / 255.0);
+      call.set_brightness(1.0);
+      call.set_effect("None");
+      call.perform();
     }

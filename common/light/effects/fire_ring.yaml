@@ -34,7 +34,7 @@ addressable_lambda:
 
       // Add Color
 
-      it[Pixel] = Color(constrain(r1+r2, 0, 255), constrain(g1+g2, 0, 255), constrain(b1+b2, 0, 255));
+      it[Pixel] = Color(constrain(r1 + r2, 0, 255), constrain(g1 + g2, 0, 255), constrain(b1 + b2, 0, 255));
       int rc = random(120);
 
       // subtract
