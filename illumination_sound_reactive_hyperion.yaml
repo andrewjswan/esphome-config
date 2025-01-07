@@ -10,7 +10,8 @@ substitutions:
   flagflip: "0"
   pin_leds: "GPIO16"
   color_correct_bright: "50%"
-  sunrise: "100"
+  sunrise: "600"  # 10 Minutes
+  sunrize_bright: "255"  # Max brightness 0..255
   comment: "Window Illumination with Sound Reactive and Hyperion effects"
 
 esphome:
