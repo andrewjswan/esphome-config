@@ -6,7 +6,7 @@ addressable_lambda:
     const int width = it.size();
 
     const Color white = Color(255, 255, 255);
-    static Color color = ESPColor::random_color();
+    static Color color = Color::random_color();
 
     if (initial_run)
     {
@@ -15,7 +15,7 @@ addressable_lambda:
 
     if (color.red == white.red and color.blue == white.blue and color.green == white.green)
     {
-      color = ESPColor::random_color();
+      color = Color::random_color();
     }
 
     for (int i = width - 1; i > 0; i--)
@@ -35,10 +35,10 @@ addressable_lambda:
     state += 1;
     if (state >= width)
     {
-      color = ESPColor::random_color();
+      color = Color::random_color();
       if (color.red == white.red and color.blue == white.blue and color.green == white.green)
       {
-        color = ESPColor::random_color();
+        color = Color::random_color();
       }
       state = 0;
     }
