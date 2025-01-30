@@ -1,4 +1,0 @@
-﻿addressable_ddp:
-  name: WLED / DDP
-  timeout: 10s
-  disable_gamma: true
