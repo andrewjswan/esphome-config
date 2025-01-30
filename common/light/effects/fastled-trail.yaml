@@ -12,11 +12,20 @@
       it.all() = Color::BLACK;
     }
 
-    Delta = beatsin8(30, 0, 10);     // add some back and forth
-    DeltaPos = ThisPos + Delta;      // add the delta to the current position
-    DeltaPos = DeltaPos % it.size(); // handles out of range
+    Delta = beatsin8(30, 0, 10);                      // add some back and forth
+    DeltaPos = ThisPos + Delta;                       // add the delta to the current position
 
-    it.all().darken(25);              // dim all
-    it[DeltaPos] = current_color;     // draw red pixel
+    it.all().darken(25);                              // dim all
+    if (id(fastled_variant).state > 128)
+    {
+      DeltaPos = DeltaPos % (it.size() / 2);          // handles out of range
+      it[(it.size() / 2) + DeltaPos] = current_color; // draw pixel
+      it[(it.size() / 2) - DeltaPos] = current_color; // draw pixel
+    }
+    else
+    {
+      DeltaPos = DeltaPos % it.size();                // handles out of range
+      it[DeltaPos] = current_color;                   // draw pixel
+    }
 
     ThisPos = ThisPos + 1;
