@@ -11,3 +11,6 @@ mode: slider
 entity_category: config
 restore_value: true
 unit_of_measurement: A
+disabled_by_default: true
+web_server:
+  sorting_weight: 15
