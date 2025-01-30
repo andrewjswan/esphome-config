@@ -1,0 +1,5 @@
+light:
+  # Ring Effects
+  - id: !extend neopixel_led
+    effects:
+      - !include ../common/light/effects/clock_ring.yaml

@@ -24,7 +24,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Color Waves");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
     }
 
     uint8_t brightdepth = beatsin88(341, 96, 224);
@@ -65,18 +65,18 @@ addressable_lambda:
       uint8_t index = hue8;
       index = scale8( index, 240 );
 
-      CRGB newcolor = color_from_palette(index, current_color, bri8);
+      CRGB newcolor = fastled_helper::color_from_palette(index, current_color, bri8);
       if (id(fastled_variant).state < 128)                                      // Направление
       {
-        nblend(leds[(it.size() - 1) - i], newcolor, 128);
+        nblend(fastled_helper::leds[(it.size() - 1) - i], newcolor, 128);
       }
       else
       {
-        nblend(leds[i], newcolor, 128);
+        nblend(fastled_helper::leds[i], newcolor, 128);
       }
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

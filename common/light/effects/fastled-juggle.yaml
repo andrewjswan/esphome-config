@@ -15,7 +15,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Juggle");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -37,14 +37,14 @@ addressable_lambda:
       variant = (int)id(fastled_variant).state;
     }
 
-    fadeToBlackBy(leds, it.size(), thisfade);                                                                    // Затухание к черному
+    fadeToBlackBy(fastled_helper::leds, it.size(), thisfade);                                                                    // Затухание к черному
     for (int i = 0; i < numdots; i++)
     {
-      leds[beatsin16(thisbeat + i + numdots, 0, it.size() - 1)] += color_from_palette(thisindex, current_color); // Munge the values and pick a colour from the palette
+      fastled_helper::leds[beatsin16(thisbeat + i + numdots, 0, it.size() - 1)] += fastled_helper::color_from_palette(thisindex, current_color); // Munge the values and pick a colour from the palette
       thisindex += thisdiff;
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

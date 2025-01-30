@@ -1,0 +1,7 @@
+light:
+  # Ring Effects
+  - id: !extend neopixel_led
+    effects:
+      - !include ../common/light/effects/radar_ring.yaml
+      - !include ../common/light/effects/turn_on_ring.yaml
+      - !include ../common/light/effects/turn_off_ring.yaml

@@ -1,0 +1,71 @@
+substitutions:
+  project_name: "ajs.Light - Music Led - Sound Reactive"
+  project_version: "1.5.5"
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/andrewjswan/esphome-components
+      ref: main
+    components: [fastled_helper, music_leds]
+    refresh: 60s
+
+fastled_helper:
+  music_leds: true
+
+i2s_audio:
+  i2s_lrclk_pin: 15
+  i2s_bclk_pin: 14
+
+microphone:
+  - platform: i2s_audio
+    id: adc_mic
+    adc_type: external
+    sample_rate: 10240
+    bits_per_sample: 16bit
+    # bits_per_sample: 32bit
+    i2s_din_pin: 32
+    channel: right
+
+music_leds:
+  id: music_light
+  mic_id: adc_mic
+
+number:
+  - id: !extend fastled_speed
+    on_value:
+      then:
+        - lambda: |-
+            id(music_light).set_speed(x);
+
+  - id: !extend fastled_variant
+    on_value:
+      then:
+        - lambda: |-
+            id(music_light).set_variant(x);
+
+light:
+  # Neopixel with Music Leds / Sound Reactive
+  - id: !extend neopixel_led
+    effects:
+      - music_leds_effect:
+          name: Binmap with Music
+          mode: BINMAP
+      - music_leds_effect:
+          name: Grav with Music
+          mode: GRAV
+      - music_leds_effect:
+          name: Gravicenter with Music
+          mode: GRAVICENTER
+      - music_leds_effect:
+          name: Gravicentric with Music
+          mode: GRAVICENTRIC
+      - music_leds_effect:
+          name: Pixels with Music
+          mode: PIXELS
+      - music_leds_effect:
+          name: Jungles with Music
+          mode: JUNGLES
+      - music_leds_effect:
+          name: Midnoise with Music
+          mode: MIDNOISE

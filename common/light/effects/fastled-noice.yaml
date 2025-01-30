@@ -15,7 +15,7 @@ addressable_lambda:
     for (int i = 0; i < it.size(); i++)
     {
       byte idx = inoise8(i * id(fastled_variant).state / 10, dist + i * id(fastled_variant).state, count);
-      CRGB color = color_from_palette(idx, current_color);
+      CRGB color = fastled_helper::color_from_palette(idx, current_color);
 
       it[i] = Color(color.r, color.g, color.b);
     }

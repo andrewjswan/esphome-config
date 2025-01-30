@@ -19,7 +19,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Noise Wide");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -54,7 +54,7 @@ addressable_lambda:
       variant = (int)id(fastled_variant).state;
     }
 
-    fill_noise16(leds, it.size(), octaves, x, xscale, hue_octaves, hxy, hue_scale, hue_time);
+    fill_noise16(fastled_helper::leds, it.size(), octaves, x, xscale, hue_octaves, hxy, hue_scale, hue_time);
 
     int8_t thisdir = 1;
 
@@ -64,5 +64,5 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

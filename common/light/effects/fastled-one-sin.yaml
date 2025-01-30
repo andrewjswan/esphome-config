@@ -23,7 +23,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED OneSin");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -132,12 +132,12 @@ addressable_lambda:
     for (int i = 0; i < it.size(); i++)
     {                                                                             // For each of the LED's in the strand, set a brightness based on a wave as follows:
       int thisbright = qsubd(cubicwave8((i * allfreq) + thisphase), thiscutoff);  // qsub sets a minimum value called thiscutoff. If < thiscutoff, then bright = 0. Otherwise, bright = 128 (as defined in qsub)..
-      leds[i] = CHSV(bgclr, 255, bgbri);                                          // First set a background colour, but fully saturated.
-      leds[i] += color_from_palette(thisindex + i * thisinc, current_color, thisbright);
+      fastled_helper::leds[i] = CHSV(bgclr, 255, bgbri);                                          // First set a background colour, but fully saturated.
+      fastled_helper::leds[i] += fastled_helper::color_from_palette(thisindex + i * thisinc, current_color, thisbright);
       thisindex += thisrot;
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

@@ -2,21 +2,21 @@ addressable_lambda:
   name: "Radar Ring"
   update_interval: 30ms
   lambda: |-
-    static Color leds[${num_leds}];
+    static Color fastled_helper::leds[${num_leds}];
     static int step;
 
     if (initial_run)
     {
       ESP_LOGD("effect", "Radar Ring");
 
-      std::fill_n(leds, it.size(), Color::BLACK);
+      std::fill_n(fastled_helper::leds, it.size(), Color::BLACK);
       step = 0;
     }
 
     // fade out old colors
     for (int i = 0; i < it.size(); i++)
     {
-      Color old_color = leds[i];
+      Color old_color = fastled_helper::leds[i];
 
       int red = old_color.red;
       int red_sub = std::max(1, (int) ((red / 100.0) * ${radar_percentage}));
@@ -31,24 +31,24 @@ addressable_lambda:
       if (green <= green_sub) { green = 0; } else { green -= green_sub; }
       if (blue <= blue_sub) { blue = 0; } else { blue -= blue_sub; }
 
-      leds[i] = Color(red, green, blue, 0);
+      fastled_helper::leds[i] = Color(red, green, blue, 0);
     }
 
-    leds[(step - 1 + it.size()) % it.size()] = current_color;
-    leds[step] = current_color;
-    leds[(step + 1) % it.size()] = current_color;
+    fastled_helper::leds[(step - 1 + it.size()) % it.size()] = current_color;
+    fastled_helper::leds[step] = current_color;
+    fastled_helper::leds[(step + 1) % it.size()] = current_color;
 
     int i = random(0, it.size() - 1);
     // if (i > step - 3 && i < step + 3)
     if (i == step)
     {
-      leds[i] = Color(255, 255, 255);
+      fastled_helper::leds[i] = Color(255, 255, 255);
     }
 
     // apply colors to light
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = leds[i];
+      it[i] = fastled_helper::leds[i];
     }
 
     step++;

@@ -1,0 +1,6 @@
+light:
+  # Special Effects
+  - id: !extend neopixel_led
+    effects:
+      - !include ../common/light/effects/strobe_common.yaml
+      - !include ../common/light/effects/strobe_police.yaml

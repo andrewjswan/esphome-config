@@ -1,0 +1,48 @@
+substitutions:
+  project_name: "ajs.Light - Fast Led"
+  project_version: "1.5.5"
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/andrewjswan/esphome-components
+      ref: main
+    components: [fastled_helper]
+    refresh: 60s
+
+fastled_helper:
+  id: palette
+
+number:
+  # FastLed Settings
+  - !include ../common/number/fastled_speed.yaml
+  - !include ../common/number/fastled_variant.yaml
+  - !include ../common/number/fastled_palette.yaml
+
+light:
+  # Special Effects
+  - id: !extend neopixel_led
+    effects:
+      - !include ../common/light/effects/fastled-blendwave.yaml
+      - !include ../common/light/effects/fastled-candles.yaml
+      - !include ../common/light/effects/fastled-colorwaves.yaml
+      - !include ../common/light/effects/fastled-confetti.yaml
+      - !include ../common/light/effects/fastled-dynamic-smooth.yaml
+      - !include ../common/light/effects/fastled-fire.yaml
+      - !include ../common/light/effects/fastled-fireplace.yaml
+      - !include ../common/light/effects/fastled-gradient.yaml
+      - !include ../common/light/effects/fastled-juggle.yaml
+      # - !include ../common/light/effects/fastled-lava.yaml
+      - !include ../common/light/effects/fastled-matrix.yaml
+      - !include ../common/light/effects/fastled-noice.yaml
+      - !include ../common/light/effects/fastled-noise-wide.yaml
+      - !include ../common/light/effects/fastled-one-sin.yaml
+      - !include ../common/light/effects/fastled-two-sin.yaml
+      - !include ../common/light/effects/fastled-three-sin.yaml
+      - !include ../common/light/effects/fastled-plasma.yaml
+      - !include ../common/light/effects/fastled-rainbow-beat.yaml
+      - !include ../common/light/effects/fastled-rainbow-march.yaml
+      - !include ../common/light/effects/fastled-serendipitous.yaml
+      - !include ../common/light/effects/fastled-starburst.yaml
+      - !include ../common/light/effects/fastled-trail.yaml
+      - !include ../common/light/effects/fastled-tunnel.yaml

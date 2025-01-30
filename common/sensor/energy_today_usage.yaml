@@ -1,5 +1,6 @@
 platform: total_daily_energy
 name: "${name} Energy"
+icon: mdi:lightning-bolt
 power_id: power
 filters:
   # Multiplication factor from W to kW is 0.001
@@ -9,3 +10,5 @@ unit_of_measurement: kWh
 device_class: energy
 state_class: total_increasing
 method: ${energy_method}
+web_server:
+  sorting_weight: 25

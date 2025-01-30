@@ -20,7 +20,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Lava");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
 
       uint16_t num = ${num_leds};
       uint16_t diff = ${num_leds};
@@ -78,7 +78,7 @@ addressable_lambda:
 
     for (uint16_t i = 0; i < ${num_leds}; i++)
     {
-      leds[i] = CRGB::Black;
+      fastled_helper::leds[i] = CRGB::Black;
     }
 
     step++;
@@ -151,11 +151,11 @@ addressable_lambda:
 
               if (pos >= 0 && pos < ${num_leds})
               {
-                CRGB clr = leds[pos];
+                CRGB clr = fastled_helper::leds[pos];
                 clr.r = qadd8(clr.r, (color.r * wu[j]) >> 8);
                 clr.g = qadd8(clr.g, (color.g * wu[j]) >> 8);
                 clr.b = qadd8(clr.b, (color.b * wu[j]) >> 8);
-                leds[pos]  = color;
+                fastled_helper::leds[pos]  = color;
               }
             }
           }
@@ -180,7 +180,7 @@ addressable_lambda:
         {
           pos = (row * width + width - i - 1);                                  // Odd rows run backwards
         }
-        CRGB cur = leds[pos];
+        CRGB cur = fastled_helper::leds[pos];
         CRGB part = cur;
         part.nscale8(seep);
         cur.nscale8(keep);
@@ -195,7 +195,7 @@ addressable_lambda:
           {
             pos = (row * width + width - (i-i) - 1);                            // Odd rows run backwards
           }
-          leds[pos] += part;
+          fastled_helper::leds[pos] += part;
         }
         if (!(row & 0x01))                                                      // Even rows run forwards
         {
@@ -205,7 +205,7 @@ addressable_lambda:
         {
           pos = (row * width + width - i - 1);                                  // Odd rows run backwards
         }
-        leds[pos] = cur;
+        fastled_helper::leds[pos] = cur;
         carryover = part;
       }
     }
@@ -225,7 +225,7 @@ addressable_lambda:
         {
           pos = (i * width + width - col - 1);                                  // Odd rows run backwards
         }
-        CRGB cur = leds[pos];
+        CRGB cur = fastled_helper::leds[pos];
         CRGB part = cur;
         part.nscale8(seep);
         cur.nscale8(keep);
@@ -240,7 +240,7 @@ addressable_lambda:
           {
             pos = ((i-1) * width + width - col - 1);                            // Odd rows run backwards
           }
-          leds[pos] += part;
+          fastled_helper::leds[pos] += part;
         }
         if (!(i & 0x01))                                                        // Even rows run forwards
         {
@@ -250,12 +250,12 @@ addressable_lambda:
         {
           pos = (i * width + width - col - 1);                                  // Odd rows run backwards
         }
-        leds[pos] = cur;
+        fastled_helper::leds[pos] = cur;
         carryover = part;
       }
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

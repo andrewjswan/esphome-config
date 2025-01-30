@@ -40,24 +40,24 @@ addressable_lambda:
 
     for (auto i = 0; i < it.size(); ++i)
     {
-      if (!leds[i].steps)
+      if (!fastled_helper::leds[i].steps)
       {
-        int v = random8() - leds[i].current / 100;
+        int v = random8() - fastled_helper::leds[i].current / 100;
         if (v > 0)
         {
-          leds[i].steps = random(60 * _steps / 100, _steps);
+          fastled_helper::leds[i].steps = random(60 * _steps / 100, _steps);
         }
         else
         {
-          leds[i].steps = random(_steps, 140 * _steps / 100);
+          fastled_helper::leds[i].steps = random(_steps, 140 * _steps / 100);
         }
-        leds[i].delta = 100 * v / leds[i].steps;
+        fastled_helper::leds[i].delta = 100 * v / fastled_helper::leds[i].steps;
       }
       else
       {
-        leds[i].current += leds[i].delta;
-        leds[i].steps--;
+        fastled_helper::leds[i].current += fastled_helper::leds[i].delta;
+        fastled_helper::leds[i].steps--;
       }
-      int h = leds[i].current / 100;
+      int h = fastled_helper::leds[i].current / 100;
       it[i] = ESPHSVColor(_hue + scale8_video(h, 8), 255, gamma8[qadd8(h, _ambient)]);
     }

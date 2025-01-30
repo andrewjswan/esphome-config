@@ -14,7 +14,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Rainbow March");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -43,9 +43,9 @@ addressable_lambda:
     }
 
     thisindex += thisrot * thisdir;
-    fill_rainbow(leds, it.size(), thisindex, thisdiff); // I don't change deltahue on the fly as it's too fast near the end of the strip.
+    fill_rainbow(fastled_helper::leds, it.size(), thisindex, thisdiff); // I don't change deltahue on the fly as it's too fast near the end of the strip.
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

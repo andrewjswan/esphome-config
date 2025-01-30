@@ -1,5 +1,6 @@
 platform: template
 name: ${name} Current
+icon: mdi:current-ac
 id: current
 lambda: |-
   const float led = 20.0 / 255.0; // 20мА per Led
@@ -23,7 +24,7 @@ lambda: |-
     */
   }
 
-  current = current / 1000; // A - 1000mA
+  current = current * id(neopixel_led).remote_values.get_brightness() / 1000; // A - 1000mA
   if (id(power_supply).state > 0.0 && current > id(power_supply).state)
   {
     current = id(power_supply).state;
@@ -34,4 +35,7 @@ unit_of_measurement: A
 device_class: current
 state_class: measurement
 accuracy_decimals: 2
-update_interval: ${update_interval}
+update_interval: 1s
+disabled_by_default: true
+web_server:
+  sorting_weight: 15

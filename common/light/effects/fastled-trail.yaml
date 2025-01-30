@@ -1,5 +1,5 @@
 ﻿addressable_lambda:
-  name: "Trail"
+  name: FastLED Trail
   update_interval: 50ms
   lambda: |-
     static int ThisPos;
@@ -7,7 +7,7 @@
 
     if (initial_run)
     {
-      ESP_LOGD("effect", "Trail");
+      ESP_LOGD("effect", "FastLED Trail");
 
       it.all() = Color::BLACK;
     }

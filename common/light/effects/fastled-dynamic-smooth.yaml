@@ -9,11 +9,11 @@ addressable_lambda:
     {
       ESP_LOGD("effect", "FastLED Dynamic smooth");
 
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
       for (int i = 0; i < it.size(); i++)
       {
         data[i] = random8();
-        leds[i] = CRGB(0, 0, 0);
+        fastled_helper::leds[i] = CRGB(0, 0, 0);
       }
       step = 0;
     }
@@ -33,18 +33,18 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++)
     {
-      CRGB color = color_from_palette(data[i], current_color);
+      CRGB color = fastled_helper::color_from_palette(data[i], current_color);
       if (id(fastled_speed).state > 0)
       {
-        CRGB ledcolor = leds[i];
+        CRGB ledcolor = fastled_helper::leds[i];
         uint8_t red   = ((color.red * 16)   + (ledcolor.red   * (0xFF - 16))) >> 8;
         uint8_t green = ((color.green * 16) + (ledcolor.green * (0xFF - 16))) >> 8;
         uint8_t blue  = ((color.blue * 16)  + (ledcolor.blue  * (0xFF - 16))) >> 8;
-        leds[i]       = CRGB(red, green, blue);
+        fastled_helper::leds[i]       = CRGB(red, green, blue);
       }
       else
       {
-        leds[i] = color;
+        fastled_helper::leds[i] = color;
       }
     }
 
@@ -52,5 +52,5 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

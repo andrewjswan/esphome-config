@@ -73,10 +73,13 @@ button:
   - !include common/button/senseair_s8_calibration.yaml
   - !include common/button/senseair_s8_calibration_result.yaml
 
-light:
-  # Neopixel
-  - !include common/light/neopixel_small.yaml
-
 interval:
   # Neopixel
   - !include common/interval/senseair-s8-neopixel.yaml
+
+packages:
+  # Neopixel
+  light: !include packages/neopixel_light.yaml
+  lightcommon: !include packages/neopixel_light_common.yaml
+  special: !include packages/neopixel_light_special.yaml
+  sunrise: !include packages/neopixel_light_sunrise.yaml

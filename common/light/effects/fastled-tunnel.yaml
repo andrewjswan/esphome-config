@@ -18,7 +18,7 @@
       ESP_LOGD("effect", "Fastled Tunnel");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
     }
 
     it.all().darken(10); // create a fade

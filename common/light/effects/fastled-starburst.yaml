@@ -5,6 +5,35 @@ addressable_lambda:
     // Need
     // - includes/light/stars.h
 
+    #ifdef ESP8266
+      #define MAX_NUM_SEGMENTS     16
+      #define MAX_SEGMENT_DATA   5120
+
+      #define STARBURST_MAX_FRAG    8 // 52 bytes / star
+    #else
+      #define MAX_NUM_SEGMENTS     32
+      #define MAX_SEGMENT_DATA  32767
+
+      #define STARBURST_MAX_FRAG   10 // 60 bytes / star
+    #endif
+
+    /*
+      How much data bytes each segment should max allocate to leave enough space for other segments,
+      assuming each segment uses the same amount of data. 256 for ESP8266, 640 for ESP32.
+    */
+    #define FAIR_DATA_PER_SEG (MAX_SEGMENT_DATA / MAX_NUM_SEGMENTS)
+
+    typedef struct particle {
+      CRGB     color;
+      uint32_t birth  = 0;
+      uint32_t last   = 0;
+      float    vel    = 0;
+      uint16_t pos    = -1;
+      float    fragment[STARBURST_MAX_FRAG];
+    } star;
+
+    static star* stars;
+
     static uint8_t numStars                = 0;
     float          maxSpeed                = 375.0f;  // Max velocity
     float          particleIgnition        = 250.0f;  // How long to "flash"
@@ -15,9 +44,16 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Starburst");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
 
-      numStars = InitStars(${num_leds});
+      uint16_t maxStars = FAIR_DATA_PER_SEG * 4 / sizeof(star); // ESP8266: max. 4/9/19 stars/seg, ESP32: max. 10/21/42 stars/seg
+      numStars = 1 + (${num_leds} >> 3);
+      if (numStars > maxStars)
+      {
+        numStars = maxStars;
+      }
+
+      stars = new star[numStars];
     }
 
     uint32_t now = millis();
@@ -33,7 +69,7 @@ addressable_lambda:
         uint16_t startPos = random16(it.size() - 1);
         float multiplier = (float)(random8()) / 255.0 * 1.0;
 
-        stars[j].color = color_from_palette(random8(), current_color); // CRGB(SEGMENT.color_wheel(random8()));
+        stars[j].color = fastled_helper::color_from_palette(random8(), current_color); // CRGB(SEGMENT.color_wheel(random8()));
         stars[j].pos   = startPos;
         stars[j].vel   = maxSpeed * (float)(random8()) / 255.0f * multiplier;
         stars[j].birth = now;
@@ -53,7 +89,7 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++)
     {
-      leds[i] = CRGB::Black;
+      fastled_helper::leds[i] = CRGB::Black;
     }
 
     for (int j = 0; j < numStars; j++)
@@ -85,7 +121,7 @@ addressable_lambda:
 
       if (age < particleIgnition)
       {
-        c = CRGB(color_blend(CRGB::White, c, 254.5f * ((age / particleIgnition))));
+        c = CRGB(fastled_helper::color_blend(CRGB::White, c, 254.5f * ((age / particleIgnition))));
       }
       else
       {
@@ -102,7 +138,7 @@ addressable_lambda:
           age -= particleIgnition;
           fade = (age / particleFadeTime);  // Fading star
           byte f = 254.5f * fade;
-          c = CRGB(color_blend(c, CRGB(current_color.r, current_color.g, current_color.b), f));
+          c = CRGB(fastled_helper::color_blend(c, CRGB(current_color.r, current_color.g, current_color.b), f));
         }
       }
 
@@ -123,7 +159,7 @@ addressable_lambda:
           if (end > it.size()) end = it.size();
           for (int p = start; p < end; p++)
           {
-            leds[p] = c;
+            fastled_helper::leds[p] = c;
           }
         }
       }
@@ -131,5 +167,5 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

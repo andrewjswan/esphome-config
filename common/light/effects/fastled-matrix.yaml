@@ -15,7 +15,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Matrix");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -56,22 +56,22 @@ addressable_lambda:
     {
       if (thisdir == -1)
       {
-        leds[0] = color_from_palette(thisindex, current_color);                 // Foreground matrix colour
+        fastled_helper::leds[0] = fastled_helper::color_from_palette(thisindex, current_color);                 // Foreground matrix colour
       }
       else
       {
-        leds[it.size() - 1] = color_from_palette(thisindex, current_color);
+        fastled_helper::leds[it.size() - 1] = fastled_helper::color_from_palette(thisindex, current_color);
       }
     }
     else
     {
       if (thisdir == -1)
       {
-        leds[0] = CHSV(bgclr, 255, bgbri); // Background colour
+        fastled_helper::leds[0] = CHSV(bgclr, 255, bgbri); // Background colour
       }
       else
       {
-        leds[it.size() - 1] = CHSV(bgclr, 255, bgbri);
+        fastled_helper::leds[it.size() - 1] = CHSV(bgclr, 255, bgbri);
       }
     }
 
@@ -79,18 +79,18 @@ addressable_lambda:
     {
       for (int i = it.size() - 1; i > 0 ; i--)
       {
-        leds[i] = leds[i - 1];
+        fastled_helper::leds[i] = fastled_helper::leds[i - 1];
       }
     }
     else
     {
       for (int i = 0; i < it.size() - 1 ; i++)
       {
-        leds[i] = leds[i + 1];
+        fastled_helper::leds[i] = fastled_helper::leds[i + 1];
       }
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

@@ -17,17 +17,17 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Plasma");
 
       it.all() = Color::BLACK;
-      InitLeds(${num_leds});
+      fastled_helper::InitLeds(${num_leds});
     }
 
     for (int i = 0; i < it.size(); i++)
     {                                                                                               // For each of the LED's in the strand, set a brightness based on a wave as follows:
       int colorIndex = cubicwave8((i * freq1) + thisPhase) / 2 + cos8((i * freq2) + thatPhase) / 2; // Create a wave and add a phase change and add another wave with its own phase change.. Hey, you can even change the frequencies if you wish, but don't change on the fly.
       int thisBright = qsuba(colorIndex, beatsin8(7, 0, 96));                                       // qsub gives it a bit of 'black' dead space by setting sets a minimum value. If colorIndex < current value of beatsin8(), then bright = 0. Otherwise, bright = colorIndex..
-      leds[i] = color_from_palette(colorIndex, current_color, thisBright);                          // Let's now add the foreground colour.
+      fastled_helper::leds[i] = fastled_helper::color_from_palette(colorIndex, current_color, thisBright);                          // Let's now add the foreground colour.
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
+      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
     }

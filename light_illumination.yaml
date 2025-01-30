@@ -1,8 +1,8 @@
 substitutions:
-  device: esp_sound_reactive_hyperion
-  name: Sound Reactive Hyperion
+  device: esp_music_leds_illumination
+  name: Music Leds Illumination
   location: ${name}
-  update_interval: 3s
+  update_interval: 60s
   device_ip: 192.168.0.0
   reboot_timeout: 0s
   num_leds: "300"
@@ -12,7 +12,7 @@ substitutions:
   color_correct_bright: "50%"
   sunrise: "600"  # 10 Minutes
   sunrize_bright: "255"  # Max brightness 0..255
-  comment: "Window Illumination with Sound Reactive and Hyperion effects"
+  comment: "Illumination Light with Music Leds / Sound Reactive and Hyperion effects"
 
 esphome:
   name: ${device}
@@ -30,4 +30,10 @@ esphome:
 packages:
   common: !include packages/common_32.yaml
   led_power: !include packages/led_power.yaml
-  light: !include packages/light_sound_reactive_hyperion.yaml
+  light: !include packages/neopixel_light.yaml
+  lightcommon: !include packages/neopixel_light_common.yaml
+  fastled: !include packages/neopixel_light_fastled.yaml
+  musicleds: !include packages/neopixel_light_music_leds.yaml
+  special: !include packages/neopixel_light_special.yaml
+  sunrise: !include packages/neopixel_light_sunrise.yaml
+  hyperion: !include packages/neopixel_light_ddp.yaml
