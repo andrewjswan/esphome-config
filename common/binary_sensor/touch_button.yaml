@@ -11,4 +11,4 @@ on_release:
   then:
     - light.toggle: neopixel_led
 web_server:
-  sorting_weight: 500
+  sorting_weight: 99

@@ -3,11 +3,13 @@ substitutions:
   project_version: "PM2105"
 #  project_version: "PM2005"
 
-esphome:
-  includes:
-    - includes/daikin/cm1106.h
-    - includes/daikin/pm2105.h
-    # - includes/daikin/pm2005.h
+external_components:
+  - source:
+      type: git
+      url: https://github.com/andrewjswan/esphome-components
+      ref: main
+    components: [cm1106, pm2005]
+    refresh: 60s
 
 logger:
   logs:
@@ -34,39 +36,24 @@ i2c:
     scan: true
 
 sensor:
-  - platform: custom
-    lambda: |-
-      auto cm1106Sensor = new CM1106Sensor(id(cm1106_uart), 60000);
-      App.register_component(cm1106Sensor);
-      return {cm1106Sensor};
-    sensors:
-      - name: "${name} CO2 Sensor"
-        id: co2sensor
-        device_class: carbon_dioxide
-        state_class: measurement
-        unit_of_measurement: "ppm"
+  - platform: cm1106
+    co2:
+      name: "${name} CO2"
+      id: co2sensor
+    id: cm1106_sensor
 
-  - platform: custom
-    lambda: |-
-      auto pmsensor = new pm2005(60000);
-      App.register_component(pmsensor);
-      return {pmsensor->vpm1, pmsensor->vpm25, pmsensor->vpm10};
-    sensors:
-      - name: "${name} PM1 Sensor"
-        id: pm1sensor
-        unit_of_measurement: "µg/m³"
-        accuracy_decimals: 0
-        device_class: pm1
-      - name: "${name} PM2.5 Sensor"
-        id: pm25sensor
-        device_class: pm25
-        state_class: measurement
-        unit_of_measurement: "µg/m³"
-      - name: "${name} PM10 Sensor"
-        id: pm10sensor
-        unit_of_measurement: "µg/m³"
-        accuracy_decimals: 0
-        device_class: pm10
+  - platform: pm2005
+    i2c_id: pm25_bus
+    type: pm2105
+    pm_1_0:
+      name: "${name} PM1"
+      id: pm1sensor
+    pm_2_5:
+      name: "${name} PM2.5"
+      id: pm25sensor
+    pm_10_0:
+      name: "${name} PM10"
+      id: pm10sensor
 
   - platform: sgp30
     i2c_id: th_bus
@@ -77,12 +64,12 @@ sensor:
       id: eco2sensor
       internal: true
     tvoc:
-      name: "${name} TVOC Sensor"
+      name: "${name} TVOC"
       id: tvocsensor
       device_class: volatile_organic_compounds
       unit_of_measurement: "µg/m³"
       filters:
-#        - throttle: ${update_interval}
+        # - throttle: ${update_interval}
         - throttle_average: ${update_interval}
         - lambda: |-
             if (x * id(tvocmultiply).state > id(tvocmax).state)
@@ -93,19 +80,22 @@ sensor:
             {
               return x * id(tvocmultiply).state;
             }
+    store_baseline: yes
 
   - platform: hdc1080
     i2c_id: th_bus
     temperature:
-      name: "${name} Temperature Sensor"
+      name: "${name} Temperature"
       id: temperature
       device_class: temperature
+      icon: mdi:thermometer
       filters:
         - lambda: return x - id(temperatureoffset).state;
     humidity:
-      name: "${name} Humidity Sensor"
+      name: "${name} Humidity"
       id: humidity
       device_class: humidity
+      icon: mdi:water-percent
       filters:
         - lambda: return x * id(humiditymultiply).state;
         - clamp:
@@ -119,15 +109,6 @@ switch:
     icon: mdi:sleep
     id: sleepmode
     optimistic: true
-
-  - platform: custom
-    lambda: |-
-      auto cm1106Calib = new CM1106CalibrateSwitch(id(cm1106_uart));
-      App.register_component(cm1106Calib);
-      return {cm1106Calib};
-    switches:
-      id: calibration
-      internal: true
 
   - platform: gpio
     pin: 4
@@ -150,7 +131,7 @@ status_led:
 number:
   - platform: template
     name: "${name} Threshold CO2"
-    entity_category: "config"
+    entity_category: config
     id: co2threshold
     optimistic: true
     unit_of_measurement: "ppm"
@@ -162,7 +143,7 @@ number:
 
   - platform: template
     name: "${name} Threshold PM2.5"
-    entity_category: "config"
+    entity_category: config
     id: pm25threshold
     optimistic: true
     unit_of_measurement: "µg/m³"
@@ -174,7 +155,7 @@ number:
 
   - platform: template
     name: "${name} Threshold TVOC"
-    entity_category: "config"
+    entity_category: config
     id: tvocthreshold
     optimistic: true
     unit_of_measurement: "µg/m³"
@@ -186,7 +167,7 @@ number:
 
   - platform: template
     name: "${name} TVOC MAX"
-    entity_category: "config"
+    entity_category: config
     id: tvocmax
     optimistic: true
     unit_of_measurement: "µg/m³"
@@ -198,7 +179,7 @@ number:
 
   - platform: template
     name: "${name} TVOC Multiply"
-    entity_category: "config"
+    entity_category: config
     id: tvocmultiply
     optimistic: true
     min_value: 1
@@ -209,7 +190,7 @@ number:
 
   - platform: template
     name: "${name} Humidity Multiply"
-    entity_category: "config"
+    entity_category: config
     id: humiditymultiply
     optimistic: true
     min_value: 1
@@ -220,7 +201,7 @@ number:
 
   - platform: template
     name: "${name} Temperature Offset"
-    entity_category: "config"
+    entity_category: config
     id: temperatureoffset
     optimistic: true
     min_value: 0
@@ -312,7 +293,7 @@ binary_sensor:
     internal: true
     id: co2_calibration
     lambda: |-
-      if (id(co2sensor).state == 400)
+      if (id(co2sensor).state <= 400)
       {
         return true;
       }
@@ -324,7 +305,7 @@ binary_sensor:
       - delayed_on: 15min
     on_press:
       then:
-        - switch.turn_on: calibration
+        - cm1106.calibrate_zero: cm1106_sensor
 
   - platform: gpio
     pin: 34
@@ -341,7 +322,7 @@ button:
 
   - platform: template
     name: "${name} CO2 Calibration"
-    entity_category: "diagnostic"
+    entity_category: diagnostic
     on_press:
       then:
-        - switch.turn_on: calibration
+        - cm1106.calibrate_zero: cm1106_sensor

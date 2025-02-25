@@ -10,5 +10,5 @@ updates:
     labels:
       - dependencies
     commit-message:
-      prefix: "ESP"
+      prefix: "DEP"
     open-pull-requests-limit: 10

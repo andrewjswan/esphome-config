@@ -13,4 +13,4 @@ restore_value: true
 unit_of_measurement: A
 disabled_by_default: true
 web_server:
-  sorting_weight: 15
+  sorting_weight: 99

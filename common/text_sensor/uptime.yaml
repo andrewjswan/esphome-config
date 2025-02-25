@@ -8,7 +8,7 @@ lambda: |-
     return { String("Только запущен...").c_str() };
   }
 
-  int minutes = ceil((634 % 3600) / 60.0);
+  int minutes = ceil((uptime % 3600) / 60.0);
   int hours = (uptime % 86400) / 3600;
   int days = uptime / 86400;
 
