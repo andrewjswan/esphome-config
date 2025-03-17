@@ -32,7 +32,7 @@ addressable_lambda:
                                     map(sunrise_position, 0, 255, 255, 170),
                                     map(sunrise_position, 0, 255, 2, ${sunrize_bright}));
 
-    if ((sunrise_position % 31 == 30) && (sunrise_counter < 5U))
+    if ((sunrise_counter < 5U) && (sunrise_length % ((int)${sunrise} / 5) == 0))
     {
       sunrise_counter++;
     }
