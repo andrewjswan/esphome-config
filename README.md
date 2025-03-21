@@ -8,6 +8,10 @@ My configurations of different devices based on ESPHome
 
 <br /><br />
 
+> [!IMPORTANT]
+> ### Custom components for ESPHome
+> https://github.com/andrewjswan/esphome-components
+
 > [!TIP]
 > ### Matrix Lamp
 > https://github.com/andrewjswan/matrix-lamp
