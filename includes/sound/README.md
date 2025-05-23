@@ -1,3 +1,4 @@
+```Yaml
   libraries:
     - FastLED
     - arduinoFFT=https://github.com/kosme/arduinoFFT.git#develop
@@ -8,3 +9,4 @@
     - includes/sound/VisualEffect.h
     - includes/sound/audio_source.h
     - includes/sound/audio_reactive.h
+```
