@@ -3,14 +3,6 @@ substitutions:
   project_version: "PM2105"
 #  project_version: "PM2005"
 
-external_components:
-  - source:
-      type: git
-      url: https://github.com/andrewjswan/esphome-components
-      ref: main
-    components: [cm1106, pm2005]
-    refresh: 60s
-
 logger:
   logs:
     hdc1080: WARN
