@@ -1,0 +1,25 @@
+substitutions:
+  telegram_bot_token: !secret telegram.bot.token
+  telegram_chat_id: !secret telegram.chat.id
+
+http_request:
+  useragent: esphome/telegram_bot
+  timeout: 10s
+  verify_ssl: false
+
+script:
+  - id: send_telegram_message
+    parameters:
+      message: string
+      silent: bool
+    then:
+      - http_request.post:
+          url: "https://api.telegram.org/bot${telegram_bot_token}/sendMessage"
+          request_headers:
+            Content-Type: application/json
+          json: |-
+            root["chat_id"] = ${telegram_chat_id};
+            root["text"] = message;
+            root["disable_notification"] = silent;
+            root["parse_mode"] = "markdown";
+    mode: queued
