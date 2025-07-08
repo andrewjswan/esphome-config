@@ -14,22 +14,23 @@ fastled_helper:
   music_leds: true
 
 i2s_audio:
-  i2s_lrclk_pin: 15
-  i2s_bclk_pin: 14
+  i2s_lrclk_pin: GPIO15
+  i2s_bclk_pin: GPIO14
 
 microphone:
   - platform: i2s_audio
     id: adc_mic
     adc_type: external
-    sample_rate: 10240
-    bits_per_sample: 16bit
-    # bits_per_sample: 32bit
-    i2s_din_pin: 32
+    # sample_rate: 10240
+    sample_rate: 22050
+    # bits_per_sample: 16bit
+    bits_per_sample: 32bit
+    i2s_din_pin: GPIO32
     channel: right
+    pdm: false
 
 music_leds:
   id: music_light
-  mic_id: adc_mic
 
 number:
   - id: !extend fastled_speed
@@ -49,9 +50,6 @@ light:
   - id: !extend neopixel_led
     effects:
       - music_leds_effect:
-          name: Binmap with Music
-          mode: BINMAP
-      - music_leds_effect:
           name: Grav with Music
           mode: GRAV
       - music_leds_effect:
@@ -61,6 +59,9 @@ light:
           name: Gravicentric with Music
           mode: GRAVICENTRIC
       - music_leds_effect:
+          name: Gravimeter with Music
+          mode: GRAVIMETER
+      - music_leds_effect:
           name: Pixels with Music
           mode: PIXELS
       - music_leds_effect:
@@ -69,3 +70,30 @@ light:
       - music_leds_effect:
           name: Midnoise with Music
           mode: MIDNOISE
+      - music_leds_effect:
+          name: Ripple Peak with Music
+          mode: RIPPLEPEAK
+      - music_leds_effect:
+          name: Matripix with Music
+          mode: MATRIPIX
+      - music_leds_effect:
+          name: Noise Fire with Music
+          mode: NOISEFIRE
+      - music_leds_effect:
+          name: Pixel Wave with Music
+          mode: PIXELWAVE
+      - music_leds_effect:
+          name: Plasmoid with Music
+          mode: PLASMOID
+      - music_leds_effect:
+          name: Puddle Peak with Music
+          mode: PUDDLEPEAK
+      - music_leds_effect:
+          name: Puddles with Music
+          mode: PUDDLES
+      - music_leds_effect:
+          name: DJ Light with Music
+          mode: DJLIGHT
+      - music_leds_effect:
+          name: Waterfall with Music
+          mode: WATERFALL
