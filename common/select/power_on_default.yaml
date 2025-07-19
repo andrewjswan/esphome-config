@@ -1,5 +1,5 @@
 platform: template
-name: "${name} Power On Default"
+name: "Power On Default"
 id: power_on_default
 icon: mdi:power
 options:

@@ -55,12 +55,11 @@ on_boot:
                       binary_sensor.is_on: need_spray
                     then:
                       - script.execute: air_fresh_action
-                - script.execute: publish_hearbeat
+                - script.execute: publish_heartbeat
                 - script.execute: publish_uptime
                 - script.execute: publish_air_fresh_refill_level
                 - script.execute: publish_air_fresh_refill_remain
                 - script.execute: publish_air_fresh_refill_worked_out
-                - script.execute: publish_air_fresh_device
               else:
                 - if:
                     condition:

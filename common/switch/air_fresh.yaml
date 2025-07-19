@@ -1,6 +1,6 @@
-﻿# Air Fresh
+# Air Fresh
 platform: gpio
 pin: D1
-name: ${name} Air Fresh Switch
+name: Air Fresh Switch
 id: fu_fu
 internal: true

@@ -1,7 +1,8 @@
 substitutions:
-  device: senseair_light
-  name: Senseair
-  location: ${name}
+  device: esp_senseair_light
+  name: senseair-light
+  friendly_name: Senseair
+  location: ${friendly_name}
   update_interval: 60s
   device_ip: 192.168.0.0
   reboot_timeout: 0s
@@ -18,68 +19,24 @@ substitutions:
   project_version: "1.0.5"
   comment: "Senseair S8 Light"
 
-esphome:
-  name: $device
-  comment: $comment
-  build_path: ./.build/$device
-  project:
-    name: $project_name
-    version: $project_version
-  <<: !include common/boot/neopixel_co2.yaml
-
 <<: !include common/esp/esp8266_mini.yaml
 
 <<: !include common/common.yaml
 
-# UART
-<<: !include common/uart/senseair_s8.yaml
+packages:
+  common: !include packages/common_8266.yaml
+  s8: !include packages/senseair_s8.yaml
+  light: !include packages/neopixel_light.yaml
+  lightcommon: !include packages/neopixel_light_common.yaml
+  special: !include packages/neopixel_light_special.yaml
 
 binary_sensor:
-  # ESP Status
-  - !include common/binary_sensor/status.yaml
-
   # Workday
   - !include common/binary_sensor/workday.yaml
 
   # Night
   - !include common/binary_sensor/night.yaml
 
-text_sensor:
-  # ESPHome Version
-  - !include common/text_sensor/version.yaml
-
-  # Uptime
-  - !include common/text_sensor/uptime.yaml
-
-sensor:
-  # Uptime
-  - !include common/sensor/uptime.yaml
-
-  # WiFi Signal
-  - !include common/sensor/wifi-signal.yaml
-
-  # SenseAir S8
-  - !include common/sensor/senseair-s8.yaml
-
 switch:
-  # Restart
-  - !include common/switch/restart.yaml
-
   # Automatic mode
   - !include common/switch/automatic.yaml
-
-button:
-  # Senseair S8
-  - !include common/button/senseair_s8_calibration.yaml
-  - !include common/button/senseair_s8_calibration_result.yaml
-
-interval:
-  # Neopixel
-  - !include common/interval/senseair-s8-neopixel.yaml
-
-packages:
-  # Neopixel
-  light: !include packages/neopixel_light.yaml
-  lightcommon: !include packages/neopixel_light_common.yaml
-  special: !include packages/neopixel_light_special.yaml
-  sunrise: !include packages/neopixel_light_sunrise.yaml

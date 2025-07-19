@@ -1,5 +1,6 @@
 substitutions:
-  name: "esp-svitlobot"
+  device: "esp_svitlobot"
+  name: "svitlobot"
   friendly_name: "Svitlo Bot"
 
 dashboard_import:
@@ -7,8 +8,8 @@ dashboard_import:
 
 esp32:
   board: nodemcu-32s
-  # framework:
-  #   type: esp-idf
+  framework:
+    type: esp-idf
 
 packages:
   remote_package_files:

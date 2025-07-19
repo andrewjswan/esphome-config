@@ -1,6 +1,6 @@
 # ESPHome Uptime
 platform: uptime
-name: ${name} Uptime
+name: Uptime
 unit_of_measurement: s
 icon: mdi:clock-start
 id: device_uptime

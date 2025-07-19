@@ -1,0 +1,21 @@
+# Senseair S8
+esphome:
+  <<: !include ../common/boot/neopixel_co2.yaml
+
+uart:
+  rx_pin: D1
+  tx_pin: D2
+  baud_rate: 9600
+
+sensor:
+  # SenseAir S8
+  - !include ../common/sensor/senseair-s8.yaml
+
+button:
+  # Senseair S8
+  - !include ../common/button/senseair_s8_calibration.yaml
+  - !include ../common/button/senseair_s8_calibration_result.yaml
+
+interval:
+  # Neopixel for Senseair S8
+  - !include ../common/interval/senseair_s8_neopixel.yaml

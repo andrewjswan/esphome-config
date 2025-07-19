@@ -1,6 +1,6 @@
 # Automatic Led mode
 platform: template
-name: ${name} Automatic
+name: Automatic
 id: automatic
 icon: mdi:rocket-launch-outline
 optimistic: true

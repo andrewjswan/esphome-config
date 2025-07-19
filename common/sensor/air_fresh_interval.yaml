@@ -1,6 +1,6 @@
-﻿# Air Fresh Interval
+# Air Fresh Interval
 platform: mqtt_subscribe
-name: ${name} Air Fresh Interval
+name: Air Fresh Interval
 id: air_fresh_interval
 topic: home/esphome/${device}/air_fresh_interval
 internal: true

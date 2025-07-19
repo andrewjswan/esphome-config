@@ -1,0 +1,33 @@
+substitutions:
+  device: esp_nous_a8_socket
+  name: nous-a8-socket
+  friendly_name: Nous A8 Socket
+  location: ${friendly_name}
+  update_interval: 60s
+  device_ip: 192.168.0.0
+  reboot_timeout: 15min
+  comment: "Nous A8"
+
+  # Higher value gives lower watt readout
+  current_res: "0.00126"
+  # Lower value gives lower voltage readout
+  voltage_div: "1550"
+  # Max power
+  max_power: "2000"
+
+  amperage_calibration1: "0.460 -> 0.459"
+  amperage_calibration2: "3.779 -> 3.771"
+  amperage_calibration3: "8.438 -> 8.419"
+  amperage_min: "0.01"
+
+  voltage_calibration1: "240.8 -> 231.3"
+  voltage_calibration2: "242.5 -> 232.9"
+
+  wattage_calibration1: "207.60 -> 103.30"
+  wattage_calibration2: "1714.56 -> 861.83"
+  wattage_calibration3: "3709.05 -> 1869.87"
+  wattage_min: "1.0"
+
+packages:
+  common: !include packages/common_32.yaml
+  nous: !include packages/nous_a8.yaml

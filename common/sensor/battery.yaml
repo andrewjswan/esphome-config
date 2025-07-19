@@ -1,6 +1,6 @@
-﻿# Battery
+# Battery
 platform: template
-name: ${name} Battery
+name: Battery
 id: battery
 unit_of_measurement: '%'
 device_class: battery

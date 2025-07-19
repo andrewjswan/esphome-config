@@ -1,6 +1,6 @@
 # Air Fresh Button Awakened
 platform: template
-name: ${name} Air Fresh Awakened
+name: Air Fresh Awakened
 id: button_awakened
 lambda: |-
   auto time = id(esp_time).now();

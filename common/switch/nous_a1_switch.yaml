@@ -1,5 +1,5 @@
 platform: template
-name: "${name} Switch"
+name: "Switch"
 # icon: mdi:flash
 optimistic: true
 id: button_switch

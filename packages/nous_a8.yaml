@@ -1,0 +1,40 @@
+# Nous A8
+
+substitutions:
+  status_gpio: GPIO02
+  energy_method: right
+  project_name: "ajs.Nous_A8_Socket"
+  project_version: "1.0.5"
+
+esphome:
+  <<: !include ../common/boot/nous_a8.yaml
+
+<<: !include ../common/esp/esp32_dev.yaml
+
+<<: !include ../common/common.yaml
+
+<<: !include ../common/light/nous_a8.yaml
+
+binary_sensor:
+  # Nous A8 Toggle Relay On/Off
+  - !include ../common/binary_sensor/nous_a8_relay.yaml
+
+  # Nous A8 Overpowering
+  - !include ../common/binary_sensor/nous_overpowering.yaml
+
+sensor:
+  # Nous A8 Today Usage
+  - !include ../common/sensor/energy_today_usage.yaml
+
+  # Nous A8 HLW8012
+  - !include ../common/sensor/nous_a8_hlw8012.yaml
+
+select:
+  # Nous A8 Power On Default
+  - !include ../common/select/power_on_default.yaml
+
+switch:
+  # Nous A8 Relay
+  - !include ../common/switch/nous_a8_relay.yaml
+
+# Nous A8 - https://devices.esphome.io/devices/Nous-A8T

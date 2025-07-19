@@ -1,5 +1,5 @@
 platform: internal_temperature
-name: ${name} Device Temperature
+name: Device Temperature
 id: device_temperature
 icon: mdi:thermometer
 device_class: temperature

@@ -1,6 +1,6 @@
 # WiFi Signal
 platform: wifi_signal
-name: ${name} WiFi Signal
+name: WiFi Signal
 update_interval: ${update_interval}
 icon: mdi:wifi
 device_class: signal_strength

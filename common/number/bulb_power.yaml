@@ -1,5 +1,5 @@
 platform: template
-name: ${name} Bulb Power
+name: Bulb Power
 min_value: 5
 max_value: 100
 step: 1

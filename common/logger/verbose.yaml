@@ -1,5 +1,4 @@
 # Enable logging - Verbose
 logger:
   level: VERBOSE
-  baud_rate: 0
   id: esp_log

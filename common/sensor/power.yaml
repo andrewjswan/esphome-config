@@ -1,6 +1,7 @@
 # Power
 platform: template
-name: "${name} Power"
+name: "Power"
+icon: mdi:flash
 id: power
 lambda: |-
   if (id(${light_source}).current_values.is_on())

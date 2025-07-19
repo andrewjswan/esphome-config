@@ -1,40 +1,40 @@
-﻿# ESPHome Uptime
+# ESPHome Uptime
 platform: template
-name: ${name} Uptime (formatted)
+name: Uptime (formatted)
 lambda: |-
   uint32_t uptime = (id(device_uptime).state);
   if (uptime == UINT32_MAX || uptime < 60)
   {
-    return { String("Только запущен...").c_str() };
+    return { std::string("Только запущен...").c_str() };
   }
 
   int minutes = ceil((uptime % 3600) / 60.0);
   int hours = (uptime % 86400) / 3600;
   int days = uptime / 86400;
 
-  String result = F("");
+  std::string result = "";
   if (days > 0)
   {
-    // return { (String(days) + " д. " + String(hours) + " ч. " + String(minutes) + " мин.").c_str() };
-    result = String(days);
+    // return { (std::string(days) + " д. " + std::string(hours) + " ч. " + std::string(minutes) + " мин.").c_str() };
+    result = std::to_string(days);
     result += " д. ";
-    result += String(hours);
+    result += std::to_string(hours);
     result += " ч. ";
-    result += String(minutes);
+    result += std::to_string(minutes);
     result += " мин.";
   }
   else if (hours > 0)
   {
-    // return { (String(hours) + " ч. " + String(minutes) + " мин.").c_str() };
-    result = String(hours);
+    // return { (std::string(hours) + " ч. " + std::string(minutes) + " мин.").c_str() };
+    result = std::to_string(hours);
     result += " ч. ";
-    result += String(minutes);
+    result += std::to_string(minutes);
     result += " мин.";
   }
   else
   {
-    // return { (String(minutes) + " мин.").c_str() };
-    result = String(minutes);
+    // return { (std::string(minutes) + " мин.").c_str() };
+    result = std::to_string(minutes);
     result += " мин.";
   }
   return { result.c_str() };

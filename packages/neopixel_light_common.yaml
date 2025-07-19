@@ -2,20 +2,20 @@ light:
   # Common Effects
   - id: !extend neopixel_led
     effects:
-      - !include ../common/light/effects/random.yaml
-      - !include ../common/light/effects/pulse.yaml
-      - !include ../common/light/effects/flicker.yaml
-      - !include ../common/light/effects/candle_flicker.yaml
+      # - !include ../common/light/effects/random.yaml
+      # - !include ../common/light/effects/pulse.yaml
+      # - !include ../common/light/effects/flicker.yaml
+      # - !include ../common/light/effects/candle_flicker.yaml
       - !include ../common/light/effects/addressable_rainbow.yaml
       - !include ../common/light/effects/addressable_color_wipe.yaml
-      - !include ../common/light/effects/addressable_scan_big.yaml
+      # - !include ../common/light/effects/addressable_scan_big.yaml
       - !include ../common/light/effects/addressable_twinkle.yaml
       - !include ../common/light/effects/addressable_random_twinkle.yaml
       - !include ../common/light/effects/addressable_fireworks.yaml
       - !include ../common/light/effects/addressable_fireworks_random.yaml
       - !include ../common/light/effects/exponent_light.yaml
       - !include ../common/light/effects/fire_ring.yaml
-      - !include ../common/light/effects/blue_fire.yaml
+      # - !include ../common/light/effects/blue_fire.yaml
       - !include ../common/light/effects/hsv.yaml
       - !include ../common/light/effects/confetti.yaml
       - !include ../common/light/effects/candy_cane.yaml
@@ -23,20 +23,20 @@ light:
       - !include ../common/light/effects/wheel_of_color.yaml
       - !include ../common/light/effects/vesuvius.yaml
       - !include ../common/light/effects/fire.yaml
-      - !include ../common/light/effects/breathing.yaml
-      - !include ../common/light/effects/breathing_rgb.yaml
-      - !include ../common/light/effects/blue_scan.yaml
+      # - !include ../common/light/effects/breathing.yaml
+      # - !include ../common/light/effects/breathing_rgb.yaml
+      # - !include ../common/light/effects/blue_scan.yaml
       - !include ../common/light/effects/christmas_red_green.yaml
       - !include ../common/light/effects/bluez.yaml
-      - !include ../common/light/effects/sparkle.yaml
+      # - !include ../common/light/effects/sparkle.yaml
       - !include ../common/light/effects/running_lights.yaml
-      - !include ../common/light/effects/snow_flack.yaml
+      # - !include ../common/light/effects/snow_flack.yaml
       - !include ../common/light/effects/rainbow_new.yaml
       - !include ../common/light/effects/gold_glitter.yaml
       - !include ../common/light/effects/meteor.yaml
       - !include ../common/light/effects/balls.yaml
       - !include ../common/light/effects/rise_and_fade.yaml
       - !include ../common/light/effects/outside_to_center.yaml
-      - !include ../common/light/effects/ukraine.yaml
+      # - !include ../common/light/effects/ukraine.yaml
       - !include ../common/light/effects/clock.yaml
       - !include ../common/light/effects/clock_full.yaml

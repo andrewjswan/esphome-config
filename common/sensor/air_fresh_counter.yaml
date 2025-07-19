@@ -1,6 +1,6 @@
-﻿# Air Fresh Counter
+# Air Fresh Counter
 platform: mqtt_subscribe
-name: ${name} Air Fresh Counter
+name: Air Fresh Counter
 id: air_fresh_counter
 topic: home/esphome/${device}/air_fresh_counter
 internal: true
