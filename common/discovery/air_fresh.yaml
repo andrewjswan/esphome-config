@@ -1,7 +1,7 @@
 id: publish_air_fresh_device
 then:
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_time/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_time/config
       payload: |-
         root["name"] = "Time";
         root["state_topic"] = "home/esphome/${device}/air_fresh_time";
@@ -12,28 +12,30 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_hearbeat/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_heartbeat/config
       payload: |-
         root["name"] = "Heartbeat";
-        root["state_topic"] = "home/esphome/${device}/hearbeat";
+        root["state_topic"] = "home/esphome/${device}/heartbeat";
         root["icon"] = "mdi:heart-pulse";
-        root["unique_id"] = "${device}_air_fresh_hearbeat";
-        root["object_id"] = "${device}_air_fresh_hearbeat";
+        root["unique_id"] = "${device}_air_fresh_heartbeat";
+        root["object_id"] = "${device}_air_fresh_heartbeat";
         root["value_template"] = "{{ value }}";
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_uptime/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_uptime/config
       payload: |-
         root["name"] = "Uptime";
         root["state_topic"] = "home/esphome/${device}/uptime";
@@ -44,12 +46,13 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_counter/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_counter/config
       payload: |-
         root["name"] = "Counter";
         root["state_topic"] = "home/esphome/${device}/air_fresh_counter";
@@ -61,15 +64,16 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_voltage/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_voltage/config
       payload: |-
         root["name"] = "VCC";
-        root["state_topic"] = "home/esphome/${device}/sensor/${name_low}_vcc_voltage/state";
+        root["state_topic"] = "home/esphome/${device}/sensor/${name}_vcc_voltage/state";
         root["unique_id"] = "${device}_air_fresh_voltage";
         root["object_id"] = "${device}_air_fresh_voltage";
         root["value_template"] = "{{ value | float }}";
@@ -80,15 +84,16 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_battery/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_battery/config
       payload: |-
         root["name"] = "Battery";
-        root["state_topic"] = "home/esphome/${device}/sensor/${name_low}_battery/state";
+        root["state_topic"] = "home/esphome/${device}/sensor/${name}_battery/state";
         root["unique_id"] = "${device}_air_fresh_battery";
         root["object_id"] = "${device}_air_fresh_battery";
         root["value_template"] = "{{ value | int }}";
@@ -99,15 +104,16 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_refill_level/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_refill_level/config
       payload: |-
         root["name"] = "Refill Level";
-        root["state_topic"] = "home/esphome/${device}/sensor/${name_low}_refill_level/state";
+        root["state_topic"] = "home/esphome/${device}/sensor/${name}_refill_level/state";
         root["unique_id"] = "${device}_air_fresh_refill_level";
         root["object_id"] = "${device}_air_fresh_refill_level";
         root["value_template"] = "{{ value | int }}";
@@ -117,15 +123,16 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_refill_remain/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_refill_remain/config
       payload: |-
         root["name"] = "Refill Remain";
-        root["state_topic"] = "home/esphome/${device}/sensor/${name_low}_refill_remain/state";
+        root["state_topic"] = "home/esphome/${device}/sensor/${name}_refill_remain/state";
         root["unique_id"] = "${device}_air_fresh_refill_remain";
         root["object_id"] = "${device}_air_fresh_refill_remain";
         root["value_template"] = "{{ value | int }}";
@@ -134,15 +141,16 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_refill_worked_out/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_refill_worked_out/config
       payload: |-
         root["name"] = "Refill Worked Out";
-        root["state_topic"] = "home/esphome/${device}/sensor/${name_low}_refill_worked_out/state";
+        root["state_topic"] = "home/esphome/${device}/sensor/${name}_refill_worked_out/state";
         root["unique_id"] = "${device}_air_fresh_refill_worked_out";
         root["object_id"] = "${device}_air_fresh_refill_worked_out";
         root["value_template"] = "{{ value | int }}";
@@ -151,15 +159,16 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_wifi/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_wifi/config
       payload: |-
         root["name"] = "RSSI";
-        root["state_topic"] = "home/esphome/${device}/sensor/${name_low}_wifi_signal/state";
+        root["state_topic"] = "home/esphome/${device}/sensor/${name}_wifi_signal/state";
         root["unique_id"] = "${device}_air_fresh_wifi";
         root["object_id"] = "${device}_air_fresh_wifi";
         root["value_template"] = "{{ value | int }}";
@@ -169,15 +178,16 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/sensor/${device}_air_fresh_esphome_version/config
+      topic: ${discovery}/sensor/esphome/${device}_air_fresh_esphome_version/config
       payload: |-
         root["name"] = "ESPHome version";
-        root["state_topic"] = "home/esphome/${device}/sensor/${name_low}_esphome_version/state";
+        root["state_topic"] = "home/esphome/${device}/sensor/${name}_esphome_version/state";
         root["icon"] = "mdi:new-box";
         root["unique_id"] = "${device}_air_fresh_esphome_version";
         root["object_id"] = "${device}_air_fresh_esphome_version";
@@ -186,14 +196,15 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/switch/${device}_air_fresh/config
+      topic: ${discovery}/switch/esphome/${device}_air_fresh/config
       payload: |-
-        root["name"] = "${name} Air Fresh";
+        root["name"] = "${friendly_name} Air Fresh";
         root["state_topic"] = "home/esphome/${device}/air_fresh";
         root["command_topic"] = "home/esphome/${device}/air_fresh";
         root["icon"] = "mdi:air-horn";
@@ -208,12 +219,13 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1
 
   - mqtt.publish_json:
-      topic: home/devices/switch/${device}_air_fresh_ota/config
+      topic: ${discovery}/switch/esphome/${device}_air_fresh_ota/config
       payload: |-
         root["name"] = "OTA";
         root["state_topic"] = "home/esphome/${device}/ota_mode";
@@ -231,6 +243,7 @@ then:
         root["device"]["identifiers"][0] = "${device}_smart_air_fresh";
         root["device"]["manufacturer"] = "ajs";
         root["device"]["model"] = "${model}";
-        root["device"]["name"] = "${name} Air Fresh";
+        root["device"]["name"] = "${friendly_name} Air Fresh";
         root["device"]["sw_version"] = "${project_version}";
       retain: true
+      qos: 1

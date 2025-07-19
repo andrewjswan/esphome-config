@@ -1,0 +1,12 @@
+platform: gpio
+name: "Switch"
+pin: GPIO13
+id: relay
+restore_mode: RESTORE_DEFAULT_OFF
+on_turn_on:
+  - binary_sensor.template.publish:
+      id: overpowering
+      state: OFF
+  - light.turn_on: led_blue
+on_turn_off:
+  - light.turn_off: led_blue

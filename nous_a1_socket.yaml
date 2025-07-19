@@ -1,7 +1,8 @@
 substitutions:
-  device: esp_nous_socket
-  name: Nous A1 Socket
-  location: ${name}
+  device: esp_nous_a1_socket
+  name: nous-a1-socket
+  friendly_name: Nous A1 Socket
+  location: ${friendly_name}
   update_interval: 60s
   device_ip: 192.168.0.0
   reboot_timeout: 15min

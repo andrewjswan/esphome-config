@@ -1,5 +1,5 @@
 platform: template
-name: ${name} Power Supply
+name: Power Supply
 icon: mdi:power-plug
 min_value: 0.0
 max_value: 10.0

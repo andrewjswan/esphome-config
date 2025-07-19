@@ -26,7 +26,7 @@ microphone:
     # bits_per_sample: 16bit
     bits_per_sample: 32bit
     i2s_din_pin: GPIO32
-    channel: right
+    channel: left
     pdm: false
 
 music_leds:

@@ -1,0 +1,9 @@
+# Nous A8 Toggle Relay On/Off
+platform: gpio
+pin:
+  number: GPIO04
+  mode: INPUT_PULLUP
+  inverted: True
+id: push_button
+on_press:
+  - switch.toggle: relay

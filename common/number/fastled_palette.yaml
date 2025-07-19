@@ -1,5 +1,5 @@
 platform: template
-name: ${name} Fastled Palette
+name: Fastled Palette
 icon: mdi:palette-outline
 min_value: 0
 max_value: 56
@@ -9,3 +9,7 @@ id: fastled_palette
 initial_value: 4
 mode: slider
 entity_category: config
+on_value:
+  then:
+    - lambda: |-
+        id(palette).set_current_palette(x);

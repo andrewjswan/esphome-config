@@ -1,6 +1,10 @@
 ﻿substitutions:
   energy_method: left
 
+logger:
+  logs:
+    sensor: WARN
+
 number:
   # Power Supply
   - !include ../common/number/power_supply.yaml

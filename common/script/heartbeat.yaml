@@ -1,8 +1,8 @@
-# ESPHome Hearbeat
-id: publish_hearbeat
+# ESPHome Heartbeat
+id: publish_heartbeat
 then:
   - mqtt.publish:
-      topic: home/esphome/${device}/hearbeat
+      topic: home/esphome/${device}/heartbeat
       payload: !lambda |-
         char str[20];
         time_t currTime = id(esp_time).now().timestamp;

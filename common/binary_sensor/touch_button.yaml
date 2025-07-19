@@ -1,5 +1,5 @@
 platform: gpio
-name: ${name} Button
+name: Button
 pin:
   number: GPIO26
   mode:

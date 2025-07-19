@@ -1,6 +1,6 @@
 # Sonoff Mini Delay Before Turn Off
 platform: template
-name: ${name} Turn Off Delay
+name: Turn Off Delay
 id: turn_off_delay
 icon: mdi:camera-timer
 optimistic: true

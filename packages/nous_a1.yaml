@@ -4,16 +4,10 @@ substitutions:
   status_gpio: GPIO00  # - Red, GPIO02 - Blue
   status_share: "false"
   energy_method: right
-  project_name: "ajs.nous_a1_socket"
+  project_name: "ajs.Nous_A1_Socket"
   project_version: "1.0.5"
 
 esphome:
-  name: ${device}
-  comment: $comment
-  build_path: ./.build/$device
-  project:
-    name: $project_name
-    version: $project_version
   <<: !include ../common/boot/nous_a1.yaml
 
 <<: !include ../common/esp/esp8266_8285_restore.yaml
@@ -28,7 +22,7 @@ binary_sensor:
   - !include ../common/binary_sensor/nous_a1_relay.yaml
 
   # Nous A1 Overpowering
-  - !include ../common/binary_sensor/nous_a1_overpowering.yaml
+  - !include ../common/binary_sensor/nous_overpowering.yaml
 
 sensor:
   # Nous A1 Today Usage

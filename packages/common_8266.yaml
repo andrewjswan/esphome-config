@@ -1,4 +1,12 @@
 # Common sensors for ESP8266
+esphome:
+  name: $name
+  friendly_name: $friendly_name
+  comment: $comment
+  build_path: ./.build/$device
+  project:
+    name: $project_name
+    version: $project_version
 
 binary_sensor:
   # ESP Status

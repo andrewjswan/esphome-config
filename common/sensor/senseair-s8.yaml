@@ -1,7 +1,7 @@
 # SenseAir S8
 platform: senseair
 co2:
-  name: ${name} CO2
+  name: CO2
   id: senseair_co2
   filters:
     - median:

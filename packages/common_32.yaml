@@ -1,6 +1,7 @@
 # Common sensors for ESP32
 esphome:
-  name: ${device}
+  name: $name
+  friendly_name: $friendly_name
   comment: $comment
   build_path: ./.build/$device
   project:

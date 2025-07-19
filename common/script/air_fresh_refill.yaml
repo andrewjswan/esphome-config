@@ -1,7 +1,7 @@
 id: publish_air_fresh_refill_level
 then:
   - mqtt.publish:
-      topic: home/esphome/${device}/sensor/${name_low}_refill_level/state
+      topic: home/esphome/${device}/sensor/${name}_refill_level/state
       payload: !lambda |-
         auto x = (id(air_fresh_counter).state);
         return to_string( min(max(100 - (int)round((x * 100) / ${refill}), 0), 100) ).c_str();

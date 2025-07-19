@@ -5,3 +5,6 @@ web_server:
     password: !secret home.password
   log: false
   version: 3
+
+ota:
+  - platform: web_server

@@ -1,6 +1,6 @@
 # Air Fresh Need Spray
 platform: template
-name: ${name} Air Fresh Action
+name: Air Fresh Action
 id: need_spray
 lambda: |-
   #define NIGHT_SILENT

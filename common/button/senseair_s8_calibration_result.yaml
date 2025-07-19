@@ -1,5 +1,5 @@
 platform: template
-name: ${name} Sensair S8 Calibrate Result
+name: Sensair S8 Calibrate Result
 id: calibrate_s8_result
 entity_category: diagnostic
 on_press:

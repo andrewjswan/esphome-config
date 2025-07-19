@@ -1,0 +1,51 @@
+substitutions:
+  refill: "2700"
+  project_name: "ajs.Air_Fresh"
+  project_version: "1.0.7"
+
+esphome:
+  project:
+    name: ${project_name}_${model}
+    version: $project_version
+  <<: !include ../common/boot/air_fresh_power.yaml
+
+<<: !include ../common/esp/esp8266_mini_restore.yaml
+
+<<: !include ../common/common.yaml
+
+number:
+  - platform: template
+    name: Counter
+    id: air_fresh_counter
+    optimistic: true
+    min_value: 0
+    max_value: 3000
+    step: 1
+    restore_value: true
+    icon: mdi:air-horn
+    unit_of_measurement: пшик
+    entity_category: config
+
+sensor:
+  # Air Fresh Refill Level
+  - !include ../common/sensor/air_fresh_refill.yaml
+
+switch:
+  # Air Fresh
+  - !include ../common/switch/air_fresh.yaml
+  - !include ../common/switch/air_fresh_spray.yaml
+
+  - platform: template
+    name: Action
+    icon: mdi:air-horn
+    id: spray_action
+    optimistic: true
+    lambda: |-
+      return id(air_fresh_action).is_running();
+    turn_on_action:
+      - script.execute: air_fresh_action
+
+script:
+  # Air Fresh
+  - !include ../common/script/air_fresh_action_power.yaml
+  - !include ../common/script/air_fresh_counter_power.yaml

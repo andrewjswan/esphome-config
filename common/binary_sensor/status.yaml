@@ -1,6 +1,6 @@
 # ESPHome Status
 platform: status
-name: ${name} Status
+name: Status
 icon: mdi:check-network-outline
 device_class: connectivity
 entity_category: diagnostic

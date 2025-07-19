@@ -44,5 +44,5 @@ light:
       - !include ../common/light/effects/fastled-rainbow-march.yaml
       - !include ../common/light/effects/fastled-serendipitous.yaml
       - !include ../common/light/effects/fastled-starburst.yaml
-      - !include ../common/light/effects/fastled-trail.yaml
+      # - !include ../common/light/effects/fastled-trail.yaml
       - !include ../common/light/effects/fastled-tunnel.yaml

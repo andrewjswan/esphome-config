@@ -1,5 +1,5 @@
 platform: template
-name: ${name} Fastled Variant
+name: Fastled Variant
 icon: mdi:drag-variant
 min_value: 0
 max_value: 255

@@ -1,6 +1,6 @@
-﻿# Air Fresh On Flag
+# Air Fresh On Flag
 platform: mqtt_subscribe
-name: ${name} Air Fresh
+name: Air Fresh
 id: on_flag
 topic: home/esphome/${device}/air_fresh
 internal: true

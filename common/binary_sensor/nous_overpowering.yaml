@@ -1,4 +1,4 @@
 platform: template
-name: "${name} Overpowering"
+name: "Overpowering"
 id: overpowering
 device_class: problem

@@ -1,7 +1,7 @@
 id: publish_air_fresh_refill_worked_out
 then:
   - mqtt.publish:
-      topic: home/esphome/${device}/sensor/${name_low}_refill_worked_out/state
+      topic: home/esphome/${device}/sensor/${name}_refill_worked_out/state
       payload: !lambda |-
         auto time = id(esp_time).now();
         if (!time.is_valid())

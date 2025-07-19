@@ -1,5 +1,5 @@
 platform: template
-name: ${name} Current
+name: Current
 icon: mdi:current-ac
 id: current
 lambda: |-

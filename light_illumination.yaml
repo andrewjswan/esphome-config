@@ -1,7 +1,8 @@
 substitutions:
   device: esp_music_leds_illumination
-  name: Music Leds Illumination
-  location: ${name}
+  name: music-leds-illumination
+  friendly_name: Music Leds Illumination
+  location: ${friendly_name}
   update_interval: 60s
   device_ip: 192.168.0.0
   reboot_timeout: 0s
@@ -12,15 +13,9 @@ substitutions:
   color_correct_bright: "50%"
   sunrise: "600"  # 10 Minutes
   sunrize_bright: "255"  # Max brightness 0..255
-  comment: "Illumination Light with Music Leds / Sound Reactive and Hyperion effects"
+  comment: "Illumination Light with Music Leds | Sound Reactive and Hyperion effects"
 
 esphome:
-  name: ${device}
-  comment: $comment
-  build_path: ./.build/$device
-  project:
-    name: $project_name
-    version: $project_version
   <<: !include common/boot/window_illumination.yaml
 
 <<: !include common/esp/esp32_wrover.yaml

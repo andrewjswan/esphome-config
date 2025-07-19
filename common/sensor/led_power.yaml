@@ -1,5 +1,5 @@
 platform: template
-name: ${name} Power
+name: Power
 icon: mdi:flash
 id: power
 lambda: |-

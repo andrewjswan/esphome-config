@@ -1,19 +1,12 @@
 substitutions:
   device: esp_daikin_air_sensor
-  name: DAIKIN
-  location: ${name}
+  name: daikin
+  friendly_name: DAIKIN
+  location: ${friendly_name}
   device_ip: 192.168.0.0
   reboot_timeout: 0s
   update_interval: 60s
-  comment: "DAIKIN Air Sensor (BRY88AB151K)"
-
-esphome:
-  name: ${device}
-  comment: $comment
-  build_path: ./.build/$device
-  project:
-    name: $project_name
-    version: $project_version
+  comment: "DAIKIN Air Sensor | BRY88AB151K"
 
 <<: !include common/esp/esp32_node.yaml
 

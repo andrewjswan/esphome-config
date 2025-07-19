@@ -1,0 +1,8 @@
+light:
+  - platform: status_led
+    internal: True
+    name: "Switch State"
+    id: led_blue
+    pin:
+      number: ${status_gpio}
+      inverted: true

@@ -106,8 +106,8 @@ script:
   - !include ../common/script/air_fresh_refill_remain.yaml
   - !include ../common/script/air_fresh_refill_worked_out.yaml
 
-  # ESPHome Hearbeat
-  - !include ../common/script/hearbeat.yaml
+  # ESPHome Heartbeat
+  - !include ../common/script/heartbeat.yaml
 
   # ESPHome Uptime
   - !include ../common/script/uptime.yaml
