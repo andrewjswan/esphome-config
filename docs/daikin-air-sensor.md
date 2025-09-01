@@ -15,4 +15,4 @@ More information by [link](https://hasstech.cn/?p=1), config based on [Daikin Ai
 
 ## Config
 
-[Daikin Air Sensor Package](https://github.com/andrewjswan/esphome-config/blob/documentation/packages/daikin_air_sensor.yaml)
+[Daikin Air Sensor Package](https://github.com/andrewjswan/esphome-config/blob/main/packages/daikin_air_sensor.yaml)
