@@ -1,0 +1,93 @@
+# Project information
+site_name: ESPHome Configurations by Andrew J.Swan
+site_url: https://andrewjswan.github.io/esphome-config
+site_author: Andrew J.Swan
+site_description: >-
+  My configurations of different devices based on ESPHome
+
+# Repository
+repo_name: andrewjswan/esphome-config
+repo_url: https://github.com/andrewjswan/esphome-config
+remote_branch: documentation
+
+# Copyright
+copyright: Copyright &copy; Andrew J.Swan
+
+# Configuration
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.features
+    - navigation.path
+    - navigation.top
+    - toc.integrate
+    - search.suggest
+    - search.hightlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  language: en
+  font:
+    text: Roboto
+    code: Roboto Mono
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+      primary: indigo
+      accent: indigo
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: indigo
+      accent: indigo
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+      primary: indigo
+      accent: indigo
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.superfences
+  - admonition
+  - attr_list
+  - codehilite
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Configurations:
+      - Air Freesh: air-fresh.md
+      - DAIKIN Air Sensor: daikin-air-sensor.md
+      - Music Leds: music-leds.md
+      - Nous A1 Socket: nous-a1.md
+      - Nous A8 Socket: nous-a8.md
+      - Senseair S8 Light: senseair-s8.md
+      - Sonoff Mini Desk Lamp: sonoff-mini-desk-lamp.md
+      - Svitlobot: https://github.com/andrewjswan/svitlobot/
+      - Matrix Lamp: https://andrewjswan.github.io/matrix-lamp/
+      - Pixel Clock: https://andrewjswan.github.io/pixel-clock/
+  - Additionals: additionals.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/andrewjswan
