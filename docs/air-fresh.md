@@ -10,4 +10,4 @@ Automatic air freshener, uses AirWick or Glade as a donor, battery operated, int
 
 ## Config
 
-[Air freshener Package](https://github.com/andrewjswan/esphome-config/blob/documentation/packages/air_freesh.yaml)
+[Air freshener Package](https://github.com/andrewjswan/esphome-config/blob/main/packages/air_freesh.yaml)
