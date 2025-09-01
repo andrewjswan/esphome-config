@@ -14,3 +14,5 @@ My configurations of different devices based on ESPHome
 - [Senseair S8 Light](senseair-s8.md)
 - [Sonoff Mini Desk Lamp](somoff-mini-desk-lamp.md)
 - [Svitlobot](svitlobot.md)
+- [Matrix Lamp](https://andrewjswan.github.io/matrix-lamp/)
+- [Pixel Clock](https://andrewjswan.github.io/pixel-clock/)
