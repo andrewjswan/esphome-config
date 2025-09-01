@@ -6,16 +6,6 @@
 # ESPHome Config
 My configurations of different devices based on ESPHome
 
-<br /><br />
+# Documentation
 
-> [!IMPORTANT]
-> ### Custom components for ESPHome
-> https://github.com/andrewjswan/esphome-components
-
-> [!TIP]
-> ### Matrix Lamp
-> https://github.com/andrewjswan/matrix-lamp
-> ### Pixel Clock aka TRAM
-> https://github.com/andrewjswan/pixel-clock
-> ### SvitloBot
-> https://github.com/andrewjswan/svitlobot
+[Configuration documentation](https://andrewjswan.github.io/esphome-config/)
