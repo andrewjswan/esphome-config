@@ -25,6 +25,7 @@ theme:
     - search.suggest
     - search.hightlight
     - content.tabs.link
+    - content.tooltips
     - content.code.annotation
     - content.code.copy
   language: en
