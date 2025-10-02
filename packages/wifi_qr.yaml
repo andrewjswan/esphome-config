@@ -1,0 +1,3 @@
+qr_code:
+  - id: wifi_qr
+    value: !secret home.wifi.guests.qr
