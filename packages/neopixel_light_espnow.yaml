@@ -88,7 +88,7 @@ script:
                     uint8_t id;
                     uint8_t group;
                   } PACKED;
-                  
+
                   struct ESPNowDataEffect : ESPNowData {
                     uint32_t effect;
                     uint32_t count;
@@ -96,7 +96,7 @@ script:
                     uint8_t g;
                     uint8_t b;
                   } PACKED;
-                  
+
                   if (action != 0) {
                     ESPNowDataEffect data;
                     data.id = ${light_on};
@@ -141,7 +141,7 @@ script:
                   uint8_t id;
                   uint8_t group;
                 } PACKED;
-                
+
                 struct ESPNowDataEffect : ESPNowData {
                   uint32_t effect;
                   uint32_t count;
@@ -153,7 +153,7 @@ script:
                 if (size < sizeof(ESPNowData)) {
                   return;
                 }
-              
+
                 ESPNowData base_data;
                 memcpy(&base_data, data.data(), sizeof(ESPNowData));
                 if (base_data.group != ${group}) {
