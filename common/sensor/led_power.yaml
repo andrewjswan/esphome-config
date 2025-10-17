@@ -8,7 +8,10 @@ unit_of_measurement: W
 device_class: power
 state_class: measurement
 accuracy_decimals: 1
-update_interval: 1s
+update_interval: 3s
 disabled_by_default: true
+filters:
+  - round: 1
 web_server:
-  sorting_weight: 15
+  sorting_weight: 5
+  sorting_group_id: sorting_group_power
