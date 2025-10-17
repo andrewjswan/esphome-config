@@ -5,6 +5,13 @@ logger:
   logs:
     sensor: WARN
 
+web_server:
+  version: 3
+  sorting_groups:
+    - id: sorting_group_power
+      name: "Power"
+      sorting_weight: 5
+
 number:
   # Power Supply
   - !include ../common/number/power_supply.yaml

@@ -24,6 +24,13 @@ esphome:
 # Sonoff Mini Red LED (Status)
 <<: !include ../common/led/status.yaml
 
+web_server:
+  version: 3
+  sorting_groups:
+    - id: sorting_group_power
+      name: "Power"
+      sorting_weight: 5
+
 output:
   # Sonoff Mini Blue LED
   - platform: esp8266_pwm

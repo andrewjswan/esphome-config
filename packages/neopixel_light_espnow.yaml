@@ -84,12 +84,12 @@ script:
             - logger.log: "Send broadcast packet"
             - espnow.broadcast:
                 data: !lambda |-
-                  struct ESPNowBase {
+                  struct ESPNowData {
                     uint8_t id;
                     uint8_t group;
                   } PACKED;
 
-                  struct ESPNowLight : ESPNowBase {
+                  struct ESPNowDataEffect : ESPNowData {
                     uint32_t effect;
                     uint32_t count;
                     uint8_t r;
@@ -98,7 +98,7 @@ script:
                   } PACKED;
 
                   if (action != 0) {
-                    ESPNowLight data;
+                    ESPNowDataEffect data;
                     data.id = ${light_on};
                     data.group = ${group};
                     data.effect = id(neopixel_led).get_current_effect_index();
@@ -107,14 +107,14 @@ script:
                     data.g = id(neopixel_led).remote_values.get_green() * 255;
                     data.b = id(neopixel_led).remote_values.get_blue() * 255;
 
-                    std::vector<uint8_t> buffer(sizeof(ESPNowLight));
-                    memcpy(buffer.data(), &data, sizeof(ESPNowLight));
+                    std::vector<uint8_t> buffer(sizeof(ESPNowDataEffect));
+                    memcpy(buffer.data(), &data, sizeof(ESPNowDataEffect));
                     return buffer;
                   }
 
-                  ESPNowBase data = {${light_off}, ${group}};
-                  std::vector<uint8_t> buffer(sizeof(ESPNowBase));
-                  memcpy(buffer.data(), &data, sizeof(ESPNowBase));
+                  ESPNowData data = {${light_off}, ${group}};
+                  std::vector<uint8_t> buffer(sizeof(ESPNowData));
+                  memcpy(buffer.data(), &data, sizeof(ESPNowData));
                   return buffer;
                 on_sent:
                   - logger.log: "ESPNow message sent successfully"
@@ -137,12 +137,12 @@ script:
           then:
             - logger.log: "Recieve broadcast packet"
             - lambda: |-
-                struct ESPNowBase {
+                struct ESPNowData {
                   uint8_t id;
                   uint8_t group;
                 } PACKED;
 
-                struct ESPNowLight : ESPNowBase {
+                struct ESPNowDataEffect : ESPNowData {
                   uint32_t effect;
                   uint32_t count;
                   uint8_t r;
@@ -150,12 +150,12 @@ script:
                   uint8_t b;
                 } PACKED;
 
-                if (size < sizeof(ESPNowBase)) {
+                if (size < sizeof(ESPNowData)) {
                   return;
                 }
 
-                ESPNowBase base_data;
-                memcpy(&base_data, data.data(), sizeof(ESPNowBase));
+                ESPNowData base_data;
+                memcpy(&base_data, data.data(), sizeof(ESPNowData));
                 if (base_data.group != ${group}) {
                   return;
                 }
@@ -167,12 +167,12 @@ script:
                   return;
                 }
 
-                if (base_data.id != ${light_on} || size < sizeof(ESPNowLight)) {
+                if (base_data.id != ${light_on} || size < sizeof(ESPNowDataEffect)) {
                   return;
                 }
 
-                ESPNowLight effect_data;
-                memcpy(&effect_data, data.data(), sizeof(ESPNowLight));
+                ESPNowDataEffect effect_data;
+                memcpy(&effect_data, data.data(), sizeof(ESPNowDataEffect));
 
                 auto call = id(neopixel_led).turn_on();
                 if (effect_data.effect == 0) {
@@ -184,4 +184,3 @@ script:
                 call.perform();
             - logger.log: "Done"
     mode: restart
-
