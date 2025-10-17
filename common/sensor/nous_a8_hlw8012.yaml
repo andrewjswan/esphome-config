@@ -19,6 +19,9 @@ current:
   filters:
     # Furthermore it corrects ${amperage_min}A for the power usage of the plug.
     - lambda: if (x <= ${amperage_min}) return 0; else return x;
+  web_server:
+    sorting_weight: 10
+    sorting_group_id: sorting_group_power
 
 voltage:
   name: "Voltage"
@@ -26,6 +29,9 @@ voltage:
   accuracy_decimals: 1
   # icon: mdi:flash-outline
   device_class: voltage
+  web_server:
+    sorting_weight: 15
+    sorting_group_id: sorting_group_power
 
 power:
   name: "Power"
@@ -47,3 +53,6 @@ power:
         - binary_sensor.template.publish:
             id: overpowering
             state: ON
+  web_server:
+    sorting_weight: 5
+    sorting_group_id: sorting_group_power

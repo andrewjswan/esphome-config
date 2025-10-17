@@ -17,6 +17,13 @@ esphome:
 <<: !include ../common/led/status.yaml
 <<: !include ../common/led/blue.yaml
 
+web_server:
+  version: 3
+  sorting_groups:
+    - id: sorting_group_power
+      name: "Power"
+      sorting_weight: 5
+
 binary_sensor:
   # Nous A1 Toggle Relay On/Off
   - !include ../common/binary_sensor/nous_a1_relay.yaml
