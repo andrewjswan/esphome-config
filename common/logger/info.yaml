@@ -2,4 +2,5 @@
 logger:
   level: INFO
   baud_rate: 0
-  id: esp_log
+  id: esp_logger
+
