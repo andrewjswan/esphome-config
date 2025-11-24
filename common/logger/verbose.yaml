@@ -1,4 +1,5 @@
 # Enable logging - Verbose
 logger:
   level: VERBOSE
-  id: esp_log
+  id: esp_logger
+
