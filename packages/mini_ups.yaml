@@ -19,6 +19,7 @@ globals:
 binary_sensor:
   - platform: template
     name: Charging
+    id: charging
     device_class: battery_charging
     lambda: |-
       if (id(vcc).has_state()) {
@@ -43,6 +44,7 @@ binary_sensor:
 
   - platform: template
     name: Critical
+    id: critical
     device_class: problem
     lambda: |-
       if (id(vcc).has_state()) {
@@ -99,9 +101,9 @@ sensor:
         - script.execute:
             id: send_telegram_message
             message: !lambda |-
-              return id(swatch_time).state + " 🤖 *DC UPS:*\n" +
-                                             "🚨 Battery empty.\n" +
-                                             "ℹ️ VCC " + value_accuracy_to_string(id(vcc).state, 1) + "V " +
+              return id(swatch_time).state + " 🚨 *DC UPS:*\n" +
+                                             "Battery empty!\n" +
+                                             "⚡ VCC " + value_accuracy_to_string(id(vcc).state, 1) + "V\n" +
                                              "🔋 Battery " + value_accuracy_to_string(id(battery).state, 0) + "% ";
             silent: false
         - globals.set:
@@ -123,7 +125,7 @@ text_sensor:
       }
 
       float used = ${vcc_full} - id(vcc).state;
-      if (id(battery_charging).state || used <= 0.0) {
+      if (id(charging).state || used <= 0.0) {
         return {"Full or Charging"};
       }
 
