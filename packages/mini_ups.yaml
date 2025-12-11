@@ -36,11 +36,11 @@ binary_sensor:
         - globals.set:
             id: discharge_time
             value: !lambda |-
-              auto time = id(esp_time).utcnow();
+              auto time = id(esp_time).now();
               if (!time.is_valid()) {
                 return 0;
               }
-              return time.now().timestamp;
+              return time.timestamp;
 
   - platform: template
     name: Critical
@@ -61,11 +61,6 @@ sensor:
     state_class: measurement
     entity_category: diagnostic
     accuracy_decimals: 0
-    lambda: |-
-      if (id(vcc).has_state()) {
-        return std::clamp(remap(x, ${vcc_empty}, ${vcc_full}, 0, 100), 0, 100);
-      }
-      return NAN;
 
   - platform: adc
     pin: ${ADC}
@@ -129,21 +124,27 @@ text_sensor:
         return {"Full or Charging"};
       }
 
-      auto time = id(esp_time).utcnow();
+      auto time = id(esp_time).now();
       if (!time.is_valid()) {
         return {};
       }
 
-      time_t elapsed = time.now().timestamp() - id(discharge_time);
+      time_t elapsed = time.timestamp - id(discharge_time);
       float rate = used / elapsed;
-      float remain = id(vcc).state / rate; 
-      
-      uint8_t hours = (uint8_t)(remaining_seconds / 3600);
-      uint8_t minutes = (uint8_t)(remaining_seconds % 3600) / 60);
-      // uint8_t seconds = (uint8_t)(remaining_seconds % 60);
+      time_t remain = (time_t)(id(vcc).state / rate);
+
+      uint8_t minutes = (uint8_t)((remain % 3600) / 60);
+      uint8_t hours = (uint8_t)((remain % 86400) / 3600);
+      uint8_t days = (uint8_t)(remain / 86400);
 
       char buffer[32];
-      sprintf(buffer, "%d:%02d", hours, minutes);
-      // sprintf(buffer, "%d:%02d:%02d", hours, minutes, seconds);
-
+      if (days > 0) {
+        sprintf (buffer, "%dd %dhr %dmin", days, hours, minutes);
+      } else if (hours > 0) {
+        sprintf (buffer, "%dhr %dmin", hours, minutes);
+      } else if (minutes > 0) {
+        sprintf (buffer, "%dmin", minutes);
+      } else {
+        sprintf (buffer, "Calculating...");
+      }
       return { std::string(buffer) };     
