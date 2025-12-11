@@ -92,7 +92,7 @@ sensor:
       below: ${vcc_critical}
       then:
         - logger.log:
-            format: "Low power (%.1f)..."
+            format: "Low power (%.1fV), Battery: %d%%..."
             level: "WARN"
             tag: "power"
             args: ['id(vcc).state', 'id(battery).state']
