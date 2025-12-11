@@ -106,6 +106,9 @@ sensor:
     disabled_by_default: true
 
 text_sensor:
+  # Swatch Time
+  - !include ../common/text_sensor/swatch_time.yaml
+
   - platform: template
     name: Remaining Time
     id: remaining
