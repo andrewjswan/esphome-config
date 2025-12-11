@@ -119,7 +119,13 @@ text_sensor:
       if (id(battery_charging).state || used <= 0.0) {
         return {"Full or Charging"};
       }
-    
+
+      auto time = id(esp_time).utcnow();
+      if (!time.is_valid())
+      {
+        return {};
+      }
+
       time_t elapsed = time.now().timestamp() - id(discharge_time);
       float rate = used / elapsed;
       float remain = id(vcc).state / rate; 
