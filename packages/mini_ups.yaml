@@ -1,7 +1,8 @@
 ﻿substitutions:
   vcc_empty: "12.0"
-  vcc_full: "19.0"
+  vcc_full: "16.5"
   vcc_critical: "12.1"
+  vcc_charging: "17.0"
   project_name: "chertvl|ajs.DC_UPS"
   project_version: "1.0.1"
   ADC: GPIO36
@@ -23,7 +24,7 @@ binary_sensor:
     device_class: battery_charging
     lambda: |-
       if (id(vcc).has_state()) {
-        return (id(vcc).state >= ${vcc_full});
+        return (id(vcc).state >= ${vcc_charging});
       }
       return {};
     on_press:
@@ -67,7 +68,7 @@ sensor:
     name: Voltage
     id: vcc
     attenuation: 12db
-    update_interval: 20s
+    update_interval: 2s
     accuracy_decimals: 1
     icon: mdi:flash-outline
     device_class: voltage
@@ -75,10 +76,10 @@ sensor:
     entity_category: diagnostic
     filters:
       - multiply: 11.0
-      - max:
-          window_size: 3
-          send_every: 3
-          send_first_at: 3
+      - sliding_window_moving_average:
+          window_size: 30
+          send_every: 30
+          send_first_at: 30
     on_value:
       then:
         - sensor.template.publish:
