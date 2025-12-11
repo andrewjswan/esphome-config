@@ -40,7 +40,7 @@ binary_sensor:
               if (!time.is_valid()) {
                 return 0;
               }
-              return time.timestamp;
+              return (time_t)time.timestamp;
 
   - platform: template
     name: Critical
@@ -84,7 +84,7 @@ sensor:
         - sensor.template.publish:
             id: battery
             state: !lambda |-
-              return std::clamp(remap(x, ${vcc_empty}, ${vcc_full}, 0, 100), 0, 100);
+              return std::clamp(remap((float)x, (float)${vcc_empty}, (float)${vcc_full}, 0, 100), 0, 100);
     on_value_range:
       below: ${vcc_critical}
       then:
@@ -115,7 +115,7 @@ text_sensor:
     id: remaining
     entity_category: diagnostic
     lambda: |-
-      if (id(discharge_time) == 0 || !id(vcc).has_state) {
+      if (id(discharge_time) == 0 || !id(vcc).has_state()) {
         return {"Calculating..."};
       }
 
