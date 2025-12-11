@@ -1,0 +1,150 @@
+﻿substitutions:
+  vcc_empty: "12.0"
+  vcc_full: "19.0"
+  vcc_critical: "12.1"
+  project_name: "chertvl|ajs.DC_UPS"
+  project_version: "1.0.1"
+  ADC: GPIO36
+
+globals:
+  - id: message_send
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: discharge_time
+    type: time_t
+    restore_value: yes
+    initial_value: '0'
+
+binary_sensor:
+  - platform: template
+    name: Charging
+    id: charging
+    device_class: battery_charging
+    lambda: |-
+      if (id(vcc).has_state()) {
+        return (id(vcc).state >= ${vcc_full});
+      }
+      return {};
+    on_press:
+      then:
+        - globals.set:
+            id: message_send
+            value: 'false'
+    on_release:
+      then:
+        - globals.set:
+            id: discharge_time
+            value: !lambda |-
+              auto time = id(esp_time).now();
+              if (!time.is_valid()) {
+                return (time_t)0;
+              }
+              return (time_t)time.timestamp;
+
+  - platform: template
+    name: Critical
+    id: critical
+    device_class: problem
+    lambda: |-
+      if (id(vcc).has_state()) {
+        return (id(vcc).state <= ${vcc_critical});
+      }
+      return {};
+
+sensor:
+  - platform: template
+    name: Battery
+    id: battery
+    unit_of_measurement: '%'
+    device_class: battery
+    state_class: measurement
+    entity_category: diagnostic
+    accuracy_decimals: 0
+
+  - platform: adc
+    pin: ${ADC}
+    name: Voltage
+    id: vcc
+    attenuation: 12db
+    update_interval: 20s
+    accuracy_decimals: 1
+    icon: mdi:flash-outline
+    device_class: voltage
+    state_class: measurement
+    entity_category: diagnostic
+    filters:
+      - multiply: 11.0
+      - max:
+          window_size: 3
+          send_every: 3
+          send_first_at: 3
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: battery
+            state: !lambda |-
+              return std::clamp(remap((float)x, (float)${vcc_empty}, (float)${vcc_full}, 0, 100), 0, 100);
+    on_value_range:
+      below: ${vcc_critical}
+      then:
+        - logger.log:
+            format: "Low power (%.1fV), Battery: %d%%..."
+            level: "WARN"
+            tag: "power"
+            args: ['id(vcc).state', 'id(battery).state']
+        - script.execute:
+            id: send_telegram_message
+            message: !lambda |-
+              return id(swatch_time).state + " 🚨 *DC UPS:*\n" +
+                                             "Battery empty!\n" +
+                                             "⚡ VCC " + value_accuracy_to_string(id(vcc).state, 1) + "V\n" +
+                                             "🔋 Battery " + value_accuracy_to_string(id(battery).state, 0) + "% ";
+            silent: false
+        - globals.set:
+            id: message_send
+            value: 'true'
+    disabled_by_default: true
+
+text_sensor:
+  # Swatch Time
+  - !include ../common/text_sensor/swatch_time.yaml
+
+  - platform: template
+    name: Remaining Time
+    id: remaining
+    entity_category: diagnostic
+    lambda: |-
+      if (id(discharge_time) == 0 || !id(vcc).has_state()) {
+        return {"Calculating..."};
+      }
+
+      float used = ${vcc_full} - id(vcc).state;
+      if (id(charging).state || used <= 0.0) {
+        return {"Full or Charging"};
+      }
+
+      auto time = id(esp_time).now();
+      if (!time.is_valid()) {
+        return {};
+      }
+
+      time_t elapsed = time.timestamp - id(discharge_time);
+      float rate = used / elapsed;
+      uint32_t remain = (uint32_t)(id(vcc).state / rate);
+
+      uint8_t minutes = (uint8_t)((remain % 3600) / 60);
+      uint8_t hours = (uint8_t)((remain % 86400) / 3600);
+      uint8_t days = (uint8_t)(remain / 86400);
+
+      char buffer[32];
+      if (days > 0) {
+        sprintf (buffer, "%dd %dhr %dmin", days, hours, minutes);
+      } else if (hours > 0) {
+        sprintf (buffer, "%dhr %dmin", hours, minutes);
+      } else if (minutes > 0) {
+        sprintf (buffer, "%dmin", minutes);
+      } else {
+        sprintf (buffer, "Calculating...");
+      }
+      return { std::string(buffer) };

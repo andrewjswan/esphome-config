@@ -1,0 +1,18 @@
+substitutions:
+  device: esp_mini_ups
+  name: mini-ups
+  friendly_name: Mini UPS
+  location: ${friendly_name}
+  update_interval: 60s
+  device_ip: 192.168.0.0
+  reboot_timeout: 0s
+  comment: "Mini (DC) UPS"
+
+<<: !include common/esp/esp32_dev.yaml
+
+<<: !include common/common.yaml
+
+packages:
+  common: !include packages/common_32.yaml
+  telegram: !include packages/telegram_bot.yaml
+  mini_ups: !include packages/mini_ups.yaml
