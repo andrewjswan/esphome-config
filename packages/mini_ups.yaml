@@ -12,7 +12,7 @@ globals:
     restore_value: no
     initial_value: 'false'
   - id: discharge_time
-    type: long long int
+    type: time_t
     restore_value: yes
     initial_value: '0'
 
@@ -38,9 +38,9 @@ binary_sensor:
             value: !lambda |-
               auto time = id(esp_time).now();
               if (!time.is_valid()) {
-                return 0;
+                return (time_t)0;
               }
-              return time.timestamp;
+              return (time_t)time.timestamp;
 
   - platform: template
     name: Critical
