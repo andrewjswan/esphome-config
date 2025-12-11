@@ -12,7 +12,7 @@ globals:
     restore_value: no
     initial_value: 'false'
   - id: discharge_time
-    type: time_t
+    type: long long int
     restore_value: yes
     initial_value: '0'
 
@@ -40,7 +40,7 @@ binary_sensor:
               if (!time.is_valid()) {
                 return 0;
               }
-              return (time_t)time.timestamp;
+              return time.timestamp;
 
   - platform: template
     name: Critical
@@ -131,7 +131,7 @@ text_sensor:
 
       time_t elapsed = time.timestamp - id(discharge_time);
       float rate = used / elapsed;
-      time_t remain = (time_t)(id(vcc).state / rate);
+      uint32_t remain = (uint32_t)(id(vcc).state / rate);
 
       uint8_t minutes = (uint8_t)((remain % 3600) / 60);
       uint8_t hours = (uint8_t)((remain % 86400) / 3600);
