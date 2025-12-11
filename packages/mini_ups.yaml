@@ -35,7 +35,11 @@ binary_sensor:
         - globals.set:
             id: discharge_time
             value: !lambda |-
-              id(discharge_time) = id(esp_time).now().timestamp;
+              auto time = id(esp_time).utcnow();
+              if (!time.is_valid()) {
+                return 0;
+              }
+              return time.now().timestamp;
 
   - platform: template
     name: Critical
@@ -124,8 +128,7 @@ text_sensor:
       }
 
       auto time = id(esp_time).utcnow();
-      if (!time.is_valid())
-      {
+      if (!time.is_valid()) {
         return {};
       }
 
@@ -138,6 +141,7 @@ text_sensor:
       // uint8_t seconds = (uint8_t)(remaining_seconds % 60);
 
       char buffer[32];
-      // sprintf(buffer, "%d:%02d:%02d", hours, minutes, seconds);
       sprintf(buffer, "%d:%02d", hours, minutes);
+      // sprintf(buffer, "%d:%02d:%02d", hours, minutes, seconds);
+
       return { std::string(buffer) };     
