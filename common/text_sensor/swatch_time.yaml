@@ -1,4 +1,4 @@
-# ESPHome Uptime
+# Swatch Time
 platform: template
 name: Swatch Time
 lambda: |-
@@ -22,3 +22,4 @@ id: swatch_time
 icon: mdi:clock
 web_server:
   sorting_weight: 1000
+disabled_by_default: true
