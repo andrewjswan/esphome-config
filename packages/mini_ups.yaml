@@ -159,8 +159,8 @@ text_sensor:
       if (elapsed_seconds <= 0) {
           return {"Calculating..."};
       }
-      
-      float rate = used_voltage / (float)elapsed_seconds; 
+
+      float rate = used_voltage / (float)elapsed_seconds;
       uint32_t remain_seconds = (uint32_t)(id(vcc).state / rate);
 
       uint8_t minutes = (uint8_t)((remain_seconds % 3600) / 60);
@@ -177,6 +177,6 @@ text_sensor:
       } else {
         snprintf(buffer, sizeof(buffer), "Less than a minute");
       }
-      
+
       return { std::string(buffer) };
     disabled_by_default: true
