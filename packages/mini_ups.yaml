@@ -76,10 +76,12 @@ sensor:
     entity_category: diagnostic
     filters:
       - multiply: 11.0
-      - sliding_window_moving_average:
-          window_size: 30
-          send_every: 30
-          send_first_at: 30
+      - median:
+          window_size: 15
+          send_every: 1
+      - or:
+          - throttle: 180s
+          - delta: 0.1
     on_value:
       then:
         - sensor.template.publish:
@@ -107,45 +109,74 @@ sensor:
             value: 'true'
     disabled_by_default: true
 
+  - platform: template
+    name: Remaining
+    id: remaining
+    accuracy_decimals: 0
+    unit_of_measurement: "min"
+    device_class: duration
+    state_class: measurement
+    entity_category: diagnostic
+    lambda: |-
+      if (id(discharge_time) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
+        return {};
+      }
+
+      float used_voltage = ${vcc_full} - id(vcc).state;
+      if (id(charging).state || used_voltage <= 0.01) {
+        return {};
+      }
+
+      time_t elapsed_seconds = id(esp_time).now().timestamp - id(discharge_time);
+      if (elapsed_seconds <= 0) {
+          return {};
+      }
+      float rate = used_voltage / (float)elapsed_seconds;
+
+      uint32_t remaining_seconds = (uint32_t)(id(vcc).state / rate);
+      return { remaining_seconds / 60 };
+    disabled_by_default: true
+
 text_sensor:
   # Swatch Time
   - !include ../common/text_sensor/swatch_time.yaml
 
   - platform: template
     name: Remaining Time
-    id: remaining
+    id: remaining_time
     entity_category: diagnostic
     lambda: |-
-      if (id(discharge_time) == 0 || !id(vcc).has_state()) {
-        return {};
+      if (id(discharge_time) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
+        return {"Calculating..."};
       }
 
-      auto time = id(esp_time).now();
-      if (!time.is_valid()) {
-        return {};
-      }
-
-      float used = ${vcc_full} - id(vcc).state;
-      if (id(charging).state || used <= 0.0) {
+      float used_voltage = ${vcc_full} - id(vcc).state;
+      if (id(charging).state || used_voltage <= 0.01) {
         return {"Full or Charging"};
       }
 
-      time_t elapsed = time.timestamp - id(discharge_time);
-      float rate = used / elapsed;
-      uint32_t remain = (uint32_t)(id(vcc).state / rate);
+      time_t elapsed_seconds = id(esp_time).now().timestamp - id(discharge_time);
+      if (elapsed_seconds <= 0) {
+          return {"Calculating..."};
+      }
+      
+      float rate = used_voltage / (float)elapsed_seconds; 
+      uint32_t remain_seconds = (uint32_t)(id(vcc).state / rate);
 
-      uint8_t minutes = (uint8_t)((remain % 3600) / 60);
-      uint8_t hours = (uint8_t)((remain % 86400) / 3600);
-      uint8_t days = (uint8_t)(remain / 86400);
+      uint8_t minutes = (uint8_t)((remain_seconds % 3600) / 60);
+      uint8_t hours = (uint8_t)((remain_seconds % 86400) / 3600);
+      uint8_t days = (uint8_t)(remain_seconds / 86400);
 
       char buffer[32];
       if (days > 0) {
-        sprintf (buffer, "%dd %dhr %dmin", days, hours, minutes);
+        snprintf(buffer, sizeof(buffer), "%dd %dhr %dmin", days, hours, minutes);
       } else if (hours > 0) {
-        sprintf (buffer, "%dhr %dmin", hours, minutes);
+        snprintf(buffer, sizeof(buffer), "%dhr %dmin", hours, minutes);
       } else if (minutes > 0) {
-        sprintf (buffer, "%dmin", minutes);
+        snprintf(buffer, sizeof(buffer), "%dmin", minutes);
       } else {
-        sprintf (buffer, "Calculating...");
+        snprintf(buffer, sizeof(buffer), "Less than a minute");
       }
+      
       return { std::string(buffer) };
+    disabled_by_default: true
