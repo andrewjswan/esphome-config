@@ -96,17 +96,23 @@ sensor:
             level: "WARN"
             tag: "power"
             args: ['id(vcc).state', 'id(battery).state']
-        - script.execute:
-            id: send_telegram_message
-            message: !lambda |-
-              return id(swatch_time).state + " 🚨 *DC UPS:*\n" +
-                                             "Battery empty!\n" +
-                                             "⚡ VCC " + value_accuracy_to_string(id(vcc).state, 1) + "V\n" +
-                                             "🔋 Battery " + value_accuracy_to_string(id(battery).state, 0) + "% ";
-            silent: false
-        - globals.set:
-            id: message_send
-            value: 'true'
+        - if:
+            condition:
+              and:
+                - wifi.connected:
+                - lambda: 'return !id(message_send);'
+            then:
+              - script.execute:
+                  id: send_telegram_message
+                  message: !lambda |-
+                    return id(swatch_time).state + " 🚨 *DC UPS:*\n" +
+                                                   "Battery empty!\n" +
+                                                   "⚡ VCC " + value_accuracy_to_string(id(vcc).state, 1) + "V\n" +
+                                                   "🔋 Battery " + value_accuracy_to_string(id(battery).state, 0) + "% ";
+                  silent: false
+              - globals.set:
+                  id: message_send
+                  value: 'true'
     disabled_by_default: true
 
   - platform: template
@@ -114,6 +120,8 @@ sensor:
     id: remaining
     accuracy_decimals: 0
     unit_of_measurement: "min"
+    icon: mdi:battery-clock-outline
+    update_interval: ${update_interval}
     device_class: duration
     state_class: measurement
     entity_category: diagnostic
@@ -124,7 +132,7 @@ sensor:
 
       float used_voltage = ${vcc_full} - id(vcc).state;
       if (id(charging).state || used_voltage <= 0.01) {
-        return {};
+        return {INFINITY};
       }
 
       time_t elapsed_seconds = id(esp_time).now().timestamp - id(discharge_time);
@@ -134,7 +142,7 @@ sensor:
       float rate = used_voltage / (float)elapsed_seconds;
 
       uint32_t remaining_seconds = (uint32_t)(id(vcc).state / rate);
-      return { remaining_seconds / 60 };
+      return { remaining_seconds / 60.0f };
     disabled_by_default: true
 
 text_sensor:
@@ -144,6 +152,8 @@ text_sensor:
   - platform: template
     name: Remaining Time
     id: remaining_time
+    icon: mdi:battery-clock-outline
+    update_interval: ${update_interval}
     entity_category: diagnostic
     lambda: |-
       if (id(discharge_time) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
