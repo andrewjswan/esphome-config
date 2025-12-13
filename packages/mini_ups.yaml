@@ -162,18 +162,22 @@ text_sensor:
     update_interval: ${update_interval}
     entity_category: diagnostic
     lambda: |-
+      if (id(plugged).state) {
+        return {"Plugged"};
+      }
+
       if (id(discharge_time) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
         return {"Calibration"};
       }
 
       float used_voltage = ${vcc_full} - id(vcc).state;
-      if (id(plugged).state || used_voltage <= 0.01) {
-        return {"Plugged"};
+      if (used_voltage <= 0.01) {
+        return {"∞"};
       }
 
       time_t elapsed_seconds = id(esp_time).now().timestamp - id(discharge_time);
       if (elapsed_seconds <= 0) {
-          return {"Calibration"};
+        return {"Calibration"};
       }
 
       float rate = used_voltage / (float)elapsed_seconds;

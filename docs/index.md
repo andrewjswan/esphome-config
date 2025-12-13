@@ -13,6 +13,7 @@ My configurations of different devices based on ESPHome
 - [Nous A8 Socket](nous-a8.md)
 - [Senseair S8 Light](senseair-s8.md)
 - [Sonoff Mini Desk Lamp](sonoff-mini-desk-lamp.md)
+- [Mini (DC) UPS](mini-ups.md)
 - [Svitlobot](https://github.com/andrewjswan/svitlobot/)
 - [Matrix Lamp](https://andrewjswan.github.io/matrix-lamp/)
 - [Pixel Clock](https://andrewjswan.github.io/pixel-clock/)
