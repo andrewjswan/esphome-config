@@ -2,10 +2,13 @@
   vcc_empty: "12.0"
   vcc_full: "16.5"
   vcc_critical: "12.1"
-  vcc_charging: "17.0"
+  vcc_plugged: "17.0"
   project_name: "chertvl|ajs.DC_UPS"
   project_version: "1.0.1"
   ADC: GPIO36
+
+  vcc_calibration1: "11.0 -> 12.0"
+  vcc_calibration2: "16.3 -> 16.5"
 
 globals:
   - id: message_send
@@ -19,12 +22,12 @@ globals:
 
 binary_sensor:
   - platform: template
-    name: Charging
-    id: charging
-    device_class: battery_charging
+    name: Power supply
+    id: plugged
+    device_class: plug
     lambda: |-
       if (id(vcc).has_state()) {
-        return (id(vcc).state >= ${vcc_charging});
+        return (id(vcc).state >= ${vcc_plugged});
       }
       return {};
     on_press:
@@ -76,6 +79,9 @@ sensor:
     entity_category: diagnostic
     filters:
       - multiply: 11.0
+      - calibrate_linear:
+          - ${vcc_calibration1}
+          - ${vcc_calibration2}
       - median:
           window_size: 15
           send_every: 1
@@ -131,7 +137,7 @@ sensor:
       }
 
       float used_voltage = ${vcc_full} - id(vcc).state;
-      if (id(charging).state || used_voltage <= 0.01) {
+      if (id(plugged).state || used_voltage <= 0.01) {
         return {INFINITY};
       }
 
@@ -157,17 +163,17 @@ text_sensor:
     entity_category: diagnostic
     lambda: |-
       if (id(discharge_time) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
-        return {"Calculating..."};
+        return {"Calibration"};
       }
 
       float used_voltage = ${vcc_full} - id(vcc).state;
-      if (id(charging).state || used_voltage <= 0.01) {
-        return {"Full or Charging"};
+      if (id(plugged).state || used_voltage <= 0.01) {
+        return {"Plugged"};
       }
 
       time_t elapsed_seconds = id(esp_time).now().timestamp - id(discharge_time);
       if (elapsed_seconds <= 0) {
-          return {"Calculating..."};
+          return {"Calibration"};
       }
 
       float rate = used_voltage / (float)elapsed_seconds;
