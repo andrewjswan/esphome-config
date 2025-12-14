@@ -8,7 +8,7 @@ substitutions:
   reboot_timeout: 0s
   comment: "Mini (DC) UPS"
 
-<<: !include common/esp/esp32_dev.yaml
+<<: !include common/esp/esp32_mini.yaml
 
 <<: !include common/common.yaml
 
