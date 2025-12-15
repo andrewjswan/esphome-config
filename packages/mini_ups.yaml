@@ -58,7 +58,7 @@ binary_sensor:
               return (time_t)time.timestamp;
         - if:
             condition:
-              lambda: 'return id(vcc).state < <= ${vcc_critical_high};'
+              lambda: 'return id(vcc).state <= ${vcc_critical_high};'
             then:
               - binary_sensor.template.publish:
                   id: undercharge
