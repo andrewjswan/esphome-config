@@ -4,7 +4,7 @@
   vcc_critical_low: "12.3"
   vcc_critical_high: "16.3"
   vcc_plugged: "17.0"
-  project_name: "chertvl|ajs.DC_UPS"
+  project_name: "chertvl_|_ajs.Mini_(DC)_UPS"
   project_version: "1.0.3"
   ADC: GPIO36
 
