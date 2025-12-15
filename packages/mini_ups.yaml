@@ -16,7 +16,7 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
-  - id: discharge_time
+  - id: charger_last_event
     type: time_t
     restore_value: yes
     initial_value: '0'
@@ -41,6 +41,14 @@ binary_sensor:
     on_press:
       then:
         - globals.set:
+            id: charger_last_event
+            value: !lambda |-
+              auto time = id(esp_time).now();
+              if (!time.is_valid()) {
+                return (time_t)0;
+              }
+              return (time_t)time.timestamp;
+        - globals.set:
             id: message_send
             value: 'false'
         - binary_sensor.template.publish:
@@ -49,7 +57,7 @@ binary_sensor:
     on_release:
       then:
         - globals.set:
-            id: discharge_time
+            id: charger_last_event
             value: !lambda |-
               auto time = id(esp_time).now();
               if (!time.is_valid()) {
@@ -165,7 +173,7 @@ sensor:
     state_class: measurement
     entity_category: diagnostic
     lambda: |-
-      if (id(discharge_time) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
+      if (id(charger_last_event) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
         return {};
       }
 
@@ -174,7 +182,7 @@ sensor:
         return {INFINITY};
       }
 
-      time_t elapsed_seconds = id(esp_time).now().timestamp - id(discharge_time);
+      time_t elapsed_seconds = id(esp_time).now().timestamp - id(charger_last_event);
       if (elapsed_seconds <= 0) {
           return {};
       }
@@ -185,6 +193,21 @@ sensor:
     disabled_by_default: true
     web_server:
       sorting_weight: 10
+
+  - platform: template
+    name: Charger Last Event
+    icon: mdi:power
+    update_interval: ${update_interval}
+    device_class: timestamp
+    entity_category: diagnostic
+    lambda: |-
+      if (id(charger_last_event) == 0) {
+        return NAN;
+      }
+      return id(charger_last_event);
+    disabled_by_default: true
+    web_server:
+      sorting_weight: 30
 
 text_sensor:
   # Swatch Time
@@ -201,7 +224,7 @@ text_sensor:
         return {"Plugged"};
       }
 
-      if (id(discharge_time) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
+      if (id(charger_last_event) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
         return {"Calibration"};
       }
 
@@ -214,7 +237,7 @@ text_sensor:
         return {"∞"};
       }
 
-      time_t elapsed_seconds = id(esp_time).now().timestamp - id(discharge_time);
+      time_t elapsed_seconds = id(esp_time).now().timestamp - id(charger_last_event);
       if (elapsed_seconds <= 0) {
         return {"Calibration"};
       }
