@@ -1,10 +1,11 @@
 ﻿substitutions:
   vcc_empty: "12.0"
   vcc_full: "16.5"
-  vcc_critical: "12.1"
+  vcc_critical_low: "12.3"
+  vcc_critical_high: "16.3"
   vcc_plugged: "17.0"
   project_name: "chertvl|ajs.DC_UPS"
-  project_version: "1.0.1"
+  project_version: "1.0.3"
   ADC: GPIO36
 
   vcc_calibration1: "11.0 -> 12.0"
@@ -19,6 +20,13 @@ globals:
     type: time_t
     restore_value: yes
     initial_value: '0'
+
+esphome:
+  on_boot:
+    then:
+      - binary_sensor.template.publish:
+          id: undercharge
+          state: OFF
 
 binary_sensor:
   - platform: template
@@ -35,6 +43,9 @@ binary_sensor:
         - globals.set:
             id: message_send
             value: 'false'
+        - binary_sensor.template.publish:
+            id: undercharge
+            state: OFF
     on_release:
       then:
         - globals.set:
@@ -45,6 +56,15 @@ binary_sensor:
                 return (time_t)0;
               }
               return (time_t)time.timestamp;
+        - if:
+            condition:
+              lambda: 'return id(vcc).state < <= ${vcc_critical_high};'
+            then:
+              - binary_sensor.template.publish:
+                  id: undercharge
+                  state: ON
+    web_server:
+      sorting_weight: 10
 
   - platform: template
     name: Critical
@@ -52,9 +72,18 @@ binary_sensor:
     device_class: problem
     lambda: |-
       if (id(vcc).has_state()) {
-        return (id(vcc).state <= ${vcc_critical});
+        return (id(vcc).state <= ${vcc_critical_low});
       }
       return {};
+    web_server:
+      sorting_weight: 15
+
+  - platform: template
+    name: Undercharge
+    id: undercharge
+    device_class: problem
+    web_server:
+      sorting_weight: 20
 
 sensor:
   - platform: template
@@ -65,6 +94,8 @@ sensor:
     state_class: measurement
     # entity_category: diagnostic
     accuracy_decimals: 0
+    web_server:
+      sorting_weight: 5
 
   - platform: adc
     pin: ${ADC}
@@ -95,7 +126,7 @@ sensor:
             state: !lambda |-
               return std::clamp(remap((float)x, (float)${vcc_empty}, (float)${vcc_full}, 0, 100), 0, 100);
     on_value_range:
-      below: ${vcc_critical}
+      below: ${vcc_critical_low}
       then:
         - logger.log:
             format: "Low power (%.1fV), Battery: %d%%..."
@@ -120,6 +151,8 @@ sensor:
                   id: message_send
                   value: 'true'
     disabled_by_default: true
+    web_server:
+      sorting_weight: 5
 
   - platform: template
     name: Remaining
@@ -150,6 +183,8 @@ sensor:
       uint32_t remaining_seconds = (uint32_t)(id(vcc).state / rate);
       return { remaining_seconds / 60.0f };
     disabled_by_default: true
+    web_server:
+      sorting_weight: 10
 
 text_sensor:
   # Swatch Time
@@ -204,3 +239,5 @@ text_sensor:
 
       return { std::string(buffer) };
     disabled_by_default: true
+    web_server:
+      sorting_weight: 15
