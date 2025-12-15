@@ -63,7 +63,7 @@ sensor:
     unit_of_measurement: '%'
     device_class: battery
     state_class: measurement
-    entity_category: diagnostic
+    # entity_category: diagnostic
     accuracy_decimals: 0
 
   - platform: adc
@@ -111,7 +111,7 @@ sensor:
               - script.execute:
                   id: send_telegram_message
                   message: !lambda |-
-                    return id(swatch_time).state + " 🚨 *DC UPS:*\n" +
+                    return id(swatch_time).state + " 🚨 *${friendly_name}:*\n" +
                                                    "Battery empty!\n" +
                                                    "⚡ VCC " + value_accuracy_to_string(id(vcc).state, 1) + "V\n" +
                                                    "🔋 Battery " + value_accuracy_to_string(id(battery).state, 0) + "% ";
@@ -168,6 +168,10 @@ text_sensor:
 
       if (id(discharge_time) == 0 || !id(vcc).has_state() || !id(esp_time).now().is_valid()) {
         return {"Calibration"};
+      }
+
+      if (id(vcc).state < 5.0) {
+        return {"Disconnected"};
       }
 
       float used_voltage = ${vcc_full} - id(vcc).state;
