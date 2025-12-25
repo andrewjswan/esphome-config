@@ -1,11 +1,12 @@
-﻿substitutions:
+substitutions:
   vcc_empty: "12.0"
   vcc_full: "16.5"
   vcc_critical_low: "12.3"
   vcc_critical_high: "16.3"
   vcc_plugged: "17.0"
+  charge_speed: "0.5"
   project_name: "chertvl_|_ajs.Mini_(DC)_UPS"
-  project_version: "1.0.3"
+  project_version: "1.0.5"
   ADC: GPIO36
 
   vcc_calibration1: "11.0 -> 12.0"
@@ -20,6 +21,10 @@ globals:
     type: time_t
     restore_value: yes
     initial_value: '0'
+  - id: dod
+    type: float
+    restore_value: yes
+    initial_value: '${vcc_full}'
 
 esphome:
   on_boot:
@@ -64,6 +69,10 @@ binary_sensor:
                 return (time_t)0;
               }
               return (time_t)time.timestamp;
+        - globals.set:
+            id: dod
+            value: !lambda |-
+              return id(vcc).state;
         - if:
             condition:
               lambda: 'return id(vcc).state <= ${vcc_critical_high};'
@@ -133,6 +142,15 @@ sensor:
             id: battery
             state: !lambda |-
               return std::clamp(remap((float)x, (float)${vcc_empty}, (float)${vcc_full}, 0, 100), 0, 100);
+        - if:
+            condition:
+              and:
+                - lambda: 'return !id(plugged);'
+            then:
+              - globals.set:
+                  id: dod
+                  value: !lambda |-
+                    return (float)x;
     on_value_range:
       below: ${vcc_critical_low}
       then:
@@ -208,6 +226,44 @@ sensor:
     disabled_by_default: true
     web_server:
       sorting_weight: 30
+
+  - platform: template
+    name: Depth of Discharge
+    accuracy_decimals: 1
+    icon: mdi:battery-arrow-down-outline
+    update_interval: ${update_interval}
+    device_class: voltage
+    state_class: measurement
+    entity_category: diagnostic
+    lambda: |-
+      return { id(dod) };
+    disabled_by_default: true
+    web_server:
+      sorting_weight: 100
+
+  - platform: template
+    name: Charging ETA
+    accuracy_decimals: 1
+    unit_of_measurement: "h"
+    icon: "mdi:timer-sand"
+    update_interval: ${update_interval}
+    device_class: duration
+    state_class: measurement
+    entity_category: diagnostic
+    lambda: |-
+      float current_v = id(dod);
+      float full_v = ${vcc_full};
+      float charge_speed = ${charge_speed};
+
+      if (current_v >= full_v) {
+        return 0.0;
+      } else if (current_v < 1.0) {
+        return NAN;
+      }
+      return (full_v - current_v) / charge_speed;
+    disabled_by_default: true
+    web_server:
+      sorting_weight: 150
 
 text_sensor:
   # Swatch Time
