@@ -242,7 +242,7 @@ sensor:
       sorting_weight: 100
 
   - platform: template
-    name: "Charging ETA"
+    name: Charging ETA
     accuracy_decimals: 1
     unit_of_measurement: "h"
     icon: "mdi:timer-sand"
