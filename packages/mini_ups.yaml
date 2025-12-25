@@ -257,7 +257,7 @@ sensor:
 
       if (current_v >= full_v) {
         return 0.0;
-      } else if (current_v < 1.0) { 
+      } else if (current_v < 1.0) {
         return NAN;
       }
       return (full_v - current_v) / charge_speed;
