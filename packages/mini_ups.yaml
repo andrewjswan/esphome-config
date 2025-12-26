@@ -144,8 +144,7 @@ sensor:
               return std::clamp(remap((float)x, (float)${vcc_empty}, (float)${vcc_full}, 0, 100), 0, 100);
         - if:
             condition:
-              and:
-                - lambda: 'return !id(plugged);'
+              - lambda: 'return (float)x < (float)${vcc_plugged};'
             then:
               - globals.set:
                   id: dod
