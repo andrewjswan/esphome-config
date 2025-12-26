@@ -229,6 +229,7 @@ sensor:
   - platform: template
     name: Depth of Discharge
     accuracy_decimals: 1
+    unit_of_measurement: "V"
     icon: mdi:battery-arrow-down-outline
     update_interval: ${update_interval}
     device_class: voltage
@@ -255,11 +256,18 @@ sensor:
       float charge_speed = ${charge_speed};
 
       if (current_v >= full_v) {
-        return 0.0;
-      } else if (current_v < 1.0) {
+        return 0.0f;
+      } else if (current_v < 1.0f) {
         return NAN;
       }
-      return (full_v - current_v) / charge_speed;
+
+      float eta_hours = (full_v - current_v) / charge_speed;
+
+      if (id(plugged).state && id(charger_last_event) > 0 && id(esp_time).now().is_valid()) {
+        float passed_hours = (float)(id(esp_time).now().timestamp - id(charger_last_event)) / 3600.0f;
+        eta_hours = eta_hours - ((passed_hours > 0.0f) ? passed_hours : 0.0f);
+      }
+      return (eta_hours> 0.0f) ? eta_hours : 0.0f;
     disabled_by_default: true
     web_server:
       sorting_weight: 150
