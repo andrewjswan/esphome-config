@@ -203,9 +203,10 @@ sensor:
       if (elapsed_seconds <= 0) {
           return {};
       }
-      float rate = used_voltage / (float)elapsed_seconds;
 
-      uint32_t remaining_seconds = (uint32_t)(id(vcc).state / rate);
+      float rate = used_voltage / (float)elapsed_seconds;
+      uint32_t remaining_seconds = (uint32_t)((id(vcc).state - ${vcc_empty}) / rate);
+
       return { remaining_seconds / 60.0f };
     disabled_by_default: true
     web_server:
@@ -306,7 +307,7 @@ text_sensor:
       }
 
       float rate = used_voltage / (float)elapsed_seconds;
-      uint32_t remain_seconds = (uint32_t)(id(vcc).state / rate);
+      uint32_t remain_seconds = (uint32_t)((id(vcc).state - ${vcc_empty}) / rate);
 
       uint8_t minutes = (uint8_t)((remain_seconds % 3600) / 60);
       uint8_t hours = (uint8_t)((remain_seconds % 86400) / 3600);
