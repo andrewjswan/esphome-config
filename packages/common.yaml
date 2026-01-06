@@ -1,0 +1,8 @@
+<<: !include ../common/wifi.yaml
+<<: !include ../common/mdns.yaml
+<<: !include ../common/api.yaml
+<<: !include ../common/ota/online.yaml
+<<: !include ../common/web/web_server.yaml
+<<: !include ../common/time/home-assisatnt.yaml
+# <<: !include ../common/time/sntp.yaml
+<<: !include ../common/logger/logger.yaml

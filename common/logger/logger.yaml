@@ -1,0 +1,5 @@
+# Enable logging
+logger:
+  level: ${ 'DEBUG' if debug is defined and debug else 'INFO' }
+  baud_rate: ${ 115200 if debug is defined and debug else 0 }
+  id: esp_logger

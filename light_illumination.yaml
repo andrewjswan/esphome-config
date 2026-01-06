@@ -20,9 +20,8 @@ esphome:
 
 <<: !include common/esp/esp32_wrover.yaml
 
-<<: !include common/common.yaml
-
 packages:
+  base: !include packages/common.yaml
   common: !include packages/common_32.yaml
   led_power: !include packages/led_power.yaml
   light: !include packages/neopixel_light.yaml
