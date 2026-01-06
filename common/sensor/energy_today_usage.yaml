@@ -10,9 +10,7 @@ accuracy_decimals: 3
 filters:
   # Multiplication factor from W to kW is 0.001
   - multiply: 0.001
-  - sliding_window_moving_average:
-      window_size: 20
-      send_every: 20
+  - throttle: 60s
   - round: 3
 web_server:
   sorting_weight: 25
