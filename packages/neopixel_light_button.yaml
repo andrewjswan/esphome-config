@@ -1,0 +1,110 @@
+substitutions:
+  pin_button: "GPIO26"
+  pin_pullup: "true"
+
+binary_sensor:
+  - platform: gpio
+    name: Button
+    internal: true
+    pin:
+      number: ${pin_button}
+      mode:
+        input: true
+        pullup: ${pin_pullup}
+    filters:
+      - delayed_on: 32ms
+    on_multi_click:
+      # Short click
+      - timing:
+          - ON for at most 1000ms
+          - OFF for at least 500ms
+        then:
+          - light.toggle: neopixel_led
+
+      # Double click
+      - timing:
+          - ON for at most 1000ms
+          - OFF for at most 500ms
+          - ON for 50ms to 1000ms
+          - OFF for at least 200ms
+        then:
+          - lambda: |-
+              uint8_t total = id(neopixel_led)->get_effects().size();
+              uint8_t idx = 0;
+              std::string curr_effect = id(neopixel_led)->get_effect_name();
+
+              auto call = id(neopixel_led)->turn_on();
+
+              // Set random effect
+              if (strcasecmp(curr_effect.c_str(), "None") == 0)
+              {
+                call.set_effect(random(total) + 1);
+                call.perform();
+                return;
+              }
+
+              for (auto *effect : id(neopixel_led)->get_effects())
+              {
+                idx++;
+                if (strcasecmp(effect->get_name(), curr_effect.c_str()) == 0)
+                  break;
+              }
+
+              if (idx >= total)
+              {
+                call.set_effect(1);
+              }
+              else
+              {
+                call.set_effect(idx + 1);
+              }
+              call.perform();
+
+      # Triple click
+      - timing:
+          - ON for at most 1000ms
+          - OFF for at most 500ms
+          - ON for 50ms to 1000ms
+          - OFF for at most 500ms
+          - ON for 50ms to 1000ms
+          - OFF for at least 200ms
+        then:
+          - lambda: |-
+              uint8_t total = id(neopixel_led)->get_effects().size();
+              uint8_t idx = 0;
+              std::string curr_effect = id(neopixel_led)->get_effect_name();
+
+              auto call = id(neopixel_led)->turn_on();
+
+              // Set random effect
+              if (strcasecmp(curr_effect.c_str(), "None") == 0)
+              {
+                call.set_effect(random(total) + 1);
+                call.perform();
+                return;
+              }
+
+              for (auto *effect : id(neopixel_led)->get_effects())
+              {
+                idx++;
+                if (strcasecmp(effect->get_name(), curr_effect.c_str()) == 0)
+                  break;
+              }
+
+              if (idx == 1)
+              {
+                call.set_effect(total - 1);
+              }
+              else
+              {
+                call.set_effect(idx - 1);
+              }
+              call.perform();
+
+      # Long click
+      - timing:
+          - ON for at least 3000ms
+        then:
+          - light.turn_off: neopixel_led
+    web_server:
+      sorting_weight: 99
