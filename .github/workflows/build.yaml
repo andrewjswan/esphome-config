@@ -1,4 +1,4 @@
-﻿name: Build
+name: Build
 
 on:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
       - name: Build firmware
-        uses: esphome/build-action@v6
+        uses: esphome/build-action@v7
         id: esphome-build
         with:
           yaml-file: ${{ matrix.config-file }}
