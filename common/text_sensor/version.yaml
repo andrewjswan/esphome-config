@@ -1,6 +1,7 @@
 # ESPHome Version
-platform: version
+platform: template
 name: ESPHome Version
-id: esphome_version
-hide_timestamp: True
+icon: mdi:new-box
 entity_category: diagnostic
+lambda: |-
+  return std::string(ESPHOME_VERSION);
