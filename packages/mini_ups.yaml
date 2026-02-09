@@ -1,7 +1,7 @@
 substitutions:
   vcc_empty: "12.0"
   vcc_full: "16.5"
-  vcc_critical_low: "12.3"
+  vcc_critical_low: "13.0"
   vcc_critical_high: "16.3"
   vcc_plugged: "17.0"
   charge_speed: "0.5"
@@ -205,7 +205,7 @@ sensor:
       }
 
       float rate = used_voltage / (float)elapsed_seconds;
-      uint32_t remaining_seconds = (uint32_t)((id(vcc).state - ${vcc_empty}) / rate);
+      uint32_t remaining_seconds = (uint32_t)((id(vcc).state - ${vcc_critical_low}) / rate);
 
       return { remaining_seconds / 60.0f };
     disabled_by_default: true
@@ -307,7 +307,7 @@ text_sensor:
       }
 
       float rate = used_voltage / (float)elapsed_seconds;
-      uint32_t remain_seconds = (uint32_t)((id(vcc).state - ${vcc_empty}) / rate);
+      uint32_t remain_seconds = (uint32_t)((id(vcc).state - ${vcc_critical_low}) / rate);
 
       uint8_t minutes = (uint8_t)((remain_seconds % 3600) / 60);
       uint8_t hours = (uint8_t)((remain_seconds % 86400) / 3600);
