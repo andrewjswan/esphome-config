@@ -93,3 +93,10 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/andrewjswan
+
+plugins:
+  - social:
+      cards_layout: default/variant
+      cards_layout_options:
+        background_image: docs/img/back.png
+        background_color: transparent
