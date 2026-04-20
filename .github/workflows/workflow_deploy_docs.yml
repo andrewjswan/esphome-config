@@ -39,7 +39,7 @@ jobs:
         run: mkdocs build --config-file .mkdocs.yml
 
       - name: 🚀 Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           name: github-pages
           path: site/
