@@ -6,7 +6,7 @@ on_boot:
         state: OFF
     - if:
         condition:
-          lambda: 'return id(power_on_default).state == "On";'
+          lambda: 'return id(power_on_default).current_option() == "On";'
         then:
           - switch.turn_on: button_switch
           - switch.turn_on: relay
@@ -14,7 +14,7 @@ on_boot:
         else:
           - if:
               condition:
-                lambda: 'return id(power_on_default).state == "Last" and id(relay).state;'
+                lambda: 'return id(power_on_default).current_option() == "Last" and id(relay).state;'
               then:
                 - switch.turn_on: button_switch
                 - switch.turn_on: relay
