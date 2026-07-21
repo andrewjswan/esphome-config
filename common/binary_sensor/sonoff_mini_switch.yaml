@@ -18,7 +18,7 @@ on_press:
 
     - if:
         condition:
-          lambda: 'return id(switch_mode).state == "Edge";'
+          lambda: 'return id(switch_mode).current_option() == "Edge";'
         then:
           - light.toggle:
               id: light_id  # toggle the main relay
@@ -35,7 +35,7 @@ on_release:
 
     - if:
         condition:
-          lambda: 'return id(switch_mode).state == "Edge";'
+          lambda: 'return id(switch_mode).current_option() == "Edge";'
         then:
           - light.toggle:
               id: light_id  # toggle the main relay
