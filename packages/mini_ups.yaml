@@ -167,10 +167,16 @@ sensor:
               - script.execute:
                   id: send_telegram_message
                   message: !lambda |-
+                    char vcc_buf[VALUE_ACCURACY_MAX_LEN];
+                    char bat_buf[VALUE_ACCURACY_MAX_LEN];
+
+                    value_accuracy_to_buf(vcc_buf, id(vcc).state, 1);
+                    value_accuracy_to_buf(bat_buf, id(battery).state, 0);
+
                     return id(swatch_time).state + " 🚨 *${friendly_name}:*\n" +
                                                    "Battery empty!\n" +
-                                                   "⚡ VCC " + value_accuracy_to_string(id(vcc).state, 1) + "V\n" +
-                                                   "🔋 Battery " + value_accuracy_to_string(id(battery).state, 0) + "% ";
+                                                   "⚡ VCC " + vcc_buf + "V\n" +
+                                                   "🔋 Battery " + bat_buf + "% ";
                   silent: false
               - globals.set:
                   id: message_send
