@@ -1,7 +1,9 @@
-﻿addressable_lambda:
+addressable_lambda:
   name: FastLED Trail
   update_interval: 50ms
   lambda: |-
+    using namespace esphome::fastled_helper;
+
     static int ThisPos;
     int Delta, DeltaPos;
 

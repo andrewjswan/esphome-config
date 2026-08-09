@@ -2,20 +2,22 @@ addressable_lambda:
   name: FastLED Matrix
   update_interval: 40ms
   lambda: |-
+    using namespace esphome::fastled_helper;
+
     static uint8_t thisindex;
-    static uint8_t thisdir;
     static uint8_t thisrot;
     static uint8_t bgclr;
     static uint8_t bgbri;
+    static int8_t thisdir;
 
-    static int variant = -1;
+    static int16_t variant = -1;
 
     if (initial_run)
     {
       ESP_LOGD("effect", "FastLED Matrix");
 
       it.all() = Color::BLACK;
-      fastled_helper::InitLeds(${num_leds});
+      init_leds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -56,22 +58,22 @@ addressable_lambda:
     {
       if (thisdir == -1)
       {
-        fastled_helper::leds[0] = fastled_helper::color_from_palette(thisindex, current_color);                 // Foreground matrix colour
+        leds[0] = color_from_palette(thisindex, current_color);                 // Foreground matrix colour
       }
       else
       {
-        fastled_helper::leds[it.size() - 1] = fastled_helper::color_from_palette(thisindex, current_color);
+        leds[it.size() - 1] = color_from_palette(thisindex, current_color);
       }
     }
     else
     {
       if (thisdir == -1)
       {
-        fastled_helper::leds[0] = CHSV(bgclr, 255, bgbri); // Background colour
+        leds[0] = CHSV(bgclr, 255, bgbri); // Background colour
       }
       else
       {
-        fastled_helper::leds[it.size() - 1] = CHSV(bgclr, 255, bgbri);
+        leds[it.size() - 1] = CHSV(bgclr, 255, bgbri);
       }
     }
 
@@ -79,18 +81,18 @@ addressable_lambda:
     {
       for (int i = it.size() - 1; i > 0 ; i--)
       {
-        fastled_helper::leds[i] = fastled_helper::leds[i - 1];
+        leds[i] = leds[i - 1];
       }
     }
     else
     {
       for (int i = 0; i < it.size() - 1 ; i++)
       {
-        fastled_helper::leds[i] = fastled_helper::leds[i + 1];
+        leds[i] = leds[i + 1];
       }
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

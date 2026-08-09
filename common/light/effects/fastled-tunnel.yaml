@@ -1,7 +1,9 @@
-﻿addressable_lambda:
+addressable_lambda:
   name: Fastled Tunnel
   update_interval: 50ms
   lambda: |-
+    using namespace esphome::fastled_helper;
+
     static unsigned int PulseArray[][3] =
     {
       {0, 10, 30} ,   //  PulseArray0 {hi-res position, speed, back-and-forth} */
@@ -18,7 +20,7 @@
       ESP_LOGD("effect", "Fastled Tunnel");
 
       it.all() = Color::BLACK;
-      fastled_helper::InitLeds(${num_leds});
+      init_leds(${num_leds});
     }
 
     it.all().darken(10); // create a fade

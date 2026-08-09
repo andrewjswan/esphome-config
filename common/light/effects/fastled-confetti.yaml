@@ -2,6 +2,8 @@ addressable_lambda:
   name: FastLED Confetti
   update_interval: 10ms
   lambda: |-
+    using namespace esphome::fastled_helper;
+
     static uint8_t thisindex = 0; // Указатель на элемент палитры
     static uint8_t thisinc;
     static uint8_t thisfade;
@@ -14,7 +16,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Confetti");
 
       it.all() = Color::BLACK;
-      fastled_helper::InitLeds(${num_leds});
+      init_leds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -40,12 +42,12 @@ addressable_lambda:
       variant = (int)id(fastled_variant).state;
     }
 
-    fadeToBlackBy(fastled_helper::leds, it.size(), thisfade);                                         // Задухание светодиодов на значение thisfade
+    fadeToBlackBy(leds, it.size(), thisfade);                                         // Задухание светодиодов на значение thisfade
     uint16_t pos = random16(it.size());
-    fastled_helper::leds[pos] = fastled_helper::color_from_palette(thisindex + random8(thisdiff) / 4, current_color); // Munge the values and pick a colour from the palette
+    leds[pos] = color_from_palette(thisindex + random8(thisdiff) / 4, current_color); // Munge the values and pick a colour from the palette
     thisindex = thisindex + thisinc;                                                  // base palette counter increments here.
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

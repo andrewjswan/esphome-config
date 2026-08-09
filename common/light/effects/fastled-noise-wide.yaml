@@ -2,6 +2,8 @@ addressable_lambda:
   name: FastLED Noise Wide
   update_interval: 20ms
   lambda: |-
+    using namespace esphome::fastled_helper;
+
     static uint32_t x, hue_time; // x & hue_time values
     static uint8_t octaves;      // how many octaves to use for the brightness
     static uint8_t hue_octaves;  // how many octaves to use for the hue
@@ -19,7 +21,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Noise Wide");
 
       it.all() = Color::BLACK;
-      fastled_helper::InitLeds(${num_leds});
+      init_leds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -54,7 +56,7 @@ addressable_lambda:
       variant = (int)id(fastled_variant).state;
     }
 
-    fill_noise16(fastled_helper::leds, it.size(), octaves, x, xscale, hue_octaves, hxy, hue_scale, hue_time);
+    fill_noise16(leds, it.size(), octaves, x, xscale, hue_octaves, hxy, hue_scale, hue_time);
 
     int8_t thisdir = 1;
 
@@ -64,5 +66,5 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }
