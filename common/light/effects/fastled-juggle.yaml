@@ -2,6 +2,8 @@ addressable_lambda:
   name: FastLED Juggle
   update_interval: 10ms
   lambda: |-
+    using namespace esphome::fastled_helper;
+
     static uint8_t thisindex = 0;
     static uint8_t numdots;
     static uint8_t thisfade;
@@ -15,7 +17,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Juggle");
 
       it.all() = Color::BLACK;
-      fastled_helper::InitLeds(${num_leds});
+      init_leds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -37,14 +39,14 @@ addressable_lambda:
       variant = (int)id(fastled_variant).state;
     }
 
-    fadeToBlackBy(fastled_helper::leds, it.size(), thisfade);                                                                    // Затухание к черному
+    fadeToBlackBy(leds, it.size(), thisfade);                                                                    // Затухание к черному
     for (int i = 0; i < numdots; i++)
     {
-      fastled_helper::leds[beatsin16(thisbeat + i + numdots, 0, it.size() - 1)] += fastled_helper::color_from_palette(thisindex, current_color); // Munge the values and pick a colour from the palette
+      leds[beatsin16(thisbeat + i + numdots, 0, it.size() - 1)] += color_from_palette(thisindex, current_color); // Munge the values and pick a colour from the palette
       thisindex += thisdiff;
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

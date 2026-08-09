@@ -2,6 +2,8 @@ addressable_lambda:
   name: FastLED Color Waves
   update_interval: 10ms
   lambda: |-
+    using namespace esphome::fastled_helper;
+
     // ColorWavesWithPalettes
     // Animated shifting color waves, with several cross-fading color palettes.
     // by Mark Kriegsman, August 2015
@@ -24,7 +26,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Color Waves");
 
       it.all() = Color::BLACK;
-      fastled_helper::InitLeds(${num_leds});
+      init_leds(${num_leds});
     }
 
     uint8_t brightdepth = beatsin88(341, 96, 224);
@@ -38,7 +40,7 @@ addressable_lambda:
     uint16_t deltams = ms - sLastMillis ;
     sLastMillis = ms;
     sPseudotime += deltams * msmultiplier;
-    sHue16 += deltams * beatsin88( 400, 5, 9);
+    sHue16 += deltams * beatsin88(400, 5, 9);
     uint16_t brightnesstheta16 = sPseudotime;
 
     for (int i = 0 ; i < it.size(); i++)
@@ -56,27 +58,27 @@ addressable_lambda:
       }
 
       brightnesstheta16 += brightnessthetainc16;
-      uint16_t b16 = sin16(brightnesstheta16) + 32768;
+      uint16_t b16 = sin16_t(brightnesstheta16) + 32768;
 
       uint16_t bri16 = (uint32_t)((uint32_t)b16 * (uint32_t)b16) / 65536;
       uint8_t bri8 = (uint32_t)(((uint32_t)bri16) * brightdepth) / 65536;
       bri8 += (255 - brightdepth);
 
       uint8_t index = hue8;
-      index = scale8( index, 240 );
+      index = scale8(index, 240);
 
-      CRGB newcolor = fastled_helper::color_from_palette(index, current_color, bri8);
+      CRGB newcolor = color_from_palette(index, current_color, bri8);
       if (id(fastled_variant).state < 128)                                      // Направление
       {
-        nblend(fastled_helper::leds[(it.size() - 1) - i], newcolor, 128);
+        nblend(leds[(it.size() - 1) - i], newcolor, 128);
       }
       else
       {
-        nblend(fastled_helper::leds[i], newcolor, 128);
+        nblend(leds[i], newcolor, 128);
       }
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

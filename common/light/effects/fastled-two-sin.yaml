@@ -2,7 +2,7 @@ addressable_lambda:
   name: FastLED TwoSin
   update_interval: 20ms
   lambda: |-
-    #define qsuba(x, b)  ((x>b)?x-b:0) // Analog Unsigned subtraction macro. if result <0, then => 0
+    using namespace esphome::fastled_helper;
 
     static uint8_t allfreq;       // Меняет частоту. Переменная для эффектов one_sin_pal и two_sin.
     static int8_t  thisspeed;     // Изменение стандартной скорости
@@ -24,7 +24,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED TwoSin");
 
       it.all() = Color::BLACK;
-      fastled_helper::InitLeds(${num_leds});
+      init_leds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -122,11 +122,11 @@ addressable_lambda:
       int thisbright = qsuba(cubicwave8((i * allfreq) + thisphase), thiscutoff);       // qsub sets a minimum value called thiscutoff. If < thiscutoff, then bright = 0. Otherwise, bright = 128 (as defined in qsub)..
       int thatbright = qsuba(cubicwave8((i * allfreq) + 128 + thatphase), thatcutoff); // This wave is 180 degrees out of phase (with the value of 128).
 
-      fastled_helper::leds[i] =  fastled_helper::color_from_palette(thishue, current_color, thisbright);
-      fastled_helper::leds[i] += fastled_helper::color_from_palette(thathue, current_color, thatbright);
+      leds[i] =  color_from_palette(thishue, current_color, thisbright);
+      leds[i] += color_from_palette(thathue, current_color, thatbright);
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

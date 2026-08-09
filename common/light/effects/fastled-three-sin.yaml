@@ -2,6 +2,8 @@ addressable_lambda:
   name: FastLED ThreeSin
   update_interval: 50ms
   lambda: |-
+    using namespace esphome::fastled_helper;
+
     static uint8_t mul1;
     static uint8_t mul2;
     static uint8_t mul3;
@@ -17,7 +19,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED ThreeSin");
 
       it.all() = Color::BLACK;
-      fastled_helper::InitLeds(${num_leds});
+      init_leds(${num_leds});
     }
 
     if (variant != id(fastled_variant).state)
@@ -52,11 +54,11 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++)
     {
-      uint8_t index = sin8(mul1 * i + wave1) + sin8(mul1 * i + wave2) + sin8(mul1 * i + wave3);
-      fastled_helper::leds[i] = fastled_helper::color_from_palette(index, current_color);
+      uint8_t index = sin8_t(mul1 * i + wave1) + sin8_t(mul1 * i + wave2) + sin8_t(mul1 * i + wave3);
+      leds[i] = color_from_palette(index, current_color);
     }
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }

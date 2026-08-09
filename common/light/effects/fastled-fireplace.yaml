@@ -2,6 +2,8 @@ addressable_lambda:
   name: FastLED Fireplace
   update_interval: 30ms
   lambda: |-
+    using namespace esphome::fastled_helper;
+
     const uint8_t gamma8[] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
@@ -45,11 +47,11 @@ addressable_lambda:
         int v = random8() - leds[i].current / 100;
         if (v > 0)
         {
-          leds[i].steps = random(60 * _steps / 100, _steps);
+          leds[i].steps = random16(60 * _steps / 100, _steps);
         }
         else
         {
-          leds[i].steps = random(_steps, 140 * _steps / 100);
+          leds[i].steps = random16(_steps, 140 * _steps / 100);
         }
         leds[i].delta = 100 * v / leds[i].steps;
       }

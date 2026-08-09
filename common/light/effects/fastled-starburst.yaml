@@ -2,8 +2,7 @@ addressable_lambda:
   name: FastLED Starburst
   update_interval: 50ms
   lambda: |-
-    // Need
-    // - includes/light/stars.h
+    using namespace esphome::fastled_helper;
 
     #ifdef ESP8266
       #define MAX_NUM_SEGMENTS     16
@@ -44,7 +43,7 @@ addressable_lambda:
       ESP_LOGD("effect", "FastLED Starburst");
 
       it.all() = Color::BLACK;
-      fastled_helper::InitLeds(${num_leds});
+      init_leds(${num_leds});
 
       uint16_t maxStars = FAIR_DATA_PER_SEG * 4 / sizeof(star); // ESP8266: max. 4/9/19 stars/seg, ESP32: max. 10/21/42 stars/seg
       numStars = 1 + (${num_leds} >> 3);
@@ -69,7 +68,7 @@ addressable_lambda:
         uint16_t startPos = random16(it.size() - 1);
         float multiplier = (float)(random8()) / 255.0 * 1.0;
 
-        stars[j].color = fastled_helper::color_from_palette(random8(), current_color); // CRGB(SEGMENT.color_wheel(random8()));
+        stars[j].color = color_from_palette(random8(), current_color); // CRGB(SEGMENT.color_wheel(random8()));
         stars[j].pos   = startPos;
         stars[j].vel   = maxSpeed * (float)(random8()) / 255.0f * multiplier;
         stars[j].birth = now;
@@ -89,7 +88,7 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++)
     {
-      fastled_helper::leds[i] = CRGB::Black;
+      leds[i] = CRGB::Black;
     }
 
     for (int j = 0; j < numStars; j++)
@@ -121,7 +120,7 @@ addressable_lambda:
 
       if (age < particleIgnition)
       {
-        c = CRGB(fastled_helper::color_blend(CRGB::White, c, 254.5f * ((age / particleIgnition))));
+        c = CRGB(color_blend(CRGB::White, c, 254.5f * ((age / particleIgnition))));
       }
       else
       {
@@ -138,7 +137,7 @@ addressable_lambda:
           age -= particleIgnition;
           fade = (age / particleFadeTime);  // Fading star
           byte f = 254.5f * fade;
-          c = CRGB(fastled_helper::color_blend(c, CRGB(current_color.r, current_color.g, current_color.b), f));
+          c = CRGB(color_blend(c, CRGB(current_color.r, current_color.g, current_color.b), f));
         }
       }
 
@@ -159,7 +158,7 @@ addressable_lambda:
           if (end > it.size()) end = it.size();
           for (int p = start; p < end; p++)
           {
-            fastled_helper::leds[p] = c;
+            leds[p] = c;
           }
         }
       }
@@ -167,5 +166,5 @@ addressable_lambda:
 
     for (int i = 0; i < it.size(); i++)
     {
-      it[i] = Color(fastled_helper::leds[i].r, fastled_helper::leds[i].g, fastled_helper::leds[i].b);
+      it[i] = Color(leds[i].r, leds[i].g, leds[i].b);
     }
